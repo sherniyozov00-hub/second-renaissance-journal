@@ -55,7 +55,7 @@
   --radius-ai: 14px; /* Xorazmiy AI card */
 
   /* Layout */
-  --container-site: 1240px;
+  --container-site: 1288px; /* 1240px content + 2 × 24px gutters */
 }
 
 @layer base {
@@ -93,5 +93,47 @@
   /* Vertical rhythm between home page sections: 56–72px. */
   .section {
     @apply py-14 md:py-[72px];
+  }
+}
+
+/* Publication text (Ekran 4): Lora 19px / 1.75. */
+@layer components {
+  .article-body {
+    @apply font-serif text-[17px] leading-[1.75] text-ink md:text-article;
+  }
+  .article-body h2 {
+    @apply mt-12 mb-4 scroll-mt-6 font-serif text-[26px] leading-tight font-bold text-ink md:text-[30px];
+  }
+  .article-body h3 {
+    @apply mt-8 mb-3 font-serif text-xl font-bold text-ink;
+  }
+  .article-body p {
+    @apply mb-5;
+  }
+  .article-body ul,
+  .article-body ol {
+    @apply mb-5 pl-6;
+  }
+  .article-body ul {
+    @apply list-disc;
+  }
+  .article-body ol {
+    @apply list-decimal;
+  }
+  .article-body a {
+    @apply text-blue-800 underline;
+  }
+  .article-body figure {
+    @apply my-8 overflow-hidden rounded-card border border-border;
+  }
+  .article-body figcaption {
+    @apply px-4 py-3 font-sans text-sm text-text-2;
+  }
+  .article-body table {
+    @apply my-6 block w-full overflow-x-auto font-sans text-sm;
+  }
+  .article-body th,
+  .article-body td {
+    @apply border border-border px-3 py-2 text-left;
   }
 }

@@ -1,7 +1,25 @@
 {
-  "site": {
+  "common": {
     "tagline": "Yosh olimlar uchun elektron ilmiy jurnal.",
-    "journalLabel": "Ilmiy jurnal"
+    "journalLabel": "Ilmiy jurnal",
+    "topBar": "Elektron ilmiy jurnal · ISSN: {issn} · Ochiq kirish",
+    "login": "Kirish",
+    "submit": "Maqola yuborish",
+    "search": "Qidirish",
+    "searchPlaceholder": "Mavzu, muallif yoki kalit so‘z — masalan, agrotexnologiya",
+    "searchPlaceholderShort": "Mavzu, muallif, kalit so‘z",
+    "openMenu": "Menyuni ochish",
+    "closeMenu": "Menyuni yopish",
+    "language": "Til",
+    "allArticles": "Barcha maqolalar",
+    "openAccess": "Ochiq kirish",
+    "pdf": "PDF",
+    "prev": "Oldingi",
+    "next": "Keyingi",
+    "pageOf": "{page}-sahifa / {total}",
+    "empty": "Hozircha maqolalar yo‘q.",
+    "som": "so‘m",
+    "aiDisclaimer": "AI xato qilishi mumkin — manbalarni o‘zingiz tekshiring."
   },
   "nav": {
     "articles": "Maqolalar",
@@ -9,7 +27,246 @@
     "ai": "Xorazmiy AI",
     "academy": "Akademiya",
     "forAuthors": "Mualliflarga",
-    "submit": "Maqola yuborish",
-    "login": "Kirish"
+    "issues": "Sonlar arxivi",
+    "home": "Bosh sahifa",
+    "search": "Qidiruv",
+    "cabinet": "Kabinet",
+    "breadcrumbs": "Navigatsiya yo‘li"
+  },
+  "home": {
+    "eyebrow": "Yosh olimlar uchun ochiq ilmiy jurnal",
+    "eyebrowMobile": "Yosh olimlar uchun ilmiy jurnal",
+    "title": "Ilmiy maqolangizni yozing, tekshiring va dunyoga chiqaring.",
+    "lead": "Talabalar va yosh tadqiqotchilar maqola yozishni o‘rganadi, Xorazmiy AI yordamida matnini tahrir va faktlarini tekshiradi, so‘ng taqrizdan o‘tkazib nashr qiladi. Har bir maqola Google uchun moslashtirilgan alohida sahifaga ega bo‘ladi.",
+    "leadMobile": "O‘rganing, Xorazmiy AI bilan tekshiring va taqrizdan o‘tkazib nashr qiling.",
+    "popular": "Ko‘p qidiriladi:",
+    "aiEyebrow": "Xorazmiy AI",
+    "aiTitle": "Maqola yozishda yoningizdagi ilmiy yordamchi",
+    "aiLead": "Yozishni o‘rgatadi, matnni tahrirlaydi, xalqaro manbalarni topadi va har bir faktni internetdan mustaqil tekshiradi.",
+    "aiTry": "Bepul sinab ko‘rish",
+    "features": {
+      "writing": {
+        "title": "Yozishga yordam",
+        "text": "Mavzu, tadqiqot savoli va reja tuzadi. Har bir bo‘limda nima yozish kerakligini tushuntiradi."
+      },
+      "edit": {
+        "title": "Tahrir",
+        "text": "Imlo, uslub va akademik til. Har bir tuzatishning sababini aytib taklif qiladi, siz qabul qilasiz yoki rad etasiz."
+      },
+      "sources": {
+        "title": "Xalqaro manbalar",
+        "text": "Mavzu bo‘yicha ilmiy maqolalar, hisobotlar va statistikani topadi, tayyor iqtibos bilan beradi."
+      },
+      "factcheck": {
+        "title": "Fakt tekshiruvi",
+        "text": "Matndagi har bir da’voni internetdan tekshiradi: to‘g‘ri, noto‘g‘ri yoki manba kerak — manbasi bilan."
+      }
+    },
+    "categoriesTitle": "Yo‘nalishlar",
+    "allCategories": "Barcha yo‘nalishlar",
+    "all": "Hammasi",
+    "latestTitle": "So‘nggi maqolalar",
+    "tabs": {
+      "newest": "Eng yangi",
+      "mostRead": "Ko‘p o‘qilgan",
+      "mostCited": "Ko‘p iqtibos olingan"
+    },
+    "coverPlaceholder": "[Maqola muqovasi / grafik]",
+    "academyEyebrow": "Akademiya",
+    "academyTitle": "Maqola yozishni noldan o‘rganing",
+    "academyLead": "Qisqa darslar, tayyor shablon va namuna maqolalar. Har bir darsdan keyin Xorazmiy AI bilan amaliy mashq.",
+    "startLessons": "Darslarni boshlash",
+    "template": "Shablon (.docx)",
+    "lessonMeta": "{n}-dars · {min} daqiqa",
+    "moreTitle": "Platformada yana",
+    "moreLead": "Muallif bo‘lishdan tashqari nima beradi.",
+    "more": {
+      "originality": {
+        "title": "Originallik tekshiruvi",
+        "text": "Yuborishdan oldin matn o‘xshashlik foizi bilan tekshiriladi."
+      },
+      "profile": {
+        "title": "Muallif profili va sertifikat",
+        "text": "Barcha maqolalaringiz bir sahifada, QR-kodli nashr sertifikati bilan."
+      },
+      "contests": {
+        "title": "Tanlovlar va grantlar",
+        "text": "“Yilning eng yaxshi talaba maqolasi” va homiylar tanlovlari."
+      },
+      "ranking": {
+        "title": "OTMlar reytingi",
+        "text": "Qaysi universitet talabalari eng ko‘p maqola chiqarayotgani."
+      },
+      "telegram": {
+        "title": "Telegram-bot",
+        "text": "Maqola holati, taqriz izohlari va yangi sonlar haqida xabarlar."
+      },
+      "mentors": {
+        "title": "Ilmiy mentorlar",
+        "text": "Tajribali olimlar bilan maslahat — tahrir hay’ati a’zolaridan."
+      }
+    },
+    "processTitle": "Maqola qanday nashr qilinadi",
+    "processLead": "Yuborishdan nashrgacha — besh qadam.",
+    "steps": {
+      "1": {
+        "title": "Ro‘yxatdan o‘ting",
+        "text": "Telefon yoki Google orqali."
+      },
+      "2": {
+        "title": "AI bilan tekshiring",
+        "text": "Faktlar, manbalar, originallik."
+      },
+      "3": {
+        "title": "Yuklang va to‘lang",
+        "text": "Click, Payme, Uzum yoki karta."
+      },
+      "4": {
+        "title": "Taqriz va tahrir",
+        "text": "Muharrir izohlari kabinetda."
+      },
+      "5": {
+        "title": "Nashr",
+        "text": "Alohida sahifa, PDF, sertifikat."
+      }
+    },
+    "priceLabel": "Nashr narxi",
+    "priceNote": "bir maqola uchun · taqriz va AI tekshiruvi kiritilgan",
+    "priceNoteMobile": "Taqriz, AI tekshiruvi, maqola sahifasi, PDF va sertifikat.",
+    "priceIncludes": {
+      "1": "Maqolaning Google uchun moslashtirilgan sahifasi",
+      "2": "PDF va QR-kodli sertifikat",
+      "3": "Muallif profili",
+      "4": "Tayyor iqtibos (APA, GOST, BibTeX)"
+    }
+  },
+  "aiCard": {
+    "name": "Xorazmiy AI",
+    "subtitle": "ilmiy yordamchi",
+    "badge": "Fakt tekshiruvi",
+    "sampleCorrect": "Paxta O‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri.",
+    "sampleCorrectShort": "Paxta asosiy ekinlardan biri.",
+    "sampleWrong": "Tomchilatib sug‘orish 2010-yilda ixtiro qilingan.",
+    "sampleNeedsSource": "Bu usul suvni 70% tejaydi.",
+    "correct": "To‘g‘ri.",
+    "correctText": "Manbalar bilan tasdiqlandi.",
+    "wrong": "Noto‘g‘ri.",
+    "wrongText": "Zamonaviy tomchilatib sug‘orish 1960-yillarda keng tarqalgan. 2 ta xalqaro manba taklif qilindi.",
+    "wrongTextShort": "1960-yillarda keng tarqalgan. 2 ta manba.",
+    "needsSource": "Manba kerak.",
+    "needsSourceText": "“70%” raqami uchun havola ko‘rsatilmagan.",
+    "button": "Matnimni tekshirish"
+  },
+  "article": {
+    "types": {
+      "RESEARCH": "Tadqiqot maqolasi",
+      "REVIEW": "Adabiyotlar sharhi",
+      "CASE_STUDY": "Keys-stadi",
+      "POPULAR": "Ilmiy-ommabop maqola"
+    },
+    "received": "Qabul qilindi:",
+    "published": "Nashr qilindi:",
+    "issue": "Son:",
+    "issueValue": "{year}, {number}-son, {pages}-betlar",
+    "issueShort": "{year}, {number}-son",
+    "doi": "DOI:",
+    "doiPending": "keyinroq ulanadi",
+    "downloadPdf": "PDF yuklab olish",
+    "cite": "Iqtibos olish",
+    "shareTelegram": "Telegram’da ulashish",
+    "copyLink": "Havolani nusxalash",
+    "linkCopied": "Havola nusxalandi",
+    "abstractUz": "Annotatsiya",
+    "abstractEn": "Abstract (EN)",
+    "abstractRu": "Аннотация (RU)",
+    "keywords": "Kalit so‘zlar:",
+    "toc": "Mundarija",
+    "references": "Foydalanilgan adabiyotlar",
+    "referencesShort": "Adabiyotlar",
+    "citeTitle": "Iqtibos keltirish",
+    "copy": "Nusxalash",
+    "copied": "Nusxalandi",
+    "views": "ko‘rishlar",
+    "downloads": "yuklab olishlar",
+    "author": "Muallif",
+    "allByAuthor": "Muallifning barcha maqolalari",
+    "related": "O‘xshash maqolalar",
+    "license": "Maqola CC BY 4.0 litsenziyasi ostida",
+    "viewsCount": "{count} ko‘rish",
+    "cites": "Iqtibos"
+  },
+  "footer": {
+    "journal": "Jurnal",
+    "about": "Biz haqimizda",
+    "board": "Tahrir hay’ati",
+    "policy": "Nashr siyosati va etika",
+    "offer": "Ommaviy oferta",
+    "forAuthors": "Mualliflarga",
+    "requirements": "Talablar",
+    "ai": "Xorazmiy AI",
+    "prices": "Narxlar",
+    "faq": "Savollar",
+    "contact": "Bog‘lanish",
+    "telegram": "Telegram: {channel}",
+    "privacy": "Maxfiylik siyosati"
+  },
+  "lists": {
+    "articlesTitle": "Maqolalar",
+    "articlesLead": "Jurnalda nashr qilingan barcha maqolalar.",
+    "categoriesTitle": "Yo‘nalishlar",
+    "categoriesLead": "Jurnal qabul qiladigan ilmiy yo‘nalishlar.",
+    "articleCount": "{count, plural, =0 {maqola yo‘q} other {# ta maqola}}",
+    "issuesTitle": "Sonlar arxivi",
+    "issuesLead": "Jurnalning barcha nashr qilingan sonlari.",
+    "issueTitle": "{year} · {number}-son",
+    "keywordTitle": "Kalit so‘z: {keyword}",
+    "authorArticles": "Nashr qilingan maqolalar",
+    "searchResults": "«{q}» bo‘yicha natijalar",
+    "position": "Lavozim",
+    "profile": "Muallif profili"
+  },
+  "academy": {
+    "title": "Akademiya",
+    "lead": "Ilmiy maqola yozishni bosqichma-bosqich o‘rganing. Darslar bepul.",
+    "exercise": "Mashq",
+    "practiceWithAi": "Xorazmiy AI bilan mashq",
+    "back": "Barcha darslar"
+  },
+  "aiLanding": {
+    "title": "Xorazmiy AI — ilmiy yordamchi",
+    "lead": "Nomi “algoritm” so‘zi kelib chiqqan al-Xorazmiy sharafiga. Maqola yozishni o‘rgatadi, matnni tahrirlaydi, xalqaro manbalarni topadi va faktlarni tekshiradi — lekin maqolani siz uchun yozib bermaydi.",
+    "soon": "Ish maydoni tez orada ishga tushadi. Hozircha bosh sahifadagi namunani ko‘ring."
+  },
+  "notFound": {
+    "title": "Sahifa topilmadi",
+    "text": "Bu manzilda sahifa yo‘q yoki u o‘chirilgan.",
+    "home": "Bosh sahifaga qaytish"
+  },
+  "pages": {
+    "requirementsTitle": "Maqola talablari",
+    "requirement": "Talab",
+    "value": "Qiymat",
+    "volume": "Hajm",
+    "volumeValue": "{min}–{max} so‘z (adabiyotlarsiz)",
+    "structure": "Tuzilma",
+    "structureValue": "Sarlavha, mualliflar va muassasalar, annotatsiya, kalit so‘zlar, Kirish, Materiallar va usullar, Natijalar, Muhokama, Xulosa, Adabiyotlar",
+    "abstract": "Annotatsiya",
+    "abstractValue": "150–250 so‘z, o‘zbek va ingliz tilida (rus — ixtiyoriy)",
+    "keywords": "Kalit so‘zlar",
+    "keywordsValue": "5–7 ta",
+    "references": "Adabiyotlar",
+    "referencesValue": "Kamida {min} ta, APA 7 formatida, iloji bo‘lsa DOI bilan; kamida bir qismi xalqaro manba",
+    "figures": "Rasm va jadvallar",
+    "figuresValue": "Raqamlangan, imzo bilan, manbasi ko‘rsatilgan",
+    "file": "Fayl",
+    "fileValue": ".docx, shablon bo‘yicha, 10 MB gacha",
+    "originality": "Originallik",
+    "originalityValue": "Kamida {min}% (AI tekshiruvi bo‘yicha)",
+    "ethics": "Etika",
+    "ethicsValue": "Avval nashr qilinmagan; AI’dan foydalanish qoidasiga rioya; hammualliflar roziligi",
+    "license": "Litsenziya",
+    "licenseValue": "CC BY 4.0 (ochiq kirish)",
+    "fastTrack": "Tezlashtirilgan ko‘rib chiqish",
+    "reviewDeadline": "Taqriz muddati: {days} ish kuni"
   }
 }

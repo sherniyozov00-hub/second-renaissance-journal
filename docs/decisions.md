@@ -39,3 +39,29 @@ Har bir qaror tegishli PR tavsifida ham yoziladi.
     `migrate` xizmatida bajariladi, ilova u muvaffaqiyatli tugagach ishga tushadi.
 13. **Vaqtinchalik bosh sahifa.** `/` hozircha dizayn tokenlari va baza holatini ko‘rsatadi
     (indekslanmaydi). 1-bosqichda Ekran 1 va 2 bilan almashtiriladi.
+
+## 1-bosqich — Ommaviy sayt
+
+1. **i18n — `next-intl`.** O‘zbekcha prefikssiz, `/ru` va `/en` prefiks bilan. Brauzer tiliga
+   qarab avtomatik yo‘naltirish o‘chirilgan — URL qaysi tilni ko‘rsatsa, sahifa shu tilda
+   (SEO uchun barqaror).
+2. **Mobil bosh sahifa Ekran 2 bo‘yicha.** Mobilda faqat hero, AI karta, yo‘nalish chiplari,
+   so‘nggi 3 maqola va narx kartasi. AI imkoniyatlari, Akademiya, “Platformada yana” va
+   nashr qadamlari mobilda yashirin (menyu orqali ochiladi).
+3. **Yuqori chiziq va til tanlash** desktopda faqat bosh sahifada (Ekran 1). Ichki sahifalar
+   Ekran 4 header’i bilan; til tanlash mobil menyuda har sahifada bor.
+4. **“Ko‘p iqtibos olingan” tabi** uchun `Article.citations` maydoni qo‘shildi (keyin admin
+   yoki Crossref sinxronizatsiyasi to‘ldiradi).
+5. **`/yonalishlar`** — TZ jadvalida yo‘q, lekin “Barcha yo‘nalishlar” havolasi va menyu
+   uchun kerak bo‘lgani uchun qo‘shildi.
+6. **`/maqola/[slug]/pdf`** hozircha chop etishga tayyor ko‘rinish (brauzerda “PDF sifatida
+   saqlash”). Server tomonda PDF fayl yaratish 5-bosqichda.
+7. **`/mualliflarga`** TZ 16 dagi talablar jadvalini Sozlamalardan oladi; **`/narxlar`** narx
+   blokini ko‘rsatadi. Boshqa statik sahifa matnlari buyurtmachidan keladi.
+8. **Ko‘rishlar** sessiyada bir marta, sahifa yuklangandan keyin alohida so‘rov bilan sanaladi
+   (sahifa keshini buzmaslik uchun).
+9. **Sanalar** ekrandagi `[SANA]` o‘rniga haqiqiy qiymat bilan ko‘rsatiladi.
+10. **`Lesson.summary`** — Akademiya kartalaridagi qisqa tavsif uchun.
+11. **Hali ishlamaydigan havolalar:** `/kirish`, `/kabinet` (3-bosqich), `/kabinet/yuborish`
+    (4-bosqich), shablon `.docx` (7-bosqich). Qidiruv hozircha oddiy; to‘liq matnli qidiruv
+    va filtrlar 2-bosqichda.

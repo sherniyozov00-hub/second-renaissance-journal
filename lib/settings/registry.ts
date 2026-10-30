@@ -17,6 +17,12 @@ export const SETTINGS: readonly SettingDefinition[] = [
   // Journal
   { key: "journal.issn", group: "journal", defaultValue: "[RAQAM]", description: "ISSN" },
   { key: "site.domain", group: "journal", defaultValue: "[DOMEN]", description: "Public domain" },
+  {
+    key: "journal.startYear",
+    group: "journal",
+    defaultValue: 2026,
+    description: "First publication year; volume number = year − startYear + 1",
+  },
 
   // Contacts
   { key: "contacts.email", group: "contacts", defaultValue: "[EMAIL]", description: "Email" },

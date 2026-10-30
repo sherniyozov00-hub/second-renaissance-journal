@@ -32,11 +32,13 @@ export function LogoMark({
 export function Logo({
   variant = "header",
   subtitle,
+  subtitleClassName,
   className,
 }: {
   variant?: Variant;
   /** Appended to the second line, e.g. "ILMIY JURNAL". */
   subtitle?: string;
+  subtitleClassName?: string;
   className?: string;
 }) {
   const onDark = variant === "footer";
@@ -59,7 +61,7 @@ export function Logo({
           )}
         >
           {siteConfig.wordmarkSub}
-          {subtitle ? ` · ${subtitle}` : null}
+          {subtitle ? <span className={subtitleClassName}> · {subtitle}</span> : null}
         </span>
       </span>
     </span>

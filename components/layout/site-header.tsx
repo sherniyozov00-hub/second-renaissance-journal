@@ -1,0 +1,88 @@
+import { Search } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
+import { Logo } from "@/components/brand/logo";
+import { buttonClass } from "@/components/ui/styles";
+import { Link } from "@/i18n/navigation";
+import { getSetting } from "@/lib/settings/get";
+import { cn } from "@/lib/utils";
+import { LocaleSwitcher } from "./locale-switcher";
+import { MobileMenu } from "./mobile-menu";
+import { COMPACT_NAV_ITEMS, NAV_ITEMS } from "./nav-items";
+
+/**
+ * "home" — top bar + full navigation (Ekran 1).
+ * "compact" — no top bar, inner-page navigation and a search button (Ekran 4).
+ */
+export async function SiteHeader({
+  variant = "compact",
+  narrow = false,
+}: {
+  variant?: "home" | "compact";
+  narrow?: boolean;
+}) {
+  const t = await getTranslations();
+  const issn = String(await getSetting("journal.issn"));
+  const items = variant === "home" ? NAV_ITEMS : COMPACT_NAV_ITEMS;
+
+  return (
+    <>
+      {variant === "home" ? (
+        <div className="hidden bg-blue-900 text-[13px] text-blue-50/90 md:block">
+          <div className="container-site flex h-8 items-center justify-between">
+            <p>{t("common.topBar", { issn })}</p>
+            <div className="flex items-center gap-4">
+              <Suspense>
+                <LocaleSwitcher />
+              </Suspense>
+              <Link href="/kirish" className="font-semibold text-white hover:underline">
+                {t("common.login")}
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <header className="relative border-b border-border bg-white">
+        <div
+          className={cn(
+            "container-site flex h-[68px] items-center justify-between gap-6 md:h-[78px]",
+            narrow && "lg:max-w-[1248px]",
+          )}
+        >
+          <Link href="/" aria-label={t("nav.home")}>
+            <Logo subtitle={t("common.journalLabel")} subtitleClassName="hidden md:inline" />
+          </Link>
+
+          <nav
+            aria-label={t("nav.home")}
+            className="hidden items-center gap-[26px] text-[15px] text-ink md:flex lg:mr-16 lg:ml-auto"
+          >
+            {items.map((item) => (
+              <Link key={item.href} href={item.href} className="hover:text-blue-800">
+                {t(item.label)}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="hidden items-center gap-2.5 md:flex">
+            {variant === "compact" ? (
+              <Link
+                href="/maqolalar"
+                aria-label={t("nav.search")}
+                className="flex size-11 items-center justify-center rounded-control border border-border-strong text-ink hover:bg-blue-50"
+              >
+                <Search className="size-4" strokeWidth={2} />
+              </Link>
+            ) : null}
+            <Link href="/kabinet/yuborish" className={buttonClass("primary", "md")}>
+              {t("common.submit")}
+            </Link>
+          </div>
+
+          <MobileMenu />
+        </div>
+      </header>
+    </>
+  );
+}
