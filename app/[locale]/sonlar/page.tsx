@@ -6,13 +6,19 @@ import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { formatDate } from "@/lib/l10n";
 import { getPublishedIssues } from "@/lib/queries/catalog";
+import { pageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "lists" });
-  return { title: t("issuesTitle"), description: t("issuesLead") };
+  return pageMetadata({
+    locale: locale as AppLocale,
+    path: "/sonlar",
+    title: t("issuesTitle"),
+    description: t("issuesLead"),
+  });
 }
 
 export default async function IssuesPage({ params }: Props) {

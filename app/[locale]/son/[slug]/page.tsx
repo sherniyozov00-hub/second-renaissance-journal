@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { formatDate } from "@/lib/l10n";
 import { listArticles } from "@/lib/queries/articles";
 import { parseIssueSlug } from "@/lib/queries/catalog";
+import { pageMetadata } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -25,7 +26,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const issue = await findIssue(slug);
   if (!issue) return {};
   const t = await getTranslations({ locale, namespace: "lists" });
-  return { title: t("issueTitle", { year: issue.year, number: issue.number }) };
+  return pageMetadata({
+    locale: locale as AppLocale,
+    path: `/son/${slug}`,
+    title: t("issueTitle", { year: issue.year, number: issue.number }),
+  });
 }
 
 export default async function IssuePage({ params, searchParams }: Props) {

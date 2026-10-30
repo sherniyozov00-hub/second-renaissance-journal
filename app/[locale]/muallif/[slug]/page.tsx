@@ -8,6 +8,10 @@ import { initials } from "@/lib/l10n";
 import { listArticles } from "@/lib/queries/articles";
 import { getAuthorBySlug } from "@/lib/queries/catalog";
 import { cn } from "@/lib/utils";
+import { absoluteUrl, pageMetadata } from "@/lib/seo";
+import { profilePage } from "@/lib/structured-data";
+import { JsonLd } from "@/components/seo/json-ld";
+import type { AppLocale } from "@/i18n/routing";
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -15,16 +19,16 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const author = await getAuthorBySlug(slug);
   if (!author) return {};
-  return {
+  return pageMetadata({
+    locale: locale as AppLocale,
+    path: `/muallif/${slug}`,
     title: author.fullName,
-    description: [author.affiliation, author.position, author.bio]
-      .filter(Boolean)
-      .join(" · ")
-      .slice(0, 155),
-  };
+    description: [author.affiliation, author.position, author.bio].filter(Boolean).join(" · "),
+    type: "profile",
+  });
 }
 
 export default async function AuthorPage({ params, searchParams }: Props) {
@@ -41,6 +45,15 @@ export default async function AuthorPage({ params, searchParams }: Props) {
 
   return (
     <PageShell>
+      <JsonLd
+        data={profilePage({
+          name: author.fullName,
+          url: absoluteUrl(`/muallif/${slug}`, locale as AppLocale),
+          affiliation: author.affiliation,
+          orcid: author.orcid,
+          description: author.bio,
+        })}
+      />
       <div className="bg-blue-50">
         <div className="container-site grid gap-8 py-8 md:py-12 lg:grid-cols-[300px_1fr]">
           <aside className={cn(cardClass, "h-fit p-6")}>

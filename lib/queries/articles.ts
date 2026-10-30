@@ -71,26 +71,6 @@ export async function listArticles(where: Prisma.ArticleWhereInput, page: number
   return { items, total, pages: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
 }
 
-/** Basic substring search; replaced by full-text search in stage 2. */
-export function simpleSearchWhere(q: string): Prisma.ArticleWhereInput {
-  const term = q.trim();
-  if (!term) return {};
-  return {
-    OR: [
-      { titleUz: { contains: term, mode: "insensitive" } },
-      { titleEn: { contains: term, mode: "insensitive" } },
-      { titleRu: { contains: term, mode: "insensitive" } },
-      { abstractUz: { contains: term, mode: "insensitive" } },
-      { keywords: { has: term.toLowerCase() } },
-      {
-        authors: {
-          some: { authorProfile: { fullName: { contains: term, mode: "insensitive" } } },
-        },
-      },
-    ],
-  };
-}
-
 export const getArticleBySlug = cache((slug: string) =>
   db.article.findFirst({
     where: { slug, ...PUBLISHED },

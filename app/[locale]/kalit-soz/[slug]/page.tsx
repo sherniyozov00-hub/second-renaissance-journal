@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { ArticleList, ListHeader, parsePage } from "@/components/article/article-list";
 import { PageShell } from "@/components/layout/page-shell";
 import { findKeywordBySlug, listArticles } from "@/lib/queries/articles";
+import { pageMetadata } from "@/lib/seo";
+import type { AppLocale } from "@/i18n/routing";
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -15,7 +17,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const keyword = await findKeywordBySlug(slug);
   if (!keyword) return {};
   const t = await getTranslations({ locale, namespace: "lists" });
-  return { title: t("keywordTitle", { keyword }) };
+  return pageMetadata({
+    locale: locale as AppLocale,
+    path: `/kalit-soz/${slug}`,
+    title: t("keywordTitle", { keyword }),
+  });
 }
 
 export default async function KeywordPage({ params, searchParams }: Props) {
