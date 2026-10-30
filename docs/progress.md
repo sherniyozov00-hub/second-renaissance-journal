@@ -7,17 +7,17 @@ alohida PR, CI yashil bo‘lgach merge; limit tugasa — yangilanganda shu fayld
 Branch: `claude/second-renaissance-journal-5ibpnu`. Har bosqich merge bo‘lgach branch
 `main` dan qayta boshlanadi.
 
-| Bosqich                               | Holat                         | PR  |
-| ------------------------------------- | ----------------------------- | --- |
-| 0. Asos                               | Tayyor, CI kutilmoqda → merge | #1  |
-| 1. Ommaviy sayt (Ekran 1, 2, 4), i18n | Navbatda                      | —   |
-| 2. Qidiruv va SEO (Ekran 5)           | Navbatda                      | —   |
-| 3. Kirish va kabinet (Ekran 7)        | Navbatda                      | —   |
-| 4. Yuborish va to‘lov (Ekran 6)       | Navbatda                      | —   |
-| 5. Tahririyat oqimi, admin (Ekran 8)  | Navbatda                      | —   |
-| 6. Xorazmiy AI (Ekran 3) + “o‘qitish” | Navbatda                      | —   |
-| 7. Akademiya va qo‘shimchalar         | Navbatda                      | —   |
-| 8. Sifat va deploy                    | Navbatda                      | —   |
+| Bosqich                               | Holat                     | PR  |
+| ------------------------------------- | ------------------------- | --- |
+| 0. Asos                               | Merge qilindi             | #1  |
+| 1. Ommaviy sayt (Ekran 1, 2, 4), i18n | PR ochildi, CI kutilmoqda | #2  |
+| 2. Qidiruv va SEO (Ekran 5)           | Navbatda                  | —   |
+| 3. Kirish va kabinet (Ekran 7)        | Navbatda                  | —   |
+| 4. Yuborish va to‘lov (Ekran 6)       | Navbatda                  | —   |
+| 5. Tahririyat oqimi, admin (Ekran 8)  | Navbatda                  | —   |
+| 6. Xorazmiy AI (Ekran 3) + “o‘qitish” | Navbatda                  | —   |
+| 7. Akademiya va qo‘shimchalar         | Navbatda                  | —   |
+| 8. Sifat va deploy                    | Navbatda                  | —   |
 
 ## Xorazmiy AI’ni “o‘qitish” rejasi (buyurtmachi talabi, 6-bosqich)
 

@@ -126,7 +126,7 @@ async function main() {
   }
 
   // ── Articles ─────────────────────────────────────────────────────────────
-  for (const a of articles) {
+  for (const [index, a] of articles.entries()) {
     const slug = slugify(a.titleUz);
     const published = a.status === "PUBLISHED";
     const publishedAt = a.publishedAt ? new Date(a.publishedAt) : null;
@@ -153,10 +153,18 @@ async function main() {
       publishedAt,
     };
 
+    // Sample counters only on first insert so re-seeding never resets real stats.
+    const stats = published
+      ? {
+          views: 120 + ((index * 53) % 400),
+          downloads: 30 + ((index * 17) % 90),
+          citations: (index * 7) % 11,
+        }
+      : {};
     const article = await db.article.upsert({
       where: { slug },
       update: data,
-      create: { slug, ...data },
+      create: { slug, ...data, ...stats },
     });
 
     // Children are fully owned by the seed; rebuild them on every run.
@@ -239,7 +247,7 @@ async function main() {
   for (const [order, l] of lessons.entries()) {
     await db.lesson.upsert({
       where: { slug: l.slug },
-      update: { title: l.title, durationMin: l.durationMin, order },
+      update: { title: l.title, summary: l.summary, durationMin: l.durationMin, order },
       create: { ...l, order },
     });
   }

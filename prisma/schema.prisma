@@ -190,6 +190,8 @@ model Article {
   aiFeaturesUsed String[]      @default([])
   views          Int           @default(0)
   downloads      Int           @default(0)
+  /// Citation count, updated by the editor or an external sync (Crossref, Scholar).
+  citations      Int           @default(0)
   submittedAt    DateTime?
   acceptedAt     DateTime?
   publishedAt    DateTime?
@@ -430,6 +432,8 @@ model Lesson {
   id          String   @id @default(cuid())
   slug        String   @unique
   title       String
+  /// One-line description for lesson cards.
+  summary     String?
   /// Markdown body.
   body        String
   durationMin Int

@@ -1,7 +1,25 @@
 {
-  "site": {
+  "common": {
     "tagline": "An electronic scientific journal for young researchers.",
-    "journalLabel": "Scientific journal"
+    "journalLabel": "Scientific journal",
+    "topBar": "Electronic scientific journal · ISSN: {issn} · Open access",
+    "login": "Sign in",
+    "submit": "Submit an article",
+    "search": "Search",
+    "searchPlaceholder": "Topic, author or keyword — e.g. agrotechnology",
+    "searchPlaceholderShort": "Topic, author, keyword",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "language": "Language",
+    "allArticles": "All articles",
+    "openAccess": "Open access",
+    "pdf": "PDF",
+    "prev": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {total}",
+    "empty": "No articles yet.",
+    "som": "UZS",
+    "aiDisclaimer": "AI can make mistakes — check the sources yourself."
   },
   "nav": {
     "articles": "Articles",
@@ -9,7 +27,246 @@
     "ai": "Xorazmiy AI",
     "academy": "Academy",
     "forAuthors": "For authors",
-    "submit": "Submit an article",
-    "login": "Sign in"
+    "issues": "Issue archive",
+    "home": "Home",
+    "search": "Search",
+    "cabinet": "Account",
+    "breadcrumbs": "Breadcrumbs"
+  },
+  "home": {
+    "eyebrow": "An open scientific journal for young researchers",
+    "eyebrowMobile": "A scientific journal for young researchers",
+    "title": "Write, check and publish your research article.",
+    "lead": "Students and young researchers learn to write papers, edit their text and check facts with Xorazmiy AI, then go through peer review and publish. Every article gets its own page optimised for Google.",
+    "leadMobile": "Learn, check with Xorazmiy AI, pass peer review and publish.",
+    "popular": "Popular searches:",
+    "aiEyebrow": "Xorazmiy AI",
+    "aiTitle": "A research assistant by your side while you write",
+    "aiLead": "Teaches you to write, edits your text, finds international sources and independently checks every fact online.",
+    "aiTry": "Try it free",
+    "features": {
+      "writing": {
+        "title": "Writing help",
+        "text": "Shapes the topic, research question and outline. Explains what each section should contain."
+      },
+      "edit": {
+        "title": "Editing",
+        "text": "Spelling, style and academic language. Every change comes with a reason — you accept or reject it."
+      },
+      "sources": {
+        "title": "International sources",
+        "text": "Finds papers, reports and statistics on your topic, with a ready-made citation."
+      },
+      "factcheck": {
+        "title": "Fact checking",
+        "text": "Checks every claim online: correct, incorrect or needs a source — with the source."
+      }
+    },
+    "categoriesTitle": "Fields",
+    "allCategories": "All fields",
+    "all": "All",
+    "latestTitle": "Latest articles",
+    "tabs": {
+      "newest": "Newest",
+      "mostRead": "Most read",
+      "mostCited": "Most cited"
+    },
+    "coverPlaceholder": "[Article cover / chart]",
+    "academyEyebrow": "Academy",
+    "academyTitle": "Learn to write a paper from scratch",
+    "academyLead": "Short lessons, a ready-made template and sample papers. Practise with Xorazmiy AI after every lesson.",
+    "startLessons": "Start the lessons",
+    "template": "Template (.docx)",
+    "lessonMeta": "Lesson {n} · {min} min",
+    "moreTitle": "More on the platform",
+    "moreLead": "What you get beyond publishing.",
+    "more": {
+      "originality": {
+        "title": "Originality check",
+        "text": "Your text is checked for similarity before submission."
+      },
+      "profile": {
+        "title": "Author profile and certificate",
+        "text": "All your papers on one page, with a QR-coded publication certificate."
+      },
+      "contests": {
+        "title": "Contests and grants",
+        "text": "“Best student paper of the year” and sponsor contests."
+      },
+      "ranking": {
+        "title": "University ranking",
+        "text": "Which universities’ students publish the most."
+      },
+      "telegram": {
+        "title": "Telegram bot",
+        "text": "Updates on article status, review comments and new issues."
+      },
+      "mentors": {
+        "title": "Research mentors",
+        "text": "Advice from experienced scholars on the editorial board."
+      }
+    },
+    "processTitle": "How an article gets published",
+    "processLead": "From submission to publication in five steps.",
+    "steps": {
+      "1": {
+        "title": "Sign up",
+        "text": "With your phone or Google."
+      },
+      "2": {
+        "title": "Check with AI",
+        "text": "Facts, sources, originality."
+      },
+      "3": {
+        "title": "Upload and pay",
+        "text": "Click, Payme, Uzum or card."
+      },
+      "4": {
+        "title": "Review and edits",
+        "text": "Editor comments in your account."
+      },
+      "5": {
+        "title": "Publication",
+        "text": "Own page, PDF, certificate."
+      }
+    },
+    "priceLabel": "Publication fee",
+    "priceNote": "per article · review and AI check included",
+    "priceNoteMobile": "Review, AI check, article page, PDF and certificate.",
+    "priceIncludes": {
+      "1": "An article page optimised for Google",
+      "2": "PDF and QR-coded certificate",
+      "3": "Author profile",
+      "4": "Ready citation (APA, GOST, BibTeX)"
+    }
+  },
+  "aiCard": {
+    "name": "Xorazmiy AI",
+    "subtitle": "research assistant",
+    "badge": "Fact check",
+    "sampleCorrect": "Paxta O‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri.",
+    "sampleCorrectShort": "Paxta asosiy ekinlardan biri.",
+    "sampleWrong": "Tomchilatib sug‘orish 2010-yilda ixtiro qilingan.",
+    "sampleNeedsSource": "Bu usul suvni 70% tejaydi.",
+    "correct": "Correct.",
+    "correctText": "Confirmed by sources.",
+    "wrong": "Incorrect.",
+    "wrongText": "Modern drip irrigation spread in the 1960s. 2 international sources suggested.",
+    "wrongTextShort": "Spread in the 1960s. 2 sources.",
+    "needsSource": "Needs a source.",
+    "needsSourceText": "No reference given for the “70%” figure.",
+    "button": "Check my text"
+  },
+  "article": {
+    "types": {
+      "RESEARCH": "Research article",
+      "REVIEW": "Literature review",
+      "CASE_STUDY": "Case study",
+      "POPULAR": "Popular science article"
+    },
+    "received": "Received:",
+    "published": "Published:",
+    "issue": "Issue:",
+    "issueValue": "{year}, no. {number}, pp. {pages}",
+    "issueShort": "{year}, no. {number}",
+    "doi": "DOI:",
+    "doiPending": "to be assigned",
+    "downloadPdf": "Download PDF",
+    "cite": "Cite",
+    "shareTelegram": "Share on Telegram",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "abstractUz": "Annotatsiya (UZ)",
+    "abstractEn": "Abstract",
+    "abstractRu": "Аннотация (RU)",
+    "keywords": "Keywords:",
+    "toc": "Contents",
+    "references": "References",
+    "referencesShort": "References",
+    "citeTitle": "How to cite",
+    "copy": "Copy",
+    "copied": "Copied",
+    "views": "views",
+    "downloads": "downloads",
+    "author": "Author",
+    "allByAuthor": "All articles by this author",
+    "related": "Related articles",
+    "license": "Licensed under CC BY 4.0",
+    "viewsCount": "{count} views",
+    "cites": "Cite"
+  },
+  "footer": {
+    "journal": "Journal",
+    "about": "About us",
+    "board": "Editorial board",
+    "policy": "Publication policy and ethics",
+    "offer": "Public offer",
+    "forAuthors": "For authors",
+    "requirements": "Requirements",
+    "ai": "Xorazmiy AI",
+    "prices": "Pricing",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "telegram": "Telegram: {channel}",
+    "privacy": "Privacy policy"
+  },
+  "lists": {
+    "articlesTitle": "Articles",
+    "articlesLead": "All articles published in the journal.",
+    "categoriesTitle": "Fields",
+    "categoriesLead": "Research fields covered by the journal.",
+    "articleCount": "{count, plural, =0 {no articles} one {# article} other {# articles}}",
+    "issuesTitle": "Issue archive",
+    "issuesLead": "All published issues of the journal.",
+    "issueTitle": "{year} · No. {number}",
+    "keywordTitle": "Keyword: {keyword}",
+    "authorArticles": "Published articles",
+    "searchResults": "Results for “{q}”",
+    "position": "Position",
+    "profile": "Author profile"
+  },
+  "academy": {
+    "title": "Academy",
+    "lead": "Learn to write a research paper step by step. The lessons are free.",
+    "exercise": "Exercise",
+    "practiceWithAi": "Practise with Xorazmiy AI",
+    "back": "All lessons"
+  },
+  "aiLanding": {
+    "title": "Xorazmiy AI — research assistant",
+    "lead": "Named after al-Khwarizmi, whose name gave us the word “algorithm”. It teaches you to write, edits your text, finds international sources and checks facts — but it does not write your paper for you.",
+    "soon": "The workspace opens soon. Meanwhile, see the example on the home page."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "There is no page at this address, or it was removed.",
+    "home": "Back to the home page"
+  },
+  "pages": {
+    "requirementsTitle": "Article requirements",
+    "requirement": "Requirement",
+    "value": "Value",
+    "volume": "Length",
+    "volumeValue": "{min}–{max} words (excluding references)",
+    "structure": "Structure",
+    "structureValue": "Title, authors and affiliations, abstract, keywords, Introduction, Materials and methods, Results, Discussion, Conclusion, References",
+    "abstract": "Abstract",
+    "abstractValue": "150–250 words in Uzbek and English (Russian optional)",
+    "keywords": "Keywords",
+    "keywordsValue": "5–7",
+    "references": "References",
+    "referencesValue": "At least {min}, APA 7, with DOIs where possible; some international sources",
+    "figures": "Figures and tables",
+    "figuresValue": "Numbered, captioned, with the source",
+    "file": "File",
+    "fileValue": ".docx using the template, up to 10 MB",
+    "originality": "Originality",
+    "originalityValue": "At least {min}% (AI check)",
+    "ethics": "Ethics",
+    "ethicsValue": "Not previously published; follows the AI use policy; co-author consent",
+    "license": "Licence",
+    "licenseValue": "CC BY 4.0 (open access)",
+    "fastTrack": "Fast-track review",
+    "reviewDeadline": "Review deadline: {days} working days"
   }
 }
