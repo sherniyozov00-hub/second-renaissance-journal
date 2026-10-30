@@ -1,0 +1,15 @@
+{
+  "site": {
+    "tagline": "Yosh olimlar uchun elektron ilmiy jurnal.",
+    "journalLabel": "Ilmiy jurnal"
+  },
+  "nav": {
+    "articles": "Maqolalar",
+    "categories": "Yo‘nalishlar",
+    "ai": "Xorazmiy AI",
+    "academy": "Akademiya",
+    "forAuthors": "Mualliflarga",
+    "submit": "Maqola yuborish",
+    "login": "Kirish"
+  }
+}

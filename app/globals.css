@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — TZ section 12.1 / 12.2. Use these names only; do not invent
+ * new colours. Swatches and their usage are documented in docs/design/README.md.
+ */
+@theme {
+  /* Blues */
+  --color-blue-900: #0b1f4d; /* deep: top bar, footer, AI card header, price block */
+  --color-blue-800: #1e3a8a; /* primary: buttons, links, active tabs, logo */
+  --color-blue-50: #eef3fb; /* hero, Akademiya and cabinet backgrounds */
+
+  /* Lines */
+  --color-border: #dce3ee; /* cards and sections */
+  --color-border-strong: #c7d2e4; /* inputs and secondary buttons */
+
+  /* Text */
+  --color-ink: #0f1b2d; /* body text */
+  --color-text-2: #334155; /* secondary text */
+  --color-muted: #475569; /* captions, dates, meta */
+
+  /* Gold — decoration only, never for text */
+  --color-gold: #c99a2e;
+  --color-gold-text: #a16207; /* category labels and small eyebrow headings */
+
+  /* Status */
+  --color-success: #166534;
+  --color-success-bg: #dcfce7;
+  --color-danger: #b91c1c;
+  --color-danger-bg: #fee2e2;
+  --color-warning: #92400e;
+  --color-warning-bg: #fef3c7;
+  --color-info-bg: #dbeafe;
+
+  /* Typography — fonts are loaded with next/font in app/layout.tsx */
+  --font-serif: var(--font-lora), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --text-hero: 3.25rem; /* 52px */
+  --text-hero--line-height: 1.1;
+  --text-hero-mobile: 2.125rem; /* 34px */
+  --text-hero-mobile--line-height: 1.1;
+  --text-section: 2.125rem; /* 34px section H2 */
+  --text-section--line-height: 1.2;
+  --text-card-title: 1.125rem; /* 18px */
+  --text-card-title--line-height: 1.35;
+  --text-article: 1.1875rem; /* 19px article body */
+  --text-article--line-height: 1.75;
+  --text-eyebrow: 0.75rem; /* 12px uppercase labels */
+  --text-eyebrow--line-height: 1.4;
+
+  /* Radii */
+  --radius-control: 6px; /* buttons and inputs */
+  --radius-card: 12px;
+  --radius-ai: 14px; /* Xorazmiy AI card */
+
+  /* Layout */
+  --container-site: 1240px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-white font-sans text-[15px] leading-normal text-ink antialiased md:text-base;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif font-bold text-blue-900;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-blue-800;
+  }
+}
+
+@layer components {
+  /* Max 1240px, 24px gutters (16px on mobile). */
+  .container-site {
+    @apply mx-auto w-full max-w-(--container-site) px-4 md:px-6;
+  }
+
+  /* Small uppercase label above headings: "XORAZMIY AI", category names. */
+  .eyebrow {
+    @apply text-eyebrow font-semibold tracking-[0.08em] text-gold-text uppercase;
+  }
+
+  /* Vertical rhythm between home page sections: 56–72px. */
+  .section {
+    @apply py-14 md:py-[72px];
+  }
+}

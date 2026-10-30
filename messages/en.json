@@ -1,0 +1,15 @@
+{
+  "site": {
+    "tagline": "An electronic scientific journal for young researchers.",
+    "journalLabel": "Scientific journal"
+  },
+  "nav": {
+    "articles": "Articles",
+    "categories": "Fields",
+    "ai": "Xorazmiy AI",
+    "academy": "Academy",
+    "forAuthors": "For authors",
+    "submit": "Submit an article",
+    "login": "Sign in"
+  }
+}

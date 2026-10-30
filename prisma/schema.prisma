@@ -1,0 +1,477 @@
+// Data model — TZ section 6. Field names are English; the UI translates them.
+// Localised content is stored as JSON objects of the shape { uz, ru, en }.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+/// Guests are unauthenticated visitors and have no role.
+enum Role {
+  AUTHOR
+  REVIEWER
+  EDITOR
+  ADMIN
+}
+
+enum Locale {
+  uz
+  ru
+  en
+}
+
+enum ArticleType {
+  RESEARCH
+  REVIEW
+  CASE_STUDY
+  POPULAR
+}
+
+/// Article life cycle — TZ section 7.
+enum ArticleStatus {
+  DRAFT
+  AWAITING_PAYMENT
+  UNDER_REVIEW
+  REVISION_REQUESTED
+  ACCEPTED
+  PUBLISHED
+  REJECTED
+}
+
+enum IssueStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum ReviewRecommendation {
+  ACCEPT
+  MINOR_REVISION
+  MAJOR_REVISION
+  REJECT
+}
+
+enum PaymentProvider {
+  CLICK
+  PAYME
+  UZUM
+  CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentPurpose {
+  PUBLICATION
+  AI_PACKAGE
+}
+
+enum AiCheckType {
+  FACTCHECK
+  SOURCES
+  EDIT
+  ORIGINALITY
+}
+
+// ─── Users ──────────────────────────────────────────────────────────────────
+
+model User {
+  id             String   @id @default(cuid())
+  phone          String?  @unique
+  email          String?  @unique
+  name           String?
+  locale         Locale   @default(uz)
+  roles          Role[]   @default([AUTHOR])
+  telegramChatId String?  @unique
+  /// Per-user override of the monthly AI check quota; null = use Settings.
+  aiQuota        Int?
+  isBlocked      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  profile           AuthorProfile?
+  submittedArticles Article[]       @relation("ArticleSubmitter")
+  reviews           Review[]
+  editorComments    EditorComment[]
+  payments          Payment[]
+  drafts            Draft[]
+  aiChecks          AiCheck[]
+  aiUsage           AiUsage[]
+  auditLogs         AuditLog[]
+}
+
+/// Public author profile. `userId` is optional so that co-authors without an
+/// account (and seed authors) can still have a public page.
+model AuthorProfile {
+  id          String   @id @default(cuid())
+  userId      String?  @unique
+  slug        String   @unique
+  fullName    String
+  affiliation String?
+  position    String?
+  orcid       String?
+  bio         String?
+  avatarUrl   String?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  articles ArticleAuthor[]
+}
+
+// ─── Journal structure ──────────────────────────────────────────────────────
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  /// { uz, ru, en }
+  name        Json
+  /// { uz, ru, en }
+  description Json
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  articles Article[]
+}
+
+model Issue {
+  id          String      @id @default(cuid())
+  year        Int
+  number      Int
+  title       String?
+  publishedAt DateTime?
+  coverUrl    String?
+  status      IssueStatus @default(DRAFT)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  articles Article[]
+
+  @@unique([year, number])
+}
+
+// ─── Articles ───────────────────────────────────────────────────────────────
+
+model Article {
+  id             String        @id @default(cuid())
+  /// Human-facing sequential id shown as #0142 in the cabinet and admin panel.
+  number         Int           @unique @default(autoincrement())
+  slug           String        @unique
+  titleUz        String
+  titleEn        String?
+  titleRu        String?
+  abstractUz     String
+  abstractEn     String?
+  abstractRu     String?
+  keywords       String[]
+  language       Locale        @default(uz)
+  type           ArticleType   @default(RESEARCH)
+  status         ArticleStatus @default(DRAFT)
+  categoryId     String
+  issueId        String?
+  submitterId    String?
+  pageStart      Int?
+  pageEnd        Int?
+  doi            String?       @unique
+  license        String        @default("CC BY 4.0")
+  /// Xorazmiy AI features the author used (TZ 10.2), visible to reviewers.
+  aiFeaturesUsed String[]      @default([])
+  views          Int           @default(0)
+  downloads      Int           @default(0)
+  submittedAt    DateTime?
+  acceptedAt     DateTime?
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  category       Category         @relation(fields: [categoryId], references: [id])
+  issue          Issue?           @relation(fields: [issueId], references: [id], onDelete: SetNull)
+  submitter      User?            @relation("ArticleSubmitter", fields: [submitterId], references: [id], onDelete: SetNull)
+  authors        ArticleAuthor[]
+  versions       ArticleVersion[]
+  references     Reference[]
+  reviews        Review[]
+  editorComments EditorComment[]
+  payments       Payment[]
+  certificates   Certificate[]
+  drafts         Draft[]
+  aiChecks       AiCheck[]
+
+  @@index([status, publishedAt])
+  @@index([categoryId])
+  @@index([issueId])
+  @@index([submitterId])
+}
+
+/// Either `authorProfileId` is set, or the unregistered co-author fields are.
+model ArticleAuthor {
+  id              String  @id @default(cuid())
+  articleId       String
+  authorProfileId String?
+  name            String?
+  affiliation     String?
+  orcid           String?
+  order           Int     @default(0)
+  isCorresponding Boolean @default(false)
+
+  article       Article        @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  authorProfile AuthorProfile? @relation(fields: [authorProfileId], references: [id], onDelete: SetNull)
+  certificates  Certificate[]
+
+  @@index([articleId, order])
+  @@index([authorProfileId])
+}
+
+model ArticleVersion {
+  id        String   @id @default(cuid())
+  articleId String
+  version   Int
+  docxUrl   String?
+  /// Sanitised publication HTML.
+  htmlBody  String?
+  pdfUrl    String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, version])
+}
+
+model Reference {
+  id        String  @id @default(cuid())
+  articleId String
+  order     Int
+  raw       String
+  doi       String?
+  url       String?
+  /// True once the DOI was confirmed via Crossref.
+  verified  Boolean @default(false)
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId, order])
+}
+
+// ─── Editorial workflow ─────────────────────────────────────────────────────
+
+model Review {
+  id               String                @id @default(cuid())
+  articleId        String
+  reviewerId       String
+  scoreRelevance   Int?
+  scoreMethodology Int?
+  scoreResults     Int?
+  scoreLanguage    Int?
+  comment          String?
+  recommendation   ReviewRecommendation?
+  dueAt            DateTime?
+  submittedAt      DateTime?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  article  Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  reviewer User    @relation(fields: [reviewerId], references: [id])
+
+  @@index([reviewerId])
+  @@index([articleId])
+}
+
+model EditorComment {
+  id              String   @id @default(cuid())
+  articleId       String
+  authorId        String
+  body            String
+  visibleToAuthor Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id])
+
+  @@index([articleId])
+}
+
+// ─── Payments ───────────────────────────────────────────────────────────────
+
+model Payment {
+  id               String          @id @default(cuid())
+  articleId        String?
+  userId           String
+  provider         PaymentProvider
+  purpose          PaymentPurpose  @default(PUBLICATION)
+  /// Amount in whole UZS (so'm). Provider adapters convert to tiyin if needed.
+  amount           Int
+  currency         String          @default("UZS")
+  status           PaymentStatus   @default(PENDING)
+  providerTxId     String?
+  fiscalReceiptUrl String?
+  promoCodeId      String?
+  refundReason     String?
+  createdAt        DateTime        @default(now())
+  paidAt           DateTime?
+  updatedAt        DateTime        @updatedAt
+
+  article   Article?   @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  user      User       @relation(fields: [userId], references: [id])
+  promoCode PromoCode? @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
+
+  @@unique([provider, providerTxId])
+  @@index([userId])
+  @@index([articleId])
+  @@index([status])
+}
+
+model PromoCode {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  discountPercent Int?
+  discountAmount  Int?
+  validUntil      DateTime?
+  usageLimit      Int?
+  used            Int       @default(0)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+
+  payments Payment[]
+}
+
+/// One certificate per co-author per article. `id` is the short public code
+/// used by /sertifikat/[id] and the QR code.
+model Certificate {
+  id              String   @id
+  articleId       String
+  articleAuthorId String
+  authorName      String
+  pdfUrl          String?
+  issuedAt        DateTime @default(now())
+
+  article       Article       @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleAuthor ArticleAuthor @relation(fields: [articleAuthorId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, articleAuthorId])
+}
+
+// ─── Xorazmiy AI ────────────────────────────────────────────────────────────
+
+/// AI workspace draft (Ekran 3).
+model Draft {
+  id        String   @id @default(cuid())
+  userId    String
+  articleId String?
+  title     String
+  /// Rich-text document JSON.
+  body      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article  Article?  @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  aiChecks AiCheck[]
+
+  @@index([userId])
+}
+
+model AiCheck {
+  id        String      @id @default(cuid())
+  draftId   String?
+  articleId String?
+  userId    String?
+  type      AiCheckType
+  /// Hash of the checked input; unchanged paragraphs are served from cache.
+  inputHash String
+  result    Json
+  model     String
+  tokensIn  Int         @default(0)
+  tokensOut Int         @default(0)
+  /// Cost in USD.
+  cost      Decimal     @default(0) @db.Decimal(12, 6)
+  createdAt DateTime    @default(now())
+
+  draft   Draft?   @relation(fields: [draftId], references: [id], onDelete: SetNull)
+  article Article? @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([type, inputHash])
+  @@index([createdAt])
+}
+
+/// Quota accounting. Authors are keyed by `userId`; guests by `guestKey`
+/// (hash of IP + device). `period` is "YYYY-MM" for authors, "YYYY-MM-DD" for guests.
+model AiUsage {
+  id         String   @id @default(cuid())
+  userId     String?
+  guestKey   String?
+  period     String
+  checksUsed Int      @default(0)
+  tokensUsed Int      @default(0)
+  updatedAt  DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, period])
+  @@unique([guestKey, period])
+}
+
+// ─── Content ────────────────────────────────────────────────────────────────
+
+model Lesson {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  /// Markdown body.
+  body        String
+  durationMin Int
+  order       Int      @default(0)
+  videoUrl    String?
+  exercise    String?
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Static pages (about, policies, offer...). All text fields are { uz, ru, en }.
+model Page {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          Json
+  body           Json
+  seoTitle       Json?
+  seoDescription Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+/// Admin-editable settings: prices, ISSN, contacts, AI limits, payment mode...
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String
+  before    Json?
+  after     Json?
+  createdAt DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
