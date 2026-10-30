@@ -1,0 +1,104 @@
+# Local / single-server stack: app + PostgreSQL + Redis + MinIO.
+# `docker compose up --build` works without a .env file: the values below are
+# development defaults. Override them in .env for any real deployment.
+
+name: second-renaissance-journal
+
+x-db-url: &db-url postgresql://${POSTGRES_USER:-journal}:${POSTGRES_PASSWORD:-journal}@postgres:5432/${POSTGRES_DB:-journal}?schema=public
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-journal}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-journal}
+      POSTGRES_DB: ${POSTGRES_DB:-journal}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # S3-compatible storage. MinIO no longer publishes community images on
+  # Docker Hub, so the archived Bitnami build is used for local development.
+  # In production point S3_* at any S3-compatible service.
+  minio:
+    image: bitnamilegacy/minio:2025.7.23
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-minioadmin}
+      MINIO_DEFAULT_BUCKETS: ${S3_BUCKET:-journal}
+    volumes:
+      - minio-data:/bitnami/minio/data
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Applies migrations and seeds (idempotent), then exits.
+  migrate:
+    build:
+      context: .
+      target: migrator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: *db-url
+      SEED_ON_START: ${SEED_ON_START:-true}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+      SEED_ADMIN_PHONE: ${SEED_ADMIN_PHONE:-+998900000001}
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: *db-url
+      REDIS_URL: redis://redis:6379
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_BUCKET: ${S3_BUCKET:-journal}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-minioadmin}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-minioadmin}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      SITE_NAME: ${SITE_NAME:-The Second Renaissance of Uzbekistan}
+      PAYMENTS_MODE: ${PAYMENTS_MODE:-sandbox}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
