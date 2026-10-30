@@ -5,6 +5,7 @@ import { Inter, Lora } from "next/font/google";
 import { notFound } from "next/navigation";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { routing } from "@/i18n/routing";
+import { getSettings } from "@/lib/settings/get";
 import { siteConfig } from "@/lib/site";
 import "../globals.css";
 
@@ -30,10 +31,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "common" });
+  const s = await getSettings();
+  const google = String(s["seo.googleVerification"] ?? "");
+  const bing = String(s["seo.bingVerification"] ?? "");
   return {
     metadataBase: new URL(siteConfig.url),
     title: { default: siteConfig.name, template: `%s — ${siteConfig.name}` },
     description: t("tagline"),
+    // Search Console / Bing Webmaster codes are set in Admin → Settings (TZ 9.10).
+    verification: {
+      ...(google ? { google } : {}),
+      ...(bing ? { other: { "msvalidate.01": bing } } : {}),
+    },
   };
 }
 

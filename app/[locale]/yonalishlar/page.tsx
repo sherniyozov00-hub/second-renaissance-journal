@@ -6,13 +6,19 @@ import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { pick } from "@/lib/l10n";
 import { getCategories } from "@/lib/queries/catalog";
+import { pageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "lists" });
-  return { title: t("categoriesTitle"), description: t("categoriesLead") };
+  return pageMetadata({
+    locale: locale as AppLocale,
+    path: "/yonalishlar",
+    title: t("categoriesTitle"),
+    description: t("categoriesLead"),
+  });
 }
 
 export default async function CategoriesPage({ params }: Props) {

@@ -3,13 +3,20 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AiDemoCard } from "@/components/home/ai-demo-card";
 import { AiFeatures } from "@/components/home/sections";
 import { PageShell } from "@/components/layout/page-shell";
+import { pageMetadata } from "@/lib/seo";
+import type { AppLocale } from "@/i18n/routing";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "aiLanding" });
-  return { title: t("title"), description: t("lead") };
+  return pageMetadata({
+    locale: locale as AppLocale,
+    path: "/xorazmiy-ai",
+    title: t("title"),
+    description: t("lead"),
+  });
 }
 
 // Landing for Xorazmiy AI. The guest trial and the workspace arrive in stage 6.

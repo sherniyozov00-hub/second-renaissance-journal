@@ -7,13 +7,21 @@ import { SimpleMarkdown } from "@/components/ui/simple-markdown";
 import { buttonClass } from "@/components/ui/styles";
 import { Link } from "@/i18n/navigation";
 import { getLesson, getLessons } from "@/lib/queries/catalog";
+import { pageMetadata } from "@/lib/seo";
+import type { AppLocale } from "@/i18n/routing";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const lesson = await getLesson(slug);
-  return lesson ? { title: lesson.title, description: lesson.summary ?? undefined } : {};
+  if (!lesson) return {};
+  return pageMetadata({
+    locale: locale as AppLocale,
+    path: `/akademiya/${slug}`,
+    title: lesson.title,
+    description: lesson.summary ?? lesson.body.replace(/\*\*/g, ""),
+  });
 }
 
 export default async function LessonPage({ params }: Props) {

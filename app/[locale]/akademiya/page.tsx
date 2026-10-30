@@ -6,13 +6,20 @@ import { cardClass } from "@/components/ui/styles";
 import { Link } from "@/i18n/navigation";
 import { getLessons } from "@/lib/queries/catalog";
 import { cn } from "@/lib/utils";
+import { pageMetadata } from "@/lib/seo";
+import type { AppLocale } from "@/i18n/routing";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "academy" });
-  return { title: t("title"), description: t("lead") };
+  return pageMetadata({
+    locale: locale as AppLocale,
+    path: "/akademiya",
+    title: t("title"),
+    description: t("lead"),
+  });
 }
 
 export default async function AcademyPage({ params }: Props) {

@@ -8,6 +8,7 @@ import type { AppLocale } from "@/i18n/routing";
 import { pick } from "@/lib/l10n";
 import { getPage } from "@/lib/queries/catalog";
 import { getSettings } from "@/lib/settings/get";
+import { pageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string; page: string }> };
 
@@ -16,10 +17,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const row = await getPage(page);
   if (!row) return {};
   const l = locale as AppLocale;
-  return {
+  return pageMetadata({
+    locale: l,
+    path: `/${page}`,
     title: pick(row.seoTitle, l) || pick(row.title, l),
     description: pick(row.seoDescription, l) || undefined,
-  };
+  });
 }
 
 /** Requirements table (TZ 16), driven by Settings so the admin can change values. */

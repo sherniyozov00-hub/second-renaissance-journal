@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { AbstractTabs, CitationBox, CopyLinkButton, ViewBeacon } from "@/components/article/client";
 import { PageShell } from "@/components/layout/page-shell";
 import { buttonClass, cardClass, chipClass } from "@/components/ui/styles";
-import { getPathname, Link } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { prepareArticleHtml } from "@/lib/article-html";
 import { formatApa, formatBibtex, formatGost } from "@/lib/citation";
@@ -19,6 +19,10 @@ import {
 } from "@/lib/l10n";
 import { getArticleBySlug, getRelatedArticles } from "@/lib/queries/articles";
 import { getSettings } from "@/lib/settings/get";
+import { absoluteUrl, pageMetadata } from "@/lib/seo";
+import { breadcrumbList, scholarlyArticle } from "@/lib/structured-data";
+import { JsonLd } from "@/components/seo/json-ld";
+import { ScholarMeta } from "@/components/seo/scholar-meta";
 import { siteConfig } from "@/lib/site";
 import { slugify } from "@/lib/text/uz";
 import { cn } from "@/lib/utils";
@@ -30,9 +34,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = await getArticleBySlug(slug);
   if (!article) return {};
   const l = locale as AppLocale;
-  return {
+  const meta = pageMetadata({
+    locale: l,
+    path: `/maqola/${article.slug}`,
     title: articleTitle(article, l),
-    description: articleAbstract(article, l).slice(0, 155),
+    description: articleAbstract(article, l),
+    type: "article",
+  });
+  return {
+    ...meta,
+    openGraph: {
+      ...meta.openGraph,
+      type: "article",
+      publishedTime: article.publishedAt?.toISOString(),
+      authors: article.authors.map((a) => a.authorProfile?.fullName ?? a.name ?? ""),
+      tags: article.keywords,
+    },
   };
 }
 
@@ -63,8 +80,9 @@ export default async function ArticlePage({ params }: Props) {
   const pages = article.pageStart
     ? `${article.pageStart}–${article.pageEnd ?? article.pageStart}`
     : null;
-  const path = getPathname({ href: `/maqola/${article.slug}`, locale });
-  const url = `${siteConfig.url}${path}`;
+  const url = absoluteUrl(`/maqola/${article.slug}`, locale);
+  const pdfUrl = absoluteUrl(`/maqola/${article.slug}/pdf`, locale);
+  const issn = String(settings["journal.issn"]);
   const year = (article.publishedAt ?? new Date()).getFullYear();
   const startYear = Number(settings["journal.startYear"]) || year;
 
@@ -95,6 +113,61 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <PageShell footer="compact" narrow>
       <ViewBeacon articleId={article.id} />
+      <ScholarMeta
+        title={article.titleUz}
+        authors={authors.map((a) => ({ name: a.name, institution: a.affiliation }))}
+        publicationDate={article.publishedAt}
+        journalTitle={siteConfig.name}
+        volume={citation.volume}
+        issue={citation.issue}
+        firstPage={article.pageStart}
+        lastPage={article.pageEnd}
+        pdfUrl={pdfUrl}
+        abstractUrl={url}
+        language={article.language}
+        keywords={article.keywords}
+        doi={article.doi}
+        issn={issn}
+      />
+      <JsonLd
+        data={scholarlyArticle({
+          url,
+          title,
+          abstract: articleAbstract(article, locale),
+          keywords: article.keywords,
+          language: article.language,
+          datePublished: article.publishedAt,
+          dateModified: article.updatedAt,
+          authors: authors.map((a) => ({
+            name: a.name,
+            url: a.slug ? absoluteUrl(`/muallif/${a.slug}`, locale) : undefined,
+            affiliation: a.affiliation,
+            orcid: a.orcid,
+          })),
+          pdfUrl,
+          pageStart: article.pageStart,
+          pageEnd: article.pageEnd,
+          doi: article.doi,
+          issue: article.issue
+            ? {
+                number: article.issue.number,
+                year: article.issue.year,
+                url: absoluteUrl(`/son/${article.issue.year}-${article.issue.number}`, locale),
+              }
+            : null,
+          journal: { name: siteConfig.name, url: absoluteUrl("/", locale), issn },
+        })}
+      />
+      <JsonLd
+        data={breadcrumbList([
+          { name: t("nav.home"), url: absoluteUrl("/", locale) },
+          {
+            name: pick(article.category.name, locale),
+            url: absoluteUrl(`/yonalish/${article.category.slug}`, locale),
+          },
+          { name: title, url },
+        ])}
+      />
       <div className="container-site pt-6 pb-16 lg:max-w-[1248px]">
         <nav aria-label={t("nav.breadcrumbs")} className="text-sm">
           <ol className="flex flex-wrap items-center gap-2 text-blue-800">

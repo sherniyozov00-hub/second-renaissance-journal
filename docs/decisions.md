@@ -65,3 +65,24 @@ Har bir qaror tegishli PR tavsifida ham yoziladi.
 11. **Hali ishlamaydigan havolalar:** `/kirish`, `/kabinet` (3-bosqich), `/kabinet/yuborish`
     (4-bosqich), shablon `.docx` (7-bosqich). Qidiruv hozircha oddiy; to‘liq matnli qidiruv
     va filtrlar 2-bosqichda.
+
+## 2-bosqich — Qidiruv va SEO
+
+1. **Indeks DB triggerlari bilan yangilanadi** (ilova kodi emas): sarlavha, annotatsiya, kalit
+   so‘zlar, mualliflar yoki matn o‘zgarsa, `search_vector`/`search_text` avtomatik qayta
+   hisoblanadi. Ko‘rishlar sonining o‘zgarishi indeksni qayta hisoblamaydi (tezlik uchun).
+2. **Tutuq belgisi indeksda olib tashlanadi** (`o‘zbek` → `ozbek`): PostgreSQL parseri
+   apostrofda so‘zni bo‘lib yuboradi, shu sababli barcha yozilishlar bitta shaklga keltiriladi.
+3. **`simple` konfiguratsiya + prefiks moslik (`:*`)** — o‘zbek tili uchun tayyor stemmer yo‘q;
+   qo‘shimchalar (`-lar`, `-ni`) prefiks bilan qamraladi.
+4. **Xato yozish** — `pg_trgm` `word_similarity ≥ 0.6` (faqat “Hamma joyda” rejimida).
+5. **URL parametrlari o‘zbekcha:** `q, joy, yonalish, tur, yildan, yilgacha, son, til,
+muassasa, saralash, tab, page`. Filtrlangan natija sahifalari `noindex`, kanonik — `/maqolalar`.
+6. **Natijadagi ajratish** JS’da qilinadi (`ts_headline` apostrofli so‘zlarni noto‘g‘ri
+   belgilaydi); faqat mos kelgan qism belgilanadi, Ekran 5 dagi kabi.
+7. **Scholar teglari** element sifatida chiqariladi (React ularni `<head>` ga ko‘taradi), chunki
+   har `citation_author` dan keyin o‘z `citation_author_institution` kelishi kerak.
+   Placeholder qiymatlar (`[Muassasa nomi]`, `[RAQAM]`) teglarga va JSON-LD’ga chiqarilmaydi.
+8. **PDF’lar robots.txt’da ochiq** — Scholar `citation_pdf_url` ni o‘qiydi.
+9. **Rich Results testi** tashqi xizmat; lokalda JSON-LD tuzilishi unit testlar bilan
+   tekshiriladi, domen ulangach README’dagi qadamlar bo‘yicha Google testidan o‘tkaziladi.

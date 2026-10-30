@@ -7,6 +7,7 @@ import type { AppLocale } from "@/i18n/routing";
 import { pick } from "@/lib/l10n";
 import { listArticles } from "@/lib/queries/articles";
 import { getCategoryBySlug } from "@/lib/queries/catalog";
+import { pageMetadata } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -17,10 +18,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const category = await getCategoryBySlug(slug);
   if (!category) return {};
-  return {
+  return pageMetadata({
+    locale: locale as AppLocale,
+    path: `/yonalish/${slug}`,
     title: pick(category.name, locale as AppLocale),
     description: pick(category.description, locale as AppLocale),
-  };
+  });
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {

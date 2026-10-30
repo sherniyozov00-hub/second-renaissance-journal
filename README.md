@@ -95,3 +95,35 @@ tests/        unit (Vitest)
 Ranglar, shriftlar, radiuslar — `app/globals.css` dagi `@theme` tokenlari (TZ 12-bo‘lim).
 Logotip: `public/brand/*.svg` va `components/brand/logo.tsx`. Sayt nomi bitta konfiguratsiya
 qiymati: `SITE_NAME` (`lib/site.ts`).
+
+## Qidiruv
+
+PostgreSQL to‘liq matnli qidiruv (TZ 8): `Article.search_vector` (A — sarlavha, kalit so‘zlar,
+mualliflar; B — annotatsiya; C — to‘liq matn) va `search_text` (trigram, xato yozishga
+chidamli). Ikkalasini ham DB triggerlari avtomatik yangilaydi (`prisma/migrations/*_full_text_search`).
+O‘zbekcha normalizatsiya SQL’da `uz_search_norm()` va kodda `lib/search/normalize.ts` —
+ikkalasi bir xil ishlashi shart. Kirill so‘rovlar lotinga transliteratsiya qilinadi.
+
+```bash
+npm run test:integration   # seed qilingan bazada qidiruv qabul testlari
+```
+
+## SEO va Google’da indekslanish
+
+Har bir sahifada: `<title>`, `description`, canonical, `hreflang` (uz/ru/en/x-default), Open
+Graph, Twitter Card. Maqola sahifasida Google Scholar `citation_*` teglari va `ScholarlyArticle`
+JSON-LD; muallif sahifasida `ProfilePage`; bosh sahifada `Periodical` + `WebSite`/`SearchAction`.
+`/sitemap.xml` har so‘rovda bazadan quriladi (yangi nashr darhol tushadi), `/robots.txt` admin,
+kabinet va API’ni yopadi.
+
+Ishga tushirgandan keyin (domen ulangach):
+
+1. `.env` da `NEXT_PUBLIC_SITE_URL=https://<domen>` ni o‘rnating va qayta ishga tushiring.
+2. **Google Search Console** → “Mulk qo‘shish” → “URL prefiksi” → “HTML teg” usuli. Teg ichidagi
+   `content` qiymatini Admin → Sozlamalar → `seo.googleVerification` ga yozing, so‘ng
+   “Tasdiqlash”ni bosing.
+3. Search Console → Sitemaps → `sitemap.xml` ni yuboring.
+4. **Bing Webmaster Tools** → xuddi shunday, kod → `seo.bingVerification`; sitemap’ni yuboring.
+5. Maqola sahifasini <https://search.google.com/test/rich-results> da tekshiring.
+6. Google Scholar uchun alohida ro‘yxatdan o‘tish shart emas: `citation_*` teglari va ochiq PDF
+   yetarli; indekslash vaqtini Google belgilaydi.

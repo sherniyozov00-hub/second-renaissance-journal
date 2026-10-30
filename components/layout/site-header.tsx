@@ -18,7 +18,8 @@ export async function SiteHeader({
   variant = "compact",
   narrow = false,
 }: {
-  variant?: "home" | "compact";
+  /** "minimal" — logo and submit button only (Ekran 5). */
+  variant?: "home" | "compact" | "minimal";
   narrow?: boolean;
 }) {
   const t = await getTranslations();
@@ -55,6 +56,7 @@ export async function SiteHeader({
           </Link>
 
           <nav
+            hidden={variant === "minimal"}
             aria-label={t("nav.home")}
             className="hidden items-center gap-[26px] text-[15px] text-ink md:flex lg:mr-16 lg:ml-auto"
           >
