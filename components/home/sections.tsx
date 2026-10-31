@@ -15,6 +15,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { ArticleEyebrow, AuthorLinks, authorNames } from "@/components/article/article-meta";
 import { buttonClass, cardClass, chipClass } from "@/components/ui/styles";
 import { Link } from "@/i18n/navigation";
+import { templateHref } from "@/lib/academy/template-href";
 import type { AppLocale } from "@/i18n/routing";
 import { articleAbstract, articleTitle, formatDate, formatNumber, pick } from "@/lib/l10n";
 import type { ArticleCard, LatestSort } from "@/lib/queries/articles";
@@ -282,7 +283,7 @@ export async function Academy({ lessons }: { lessons: LessonItem[] }) {
             <Link href="/akademiya" className={buttonClass("primary", "md")}>
               {t("startLessons")}
             </Link>
-            <a href="/shablon/maqola-shabloni.docx" className={buttonClass("outline", "md")}>
+            <a href={templateHref(await getLocale())} className={buttonClass("outline", "md")}>
               {t("template")}
             </a>
           </div>

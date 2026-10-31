@@ -3,7 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { sendTelegram } from "@/lib/notify/telegram";
 import { botReply } from "@/lib/telegram/bot";
 
-type Update = { message?: { chat?: { id?: number }; text?: string } };
+type Update = {
+  message?: { chat?: { id?: number }; text?: string; from?: { language_code?: string } };
+};
 
 function secretOk(header: string | null) {
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
@@ -27,7 +29,10 @@ export async function POST(req: NextRequest) {
   const text = update.message?.text ?? "";
   if (!chatId || !text) return NextResponse.json({ ok: true });
   try {
-    await sendTelegram(String(chatId), await botReply(String(chatId), text));
+    await sendTelegram(
+      String(chatId),
+      await botReply(String(chatId), text, update.message?.from?.language_code),
+    );
   } catch (err) {
     console.error("[telegram]", err);
   }

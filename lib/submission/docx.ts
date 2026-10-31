@@ -45,7 +45,7 @@ export const REQUIRED_SECTIONS = [
     patterns: [
       /^\s*(\d+\.?\s*)?kirish\b/i,
       /^\s*(\d+\.?\s*)?introduction\b/i,
-      /^\s*(\d+\.?\s*)?введение\b/i,
+      /^\s*(\d+\.?\s*)?введение(?![\p{L}])/iu,
     ],
   },
   {

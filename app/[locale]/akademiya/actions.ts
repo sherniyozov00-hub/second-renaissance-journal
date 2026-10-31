@@ -29,7 +29,7 @@ export async function startPracticeAction(form: FormData) {
   const slug = slugOf(form);
   const user = await currentUser();
   if (!user) return loginFirst(slug);
-  const id = await createPracticeDraft(user.id, slug);
+  const id = await createPracticeDraft(user.id, slug, await getLocale());
   redirect(await path(id ? `/kabinet/yozish/${id}` : "/akademiya"));
 }
 

@@ -18,7 +18,7 @@ type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
-  const lesson = await getLesson(slug);
+  const lesson = await getLesson(slug, locale);
   if (!lesson) return {};
   return pageMetadata({
     locale: locale as AppLocale,
@@ -32,9 +32,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function LessonPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
-  const lesson = await getLesson(slug);
+  const lesson = await getLesson(slug, locale);
   if (!lesson) notFound();
-  const [t, lessons, user] = await Promise.all([getTranslations(), getLessons(), currentUser()]);
+  const [t, lessons, user] = await Promise.all([getTranslations(), getLessons(locale), currentUser()]);
   const index = lessons.findIndex((l) => l.slug === slug);
   const prev = lessons[index - 1];
   const next = lessons[index + 1];

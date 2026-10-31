@@ -6,7 +6,7 @@ import {
   setLessonDone,
 } from "@/lib/academy/service";
 import { db } from "@/lib/db";
-import { botReply, HELP } from "@/lib/telegram/bot";
+import { botLang, botReply, HELP } from "@/lib/telegram/bot";
 
 const PHONE = "+998990000066";
 const CHAT = "777000666";
@@ -56,6 +56,8 @@ describe("Akademiya (TZ 15)", () => {
     const id = await createPracticeDraft(userId, lesson.slug);
     const draft = await db.draft.findUniqueOrThrow({ where: { id: id! } });
     expect(draft.title).toBe(`Mashq: ${lesson.title}`);
+    const ru = await createPracticeDraft(userId, lesson.slug, "ru");
+    expect((await db.draft.findUniqueOrThrow({ where: { id: ru! } })).title).toMatch(/^Упражнение: /);
     expect(JSON.stringify(draft.body)).toContain(lesson.exercise!);
   });
 
@@ -74,6 +76,17 @@ describe("Telegram bot", () => {
     expect(user.telegramChatId).toBe(CHAT);
     expect(user.telegramLinkToken).toBeNull();
     expect(await botReply(CHAT, "/holat")).toContain("Hali yuborilgan maqola yo‘q");
+  });
+
+  it("speaks the Telegram app language to strangers", async () => {
+    expect(botLang("ru-RU")).toBe("ru");
+    expect(botLang("en")).toBe("en");
+    expect(botLang("kk")).toBe("ru");
+    expect(botLang(undefined)).toBe("uz");
+    expect(await botReply("123000999", "/maqolalar", "ru")).toMatch(/^Последние статьи:/);
+    expect(await botReply("123000999", "/darslar", "en")).toContain("Article structure: IMRAD");
+    expect(await botReply("123000999", "/darslar", "en")).toContain("/en/akademiya/");
+    expect(await botReply("123000999", "/holat", "ru")).toContain("Аккаунт не привязан");
   });
 
   it("answers the public commands", async () => {

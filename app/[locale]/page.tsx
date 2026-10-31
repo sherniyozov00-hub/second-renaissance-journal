@@ -55,7 +55,7 @@ export default async function HomePage({
   const [categories, latest, lessons, price, issn, t] = await Promise.all([
     getCategories(),
     getLatestArticles(sort, 5),
-    getLessons(),
+    getLessons(locale),
     getSetting("pricing.publication"),
     getSetting("journal.issn"),
     getTranslations("common"),

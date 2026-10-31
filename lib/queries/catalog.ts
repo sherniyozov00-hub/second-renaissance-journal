@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { localizeLesson } from "@/lib/academy/l10n";
 import { db } from "@/lib/db";
 
 export const getCategories = cache(() =>
@@ -34,10 +35,14 @@ export const getAuthorBySlug = cache((slug: string) =>
 
 export const getPage = cache((slug: string) => db.page.findUnique({ where: { slug } }));
 
-export const getLessons = cache(() =>
-  db.lesson.findMany({ where: { isPublished: true }, orderBy: { order: "asc" } }),
+/** Published lessons in the visitor's language (lib/academy/l10n.ts). */
+export const getLessons = cache(async (locale: string = "uz") =>
+  (await db.lesson.findMany({ where: { isPublished: true }, orderBy: { order: "asc" } })).map((l) =>
+    localizeLesson(l, locale),
+  ),
 );
 
-export const getLesson = cache((slug: string) =>
-  db.lesson.findFirst({ where: { slug, isPublished: true } }),
-);
+export const getLesson = cache(async (slug: string, locale: string = "uz") => {
+  const lesson = await db.lesson.findFirst({ where: { slug, isPublished: true } });
+  return lesson ? localizeLesson(lesson, locale) : null;
+});

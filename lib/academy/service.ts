@@ -2,6 +2,7 @@ import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
 import { EMPTY_DOC } from "@/lib/ai/doc";
 import { db } from "@/lib/db";
+import { localizeLesson } from "./l10n";
 
 /** Akademiya (TZ 15): progress, practice drafts and sample articles by field. */
 
@@ -40,16 +41,20 @@ export async function setLessonDone(userId: string, slug: string, done: boolean)
  * "Xorazmiy AI bilan mashq": a workspace draft with the lesson's exercise as
  * the first paragraph, so the author writes the answer and asks the AI.
  */
-export async function createPracticeDraft(userId: string, slug: string) {
-  const lesson = await db.lesson.findFirst({ where: { slug, isPublished: true } });
-  if (!lesson) return null;
+const PRACTICE = { uz: "Mashq", ru: "Упражнение", en: "Exercise" } as const;
+
+export async function createPracticeDraft(userId: string, slug: string, locale = "uz") {
+  const row = await db.lesson.findFirst({ where: { slug, isPublished: true } });
+  if (!row) return null;
+  const lesson = localizeLesson(row, locale);
+  const label = PRACTICE[locale as keyof typeof PRACTICE] ?? PRACTICE.uz;
   const body = {
     type: "doc",
     content: [
       {
         type: "heading",
         attrs: { level: 2 },
-        content: [{ type: "text", text: `Mashq: ${lesson.title}` }],
+        content: [{ type: "text", text: `${label}: ${lesson.title}` }],
       },
       {
         type: "blockquote",
@@ -66,7 +71,7 @@ export async function createPracticeDraft(userId: string, slug: string) {
   const draft = await db.draft.create({
     data: {
       userId,
-      title: `Mashq: ${lesson.title}`,
+      title: `${label}: ${lesson.title}`,
       body: body as Prisma.InputJsonValue,
       text: lesson.exercise ?? "",
     },

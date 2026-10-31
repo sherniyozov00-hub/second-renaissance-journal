@@ -548,22 +548,25 @@ model AiUsage {
 // ─── Content ────────────────────────────────────────────────────────────────
 
 model Lesson {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
   /// One-line description for lesson cards.
-  summary     String?
+  summary      String?
   /// Markdown body.
-  body        String
-  durationMin Int
-  order       Int      @default(0)
-  videoUrl    String?
+  body         String
+  durationMin  Int
+  order        Int      @default(0)
+  videoUrl     String?
   /// Worked example shown under the lesson ("namuna", TZ 15). Markdown.
-  example     String?
-  exercise    String?
-  isPublished Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  example      String?
+  exercise     String?
+  /// Russian and English versions: { ru: { title, summary, body, example, exercise }, en: {…} }.
+  /// Missing fields fall back to the Uzbek text above.
+  translations Json     @default("{}")
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   progress LessonProgress[]
 }

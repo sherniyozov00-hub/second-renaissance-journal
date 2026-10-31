@@ -12,6 +12,7 @@ import { SETTINGS } from "../lib/settings/registry";
 import { categories } from "./seed-data/categories";
 import { articles, authors, type SeedArticle } from "./seed-data/articles";
 import { lessons, pages } from "./seed-data/content";
+import { lessonTranslations } from "./seed-data/lesson-translations";
 
 const db = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -252,10 +253,17 @@ async function main() {
   for (const [order, l] of lessons.entries()) {
     await db.lesson.upsert({
       where: { slug: l.slug },
-      // Lessons are edited in Admin → Akademiya; the seed never overwrites them.
+      // Lessons are edited in Admin → Akademiya; the seed only fills missing translations.
       update: {},
-      create: { ...l, order },
+      create: { ...l, order, translations: lessonTranslations[l.slug] ?? {} },
     });
+    // Lessons created before translations existed get them once.
+    if (lessonTranslations[l.slug]) {
+      await db.lesson.updateMany({
+        where: { slug: l.slug, translations: { equals: {} } },
+        data: { translations: lessonTranslations[l.slug] },
+      });
+    }
   }
 
   for (const p of pages) {

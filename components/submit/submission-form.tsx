@@ -1,8 +1,9 @@
 "use client";
 
 import { PrecheckFacts } from "@/components/ai/fact-check-box";
+import { templateHref } from "@/lib/academy/template-href";
 import { ArrowDown, ArrowUp, FileText, Upload, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import {
   payAction,
@@ -56,6 +57,7 @@ export function SubmissionForm({
   sandbox: boolean;
 }) {
   const t = useTranslations("submit");
+  const locale = useLocale();
   const ta = useTranslations("article.types");
   const [articleId, setArticleId] = useState(initial.articleId);
   const [authors, setAuthors] = useState<Author[]>(
@@ -441,7 +443,7 @@ export function SubmissionForm({
                 {t.rich("dropHint", {
                   template: (c) => (
                     <a
-                      href="/shablon/maqola-shabloni.docx"
+                      href={templateHref(locale)}
                       className="text-blue-800 underline"
                       onClick={(e) => e.stopPropagation()}
                     >

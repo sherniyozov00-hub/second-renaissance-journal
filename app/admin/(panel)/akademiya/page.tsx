@@ -11,6 +11,18 @@ export const metadata = { title: "Akademiya darslari" };
 const area =
   "w-full rounded-control border border-border-strong p-3 text-[14px] leading-relaxed focus:border-blue-800 focus:outline-none";
 
+function translation(lesson: Lesson | undefined, lang: "ru" | "en") {
+  const all = (lesson?.translations ?? {}) as Record<string, Record<string, string> | undefined>;
+  const t = all[lang] ?? {};
+  return {
+    title: t.title ?? "",
+    summary: t.summary ?? "",
+    body: t.body ?? "",
+    example: t.example ?? "",
+    exercise: t.exercise ?? "",
+  };
+}
+
 function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number }) {
   return (
     <form action={saveLessonAction} className="space-y-4 p-5">
@@ -78,6 +90,38 @@ function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number 
           />
         </Field>
       </div>
+      {(["ru", "en"] as const).map((lang) => {
+        const tr = translation(lesson, lang);
+        return (
+          <details key={lang} className="rounded-control border border-border">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">
+              {lang === "ru" ? "Ruscha tarjima" : "Inglizcha tarjima"}
+              {tr.title ? "" : " — kiritilmagan (o‘zbekcha ko‘rsatiladi)"}
+            </summary>
+            <div className="space-y-3 border-t border-border p-4">
+              <div className="grid gap-3 md:grid-cols-2">
+                <Field label="Sarlavha">
+                  <input name={`${lang}_title`} defaultValue={tr.title} className={cn(input, "w-full")} />
+                </Field>
+                <Field label="Qisqa tavsif">
+                  <input name={`${lang}_summary`} defaultValue={tr.summary} className={cn(input, "w-full")} />
+                </Field>
+              </div>
+              <Field label="Matn">
+                <textarea name={`${lang}_body`} rows={8} defaultValue={tr.body} className={area} />
+              </Field>
+              <div className="grid gap-3 md:grid-cols-2">
+                <Field label="Namuna">
+                  <textarea name={`${lang}_example`} rows={4} defaultValue={tr.example} className={area} />
+                </Field>
+                <Field label="Mashq">
+                  <textarea name={`${lang}_exercise`} rows={4} defaultValue={tr.exercise} className={area} />
+                </Field>
+              </div>
+            </div>
+          </details>
+        );
+      })}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <label className="flex items-center gap-2 text-sm">
           <input

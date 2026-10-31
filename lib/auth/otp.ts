@@ -40,6 +40,7 @@ export async function requestOtp(
   channel: OtpChannel,
   target: string,
   ip: string | null,
+  locale: string = "uz",
 ): Promise<RequestResult> {
   const now = Date.now();
   const hourAgo = new Date(now - 3600 * 1000);
@@ -70,10 +71,24 @@ export async function requestOtp(
     },
   });
 
-  const text = `${siteConfig.name}: kirish kodi ${code}. Kod 5 daqiqa amal qiladi. Uni hech kimga bermang.`;
+  const msg = {
+    uz: {
+      text: `kirish kodi ${code}. Kod 5 daqiqa amal qiladi. Uni hech kimga bermang.`,
+      subject: "Kirish kodi",
+    },
+    ru: {
+      text: `код входа ${code}. Код действует 5 минут. Никому его не сообщайте.`,
+      subject: "Код входа",
+    },
+    en: {
+      text: `your sign-in code is ${code}. It is valid for 5 minutes. Do not share it.`,
+      subject: "Sign-in code",
+    },
+  }[locale === "ru" || locale === "en" ? locale : "uz"];
+  const text = `${siteConfig.name}: ${msg.text}`;
   try {
     if (channel === "PHONE") await getSmsProvider().send(target, text);
-    else await getEmailProvider().send({ to: target, subject: `Kirish kodi: ${code}`, text });
+    else await getEmailProvider().send({ to: target, subject: `${msg.subject}: ${code}`, text });
   } catch (err) {
     console.error("[otp] delivery failed", err);
     return { ok: false, error: "send_failed" };

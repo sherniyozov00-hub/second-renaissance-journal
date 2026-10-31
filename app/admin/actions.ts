@@ -348,6 +348,17 @@ export async function saveLessonAction(form: FormData) {
     durationMin: int(form, "durationMin") ?? 10,
     order: Number(form.get("order")) || 0,
     isPublished: form.get("isPublished") === "1",
+    // Russian and English versions; empty fields fall back to Uzbek on the site.
+    translations: Object.fromEntries(
+      (["ru", "en"] as const).map((lang) => [
+        lang,
+        Object.fromEntries(
+          (["title", "summary", "body", "example", "exercise"] as const)
+            .map((f) => [f, str(form, `${lang}_${f}`, f === "body" ? 50000 : 20000)])
+            .filter(([, v]) => v),
+        ),
+      ]),
+    ),
   };
   try {
     if (id) await db.lesson.update({ where: { id }, data });

@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale } from "next-intl/server";
 import { AuthError } from "next-auth";
 import { headers } from "next/headers";
 import { signIn, signOut } from "@/auth";
@@ -32,7 +33,7 @@ async function requestCode(form: FormData): Promise<LoginState> {
     return { step: "identify", error: channel === "PHONE" ? "invalid_phone" : "invalid_email" };
   if (form.get("consent") !== "1") return { step: "identify", error: "consent" };
 
-  const result = await requestOtp(channel, target, await clientIp());
+  const result = await requestOtp(channel, target, await clientIp(), await getLocale());
   // A code that is still valid can be entered even if a resend was refused.
   if (!result.ok && result.error !== "too_soon") return { step: "identify", error: result.error };
   return { step: "verify", channel, target };
