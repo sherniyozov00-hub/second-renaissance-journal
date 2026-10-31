@@ -1,7 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { StaffLocaleSwitcher } from "@/components/admin/locale-switcher";
-import { ADMIN_NAV, AdminNav } from "@/components/admin/nav";
+import { AdminNav } from "@/components/admin/nav";
+import { ADMIN_NAV } from "@/lib/admin/nav-items";
 import { LogoMark } from "@/components/brand/logo";
 import { requireEditor } from "@/lib/admin/auth";
 
