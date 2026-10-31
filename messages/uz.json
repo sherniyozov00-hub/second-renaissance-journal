@@ -1134,6 +1134,35 @@
       "isExample": "namuna",
       "promote": "Namunaga aylantirish",
       "noFeedback": "Hali fikr yo‘q."
+    },
+    "review": {
+      "mine": "Menga biriktirilgan maqolalar",
+      "blind": "Ko‘r taqriz: mualliflar haqidagi ma’lumot sizga ko‘rsatilmaydi.",
+      "sent": "Taqriz yuborildi. Rahmat!",
+      "colArticle": "Maqola",
+      "colCategory": "Yo‘nalish",
+      "colDue": "Muddat",
+      "colStatus": "Holat",
+      "submitted": "Topshirilgan",
+      "pending": "Kutilmoqda",
+      "view": "Ko‘rish",
+      "write": "Taqriz yozish",
+      "none": "Hozircha biriktirilgan maqola yo‘q.",
+      "back": "← Ro‘yxat",
+      "due": "muddat",
+      "manuscript": "Qo‘lyozma (.docx, v{version})",
+      "originality": "Originallik",
+      "aiUsed": "AI ishlatilgan",
+      "review": "Taqriz",
+      "error": "Barcha baholar (1–5), tavsiya va kamida 20 belgili izoh kerak.",
+      "c_scoreRelevance": "Dolzarblik",
+      "c_scoreMethodology": "Metodologiya",
+      "c_scoreResults": "Natijalar",
+      "c_scoreLanguage": "Til va uslub",
+      "recommendation": "Tavsiya",
+      "comment": "Izoh (muharrir va muallif uchun)",
+      "submittedOn": "Topshirilgan: {date}",
+      "send": "Taqrizni yuborish"
     }
   }
 }

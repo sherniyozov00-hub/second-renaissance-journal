@@ -1134,6 +1134,35 @@
       "isExample": "example",
       "promote": "Make an example",
       "noFeedback": "No feedback yet."
+    },
+    "review": {
+      "mine": "Articles assigned to me",
+      "blind": "Blind review: you do not see who the authors are.",
+      "sent": "Review submitted. Thank you!",
+      "colArticle": "Article",
+      "colCategory": "Field",
+      "colDue": "Due",
+      "colStatus": "Status",
+      "submitted": "Submitted",
+      "pending": "Pending",
+      "view": "View",
+      "write": "Write the review",
+      "none": "No articles assigned yet.",
+      "back": "← List",
+      "due": "due",
+      "manuscript": "Manuscript (.docx, v{version})",
+      "originality": "Originality",
+      "aiUsed": "AI used",
+      "review": "Review",
+      "error": "All scores (1–5), a recommendation and a comment of at least 20 characters are required.",
+      "c_scoreRelevance": "Relevance",
+      "c_scoreMethodology": "Methodology",
+      "c_scoreResults": "Results",
+      "c_scoreLanguage": "Language and style",
+      "recommendation": "Recommendation",
+      "comment": "Comment (for the editor and the author)",
+      "submittedOn": "Submitted: {date}",
+      "send": "Submit the review"
     }
   }
 }
