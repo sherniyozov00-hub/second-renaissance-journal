@@ -1,5 +1,6 @@
 "use client";
 
+import { PrecheckFacts } from "@/components/ai/fact-check-box";
 import { ArrowDown, ArrowUp, FileText, Upload, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
@@ -506,7 +507,10 @@ export function SubmissionForm({
                         : "ok"
                     }
                   />
-                  <Metric label={t("facts")} value="—" note={t("factsSoon")} noteTone="muted" />
+                  <div className="rounded-control border border-border p-3">
+                    <p className="mb-1.5 text-xs text-text-2">{t("facts")}</p>
+                    {articleId ? <PrecheckFacts articleId={articleId} /> : null}
+                  </div>
                   <Metric
                     label={t("citations")}
                     value="APA 7"

@@ -97,7 +97,10 @@ export async function handlePayme(req: RpcRequest, authHeader: string | null): P
         return error(id, PAYME_ERRORS.AMOUNT, "Wrong amount");
       return result(id, {
         allow: true,
-        detail: await receiptDetail(p.article?.titleUz ?? "Nashr", p.amount * 100),
+        detail: await receiptDetail(
+          p.article?.titleUz ?? (p.purpose === "AI_PACKAGE" ? "Xorazmiy AI paketi" : "Nashr"),
+          p.amount * 100,
+        ),
       });
     }
 

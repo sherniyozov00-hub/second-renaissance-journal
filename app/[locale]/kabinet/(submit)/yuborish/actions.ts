@@ -139,12 +139,15 @@ export async function sandboxPayAction(form: FormData) {
   if (form.get("decision") === "pay") {
     await markPaid(payment!.id, `sandbox-${payment!.id}`, { sandbox: true, at: Date.now() });
     revalidatePath("/[locale]/kabinet", "layout");
-    redirect(getPathname({ href: { pathname: "/kabinet", query: { tolandi: "1" } }, locale }));
+    const back = payment!.purpose === "AI_PACKAGE" ? "/kabinet/ai-paket" : "/kabinet";
+    redirect(getPathname({ href: { pathname: back, query: { tolandi: "1" } }, locale }));
   }
   await db.payment.updateMany({
     where: { id: payment!.id, status: "PENDING" },
     data: { status: "CANCELLED" },
   });
+  if (payment!.purpose === "AI_PACKAGE")
+    redirect(getPathname({ href: "/kabinet/ai-paket", locale }));
   redirect(
     getPathname({
       href: { pathname: "/kabinet/yuborish", query: { maqola: payment!.articleId ?? "" } },

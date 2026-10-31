@@ -1,6 +1,7 @@
 import "server-only";
 import type { PaymentProvider, Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
+import { getSettings } from "@/lib/settings/get";
 
 export function paymentsMode(): "sandbox" | "live" {
   return process.env.PAYMENTS_MODE === "live" ? "live" : "sandbox";
@@ -15,6 +16,7 @@ export async function markPaid(
   providerTxId: string,
   providerData?: Prisma.InputJsonValue,
 ): Promise<"paid" | "already_paid" | "not_found" | "cancelled"> {
+  const packageChecks = Number((await getSettings())["ai.packageChecks"]) || 20;
   return db
     .$transaction(async (tx) => {
       const payment = await tx.payment.findUnique({ where: { id: paymentId } });
@@ -36,6 +38,12 @@ export async function markPaid(
         await tx.promoCode.update({
           where: { id: payment.promoCodeId },
           data: { used: { increment: 1 } },
+        });
+      }
+      if (payment.purpose === "AI_PACKAGE") {
+        await tx.user.update({
+          where: { id: payment.userId },
+          data: { aiCredits: { increment: packageChecks } },
         });
       }
       if (payment.articleId && payment.purpose === "PUBLICATION") {

@@ -430,3 +430,14 @@ export async function startPayment(
   }
   return { payment };
 }
+
+export const AI_PACKAGE_DEMO_PRICE = 20_000;
+
+/** Price of an extra AI package; in sandbox an unset price uses a demo amount. */
+export async function aiPackagePrice(): Promise<number | null> {
+  const price = parsePrice((await getSettings())["pricing.aiPackage"]);
+  if (price === null && paymentsMode() === "sandbox") return AI_PACKAGE_DEMO_PRICE;
+  return price;
+}
+
+export { PROVIDERS as PAYMENT_PROVIDERS };

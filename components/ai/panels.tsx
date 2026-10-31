@@ -690,7 +690,16 @@ export function Panel({
                     className={buttonClass(addedIds.has(s.id) ? "secondary" : "outline", "sm")}
                     disabled={addedIds.has(s.id)}
                     onClick={async () => {
-                      const { abstract: _a, source: _s, citedBy: _c, ...ref } = s;
+                      const ref: DraftReference = {
+                        id: s.id,
+                        title: s.title,
+                        authors: s.authors,
+                        year: s.year,
+                        journal: s.journal,
+                        doi: s.doi,
+                        url: s.url,
+                        verified: s.verified,
+                      };
                       if (await addReference(ref)) setAddedIds((x) => new Set(x).add(s.id));
                     }}
                   >

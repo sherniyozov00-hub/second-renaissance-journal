@@ -86,7 +86,7 @@ export function markFacts(
 }
 
 export function removeFact(editor: Editor, claimId: string) {
-  const { tr, doc, schema } = editor.state;
+  const { tr, doc } = editor.state;
   doc.descendants((node, pos) => {
     const mark = node.marks.find((m) => m.type.name === "fact" && m.attrs.claimId === claimId);
     if (mark) tr.removeMark(pos, pos + node.nodeSize, mark);

@@ -40,7 +40,9 @@ export default async function SandboxCheckoutPage({ params }: Props) {
       <dl className="mt-5 space-y-2 text-sm">
         <div className="flex justify-between gap-4">
           <dt className="text-text-2">{t("articleLabel")}</dt>
-          <dd className="text-right text-ink">{payment.article?.titleUz}</dd>
+          <dd className="text-right text-ink">
+            {payment.purpose === "AI_PACKAGE" ? t("aiPackageLabel") : payment.article?.titleUz}
+          </dd>
         </div>
         <div className="flex justify-between gap-4 border-t border-border pt-2 text-base font-semibold">
           <dt>{t("total")}</dt>

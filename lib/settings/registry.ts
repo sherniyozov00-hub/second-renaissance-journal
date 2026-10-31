@@ -48,6 +48,12 @@ export const SETTINGS: readonly SettingDefinition[] = [
     description: "Fast-track review surcharge",
   },
   {
+    key: "pricing.aiPackage",
+    group: "pricing",
+    defaultValue: "[NARX]",
+    description: "Price of an extra Xorazmiy AI package (TZ 10.4 “Limitni oshirish”)",
+  },
+  {
     key: "pricing.refundTerms",
     group: "pricing",
     defaultValue: "[QAYTARISH SHARTLARI]",
@@ -124,6 +130,12 @@ export const SETTINGS: readonly SettingDefinition[] = [
     group: "ai",
     defaultValue: 10,
     description: "Free checks per author per month",
+  },
+  {
+    key: "ai.packageChecks",
+    group: "ai",
+    defaultValue: 20,
+    description: "Checks in one purchased AI package",
   },
   {
     key: "ai.authorMaxChars",

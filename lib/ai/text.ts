@@ -18,7 +18,7 @@ export function splitParagraphs(text: string): string[] {
 /** Headings are not fact-checked: short lines without a full stop. */
 export function isCheckable(paragraph: string): boolean {
   const words = paragraph.split(/\s+/).length;
-  return words >= 6 && /[.!?…;:]|\d/.test(paragraph);
+  return words >= 4 && /[.!?…;:]|\d/.test(paragraph);
 }
 
 export function hashText(...parts: string[]): string {

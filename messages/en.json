@@ -234,8 +234,7 @@
   },
   "aiLanding": {
     "title": "Xorazmiy AI — research assistant",
-    "lead": "Named after al-Khwarizmi, whose name gave us the word “algorithm”. It teaches you to write, edits your text, finds international sources and checks facts — but it does not write your paper for you.",
-    "soon": "The workspace opens soon. Meanwhile, see the example on the home page."
+    "lead": "Named after al-Khwarizmi, whose name gave us the word “algorithm”. It teaches you to write, edits your text, finds international sources and checks facts — but it does not write your paper for you."
   },
   "notFound": {
     "title": "Page not found",
@@ -424,7 +423,15 @@
       "name": "Enter your full name (at least 3 characters).",
       "orcid": "Invalid ORCID format."
     },
-    "writing": "Write with Xorazmiy AI"
+    "writing": "Write with Xorazmiy AI",
+    "aiPackageTitle": "Raise your Xorazmiy AI limit",
+    "aiPackageLead": "{monthly} checks are free every month. An extra package never expires and is used after the free checks. AI checks of an article with a paid publication do not count.",
+    "aiPackageLeft": "Free checks left this month: {count}",
+    "aiCredits": "Purchased checks: {count}",
+    "aiPackageOffer": "{checks} checks",
+    "aiPackageBuy": "Pay",
+    "aiPackagePaid": "Payment received — the checks were added.",
+    "aiPackageNoPrice": "The package price is not set yet. Please contact the editors."
   },
   "certificate": {
     "title": "Certificate {id}",
@@ -491,7 +498,6 @@
     "runCheck": "Check",
     "originality": "Originality",
     "facts": "Facts",
-    "factsSoon": "once AI is connected",
     "citations": "Citations",
     "citationsShort": "{missing} missing",
     "template": "Template",
@@ -561,7 +567,8 @@
     "sandboxPay": "Confirm payment",
     "sandboxCancel": "Cancel",
     "paidBanner": "Payment received. Your article has been sent for review.",
-    "articleLabel": "Article"
+    "articleLabel": "Article",
+    "aiPackageLabel": "Xorazmiy AI package"
   },
   "ai": {
     "name": "Xorazmiy AI",

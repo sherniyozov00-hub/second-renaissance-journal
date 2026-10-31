@@ -12,6 +12,7 @@ export const ADMIN_NAV = [
   { href: "/admin/mualliflar", label: "Mualliflar", adminOnly: false },
   { href: "/admin/taqrizchilar", label: "Taqrizchilar", adminOnly: false },
   { href: "/admin/tolovlar", label: "To‘lovlar", adminOnly: true },
+  { href: "/admin/xorazmiy-ai", label: "Xorazmiy AI", adminOnly: false },
   { href: "/admin/akademiya", label: "Akademiya darslari", adminOnly: true },
   { href: "/admin/sahifalar", label: "Sahifalar va SEO", adminOnly: true },
   { href: "/admin/foydalanuvchilar", label: "Foydalanuvchilar va rollar", adminOnly: true },

@@ -28,7 +28,7 @@ function VerdictIcon({ kind }: { kind: "correct" | "wrong" | "source" }) {
 
 /**
  * Live-looking fact-check sample in the hero (Ekran 1 right, Ekran 2).
- * The interactive guest trial is wired in stage 6; the button opens /xorazmiy-ai.
+ * The button opens the free guest trial on /xorazmiy-ai.
  */
 export async function AiDemoCard({ className }: { className?: string }) {
   const t = await getTranslations("aiCard");
@@ -90,7 +90,7 @@ export async function AiDemoCard({ className }: { className?: string }) {
           </li>
         </ul>
 
-        <Link href="/xorazmiy-ai" className={buttonClass("primary", "lg", "w-full")}>
+        <Link href="/xorazmiy-ai#sinov" className={buttonClass("primary", "lg", "w-full")}>
           {t("button")}
         </Link>
       </div>

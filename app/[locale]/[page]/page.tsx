@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ListHeader } from "@/components/article/article-list";
 import { ProcessAndPrice } from "@/components/home/sections";
+import { SimpleMarkdown } from "@/components/ui/simple-markdown";
 import { PageShell } from "@/components/layout/page-shell";
 import type { AppLocale } from "@/i18n/routing";
 import { pick } from "@/lib/l10n";
@@ -99,11 +100,7 @@ export default async function StaticPage({ params }: Props) {
       {price !== null ? <ProcessAndPrice price={price as string | number} /> : null}
       <div className="container-site py-8 md:py-12 lg:max-w-[880px]">
         {page === "mualliflarga" ? <Requirements /> : null}
-        <div className="space-y-4 text-base leading-relaxed text-text-2">
-          {body.split(/\n{2,}/).map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
-        </div>
+        <SimpleMarkdown text={body} className="space-y-4 text-base leading-relaxed text-text-2" />
       </div>
     </PageShell>
   );

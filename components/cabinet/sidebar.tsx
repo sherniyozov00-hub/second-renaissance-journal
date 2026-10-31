@@ -93,7 +93,7 @@ export async function CabinetSidebar({
           <div className="h-full rounded-full bg-gold" style={{ width: `${percent}%` }} />
         </div>
         <Link
-          href="/xorazmiy-ai"
+          href="/kabinet/ai-paket"
           className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-white hover:underline"
         >
           {t("aiRaise")} <ArrowRight className="size-4" aria-hidden />
