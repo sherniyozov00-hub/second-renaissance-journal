@@ -41,7 +41,7 @@ test.describe("Xorazmiy AI (Ekran 3)", () => {
       await expect(card.locator('a[href^="https://"]')).not.toHaveCount(0);
 
       await page.getByRole("tab", { name: "Tahrir" }).click();
-      await page.getByRole("button", { name: "Tahrir takliflarini olish" }).click();
+      await page.getByRole("button", { name: "Matnni tekshirish va variantlar olish" }).click();
       const edit = page.locator("article").filter({ hasText: "Ortiqcha kirish" }).first();
       await expect(edit).toBeVisible();
       await expect(editor.locator("del")).not.toHaveCount(0);

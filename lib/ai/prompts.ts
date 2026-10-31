@@ -19,6 +19,17 @@ export async function systemPrompt(type: ArticleType, categoryId: string | null)
   return `${PERSONA}\n\n${await knowledgePrompt(type, categoryId)}`;
 }
 
+const LANG_NAME = { uz: "o‘zbek (lotin)", ru: "rus", en: "ingliz" } as const;
+
+/**
+ * Explanations follow the author's interface language (uz/ru/en); quotes and
+ * fixes stay in the language of the manuscript. Goes in the user message, so
+ * the cached system prompt is shared by all three languages.
+ */
+export function languageLine(lang: keyof typeof LANG_NAME) {
+  return `Javob tili: izohlar, sabablar, savollar va maslahatlar — ${LANG_NAME[lang]} tilida. Muallif matnidan ko‘chirmalar va tuzatishlar (original, replacement, alternatives, correction) esa matnning o‘z tilida bo‘lsin — tarjima qilma.`;
+}
+
 export function wrapText(text: string, tag = "matn") {
   return `<${tag}>\n${text}\n</${tag}>`;
 }

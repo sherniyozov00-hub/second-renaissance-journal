@@ -612,7 +612,7 @@
     "toolCitations": "Iqtiboslar",
     "toolTranslate": "Tarjima (EN/RU)",
     "integrityTitle": "Akademik halollik rejimi",
-    "integrityText": "AI maqolani siz uchun yozmaydi — tushuntiradi, tekshiradi va taklif beradi.",
+    "integrityText": "AI maqolani siz uchun yozmaydi — xatolarni topadi, tushuntiradi va tuzatish variantlarini beradi.",
     "tabCheck": "Tekshiruv",
     "tabSources": "Manbalar",
     "tabEdit": "Tahrir",
@@ -662,8 +662,8 @@
     "added": "Qo‘shildi",
     "copy": "Nusxa",
     "copied": "Nusxalandi",
-    "editRun": "Tahrir takliflarini olish",
-    "editIntro": "Imlo, punktuatsiya, uslub va akademik til. Har tuzatish matnda ko‘rsatiladi — qabul qiling yoki rad eting.",
+    "editRun": "Matnni tekshirish va variantlar olish",
+    "editIntro": "Xorazmiy AI matnni siz uchun yozmaydi: ma’nosi to‘g‘ri chiqmagan, mantiqi kelishmagan joylarni hamda imlo va uslub xatolarini topadi va “shu yerini shunday tuzatsangiz yaxshi chiqadi” deb variantlar beradi. Variantni tanlang, so‘ng qabul qiling yoki rad eting.",
     "editNone": "Taklif yo‘q — matn toza ko‘rinadi.",
     "accept": "Qabul qilish",
     "reject": "Rad etish",
@@ -747,7 +747,11 @@
     "updated": "Yangilangan: {date}",
     "submittedAs": "Maqola #{number}",
     "precheckRun": "Faktlarni tekshirish",
-    "precheckSummary": "{correct} to‘g‘ri · {incorrect} noto‘g‘ri · {needs} manba kerak"
+    "precheckSummary": "{correct} to‘g‘ri · {incorrect} noto‘g‘ri · {needs} manba kerak",
+    "variants": "Variantlar — birini tanlang",
+    "variantDelete": "(olib tashlash)",
+    "kind_meaning": "ma’no",
+    "kind_logic": "mantiq"
   },
   "ranking": {
     "title": "OTMlar reytingi",

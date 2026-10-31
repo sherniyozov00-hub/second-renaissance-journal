@@ -31,6 +31,8 @@ export type EditCase = {
   text: string;
   /** Substrings that a good edit set must touch. */
   mustTouch: string[];
+  /** A meaning/logic problem that must come with variants to choose from. */
+  needsVariants?: boolean;
   liveOnly?: boolean;
 };
 
@@ -95,5 +97,13 @@ export const EDIT_CASES: EditCase[] = [
     name: "Ortiqcha kirish so‘zi va imlo",
     text: "Ushbu maqolada biz shuni ko‘rib chiqamizki tomchilatib sug‘orishning kichik xo'jaliklar uchun qanchalik o‘zini oqlashi baholanadi.",
     mustTouch: ["biz shuni ko‘rib chiqamizki", "xo'jaliklar"],
+    needsVariants: true,
+  },
+  {
+    name: "Mantiqiy uzilish (sabab-oqibat)",
+    text: "Tajribada tomchilatib sug‘orish qo‘llanildi. Hosildorlik 12 % oshdi. Shuning uchun suv sarfi kamaydi.",
+    mustTouch: ["Shuning uchun suv sarfi kamaydi"],
+    needsVariants: true,
+    liveOnly: true,
   },
 ];

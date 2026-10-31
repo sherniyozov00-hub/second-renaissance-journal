@@ -612,7 +612,7 @@
     "toolCitations": "Citations",
     "toolTranslate": "Translation (EN/RU)",
     "integrityTitle": "Academic integrity mode",
-    "integrityText": "The AI does not write the article for you — it explains, checks and suggests.",
+    "integrityText": "The AI does not write the article for you — it finds problems, explains them and offers fixes to choose from.",
     "tabCheck": "Check",
     "tabSources": "Sources",
     "tabEdit": "Edits",
@@ -662,8 +662,8 @@
     "added": "Added",
     "copy": "Copy",
     "copied": "Copied",
-    "editRun": "Get edit suggestions",
-    "editIntro": "Spelling, punctuation, style and academic language. Each fix is shown in the text — accept or reject it.",
+    "editRun": "Check the text and get variants",
+    "editIntro": "Xorazmiy AI does not write the text for you: it finds places where the meaning comes out wrong or the logic does not hold, plus spelling and style errors, and offers variants — “fix this spot like this and it will read well”. Pick a variant, then accept or reject it.",
     "editNone": "No suggestions — the text looks clean.",
     "accept": "Accept",
     "reject": "Reject",
@@ -747,7 +747,11 @@
     "updated": "Updated: {date}",
     "submittedAs": "Article #{number}",
     "precheckRun": "Check the facts",
-    "precheckSummary": "{correct} correct · {incorrect} incorrect · {needs} need a source"
+    "precheckSummary": "{correct} correct · {incorrect} incorrect · {needs} need a source",
+    "variants": "Variants — pick one",
+    "variantDelete": "(remove)",
+    "kind_meaning": "meaning",
+    "kind_logic": "logic"
   },
   "ranking": {
     "title": "University ranking",

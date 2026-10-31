@@ -6,9 +6,10 @@ import { originality, type OriginalityReport } from "@/lib/submission/originalit
 import { aiMode, structured, textAnswer } from "./client";
 import { mockAssist, mockChat, mockEdits, mockPlan, mockTranslation } from "./mock";
 import { NO_SPEND, type Spend } from "./pricing";
-import { numbered, systemPrompt, wrapText } from "./prompts";
+import { languageLine, numbered, systemPrompt, wrapText } from "./prompts";
 import {
   type AiFeature,
+  type AiLang,
   type Assist,
   AssistSchema,
   type ChatMessage,
@@ -35,6 +36,8 @@ export type FeatureContext = {
   articleId: string | null;
   articleType: ArticleType;
   categoryId: string | null;
+  /** Interface language of the author; explanations come back in it. */
+  lang: AiLang;
 };
 
 export async function record(
@@ -109,6 +112,7 @@ export async function makePlan(ctx: FeatureContext, title: string, notes: string
           effort: "medium",
           schema: PlanSchema,
           prompt: `Vazifa: “Reja tuzish”. Mavzu va muallif izohlari asosida tadqiqot savoli, gipoteza (tadqiqot turi uchun mos bo‘lsa) va maqola turiga mos bo‘limlar rejasini tuz. Har bo‘limda nima yozilishi va qaysi savollarga javob berilishi kerakligini tushuntir. sample_sentence — ixtiyoriy, bitta qisqa namuna jumla; raqam yoki manba o‘ylab topma, o‘rniga [raqam], [manba] qo‘y. Bo‘limni muallif o‘rniga yozma.
+${languageLine(ctx.lang)}
 ${wrapText(`Mavzu: ${title}\nIzohlar: ${notes || "—"}`)}`,
         });
   const checkId = await record(ctx, "plan", "PLAN", title + notes, res.data, res.spend, res.model);
@@ -124,6 +128,7 @@ export async function assistWriting(ctx: FeatureContext, text: string, question:
           effort: "medium",
           schema: AssistSchema,
           prompt: `Vazifa: “Yozishga yordam”. Muallif yozgan qismni maqola turi qo‘llanmasi va tekshiruv ro‘yxati bo‘yicha baholab, uni o‘zi yaxshilashi uchun savollar va aniq maslahatlar ber. Matnni qayta yozib berma; sample_sentence — faqat usulni ko‘rsatuvchi bitta qisqa namuna (raqam va manbani o‘ylab topma).
+${languageLine(ctx.lang)}
 Muallif savoli: ${question || "—"}
 ${wrapText(text)}`,
         });
@@ -144,12 +149,17 @@ export async function suggestEdits(ctx: FeatureContext, text: string) {
   const paragraphs = splitParagraphs(text);
   const res =
     aiMode() === "mock"
-      ? mockResult({ edits: mockEdits(paragraphs) })
+      ? mockResult({ edits: mockEdits(paragraphs, ctx.lang) })
       : await structured({
           system: await systemPrompt(ctx.articleType, ctx.categoryId),
           effort: "medium",
           schema: EditsSchema,
-          prompt: `Vazifa: “Tahrir”. Imlo, punktuatsiya, uslub, akademik til va atamalar bo‘yicha aniq tuzatishlar taklif qil (eng muhim 30 tasigacha). Har tuzatish: paragraph — xatboshi raqami, original — o‘sha xatboshidan AYNAN ko‘chirilgan qisqa qism (faqat o‘zgaradigan so‘zlar va zarur bo‘lsa yonidagi 1–2 so‘z), replacement — o‘rniga qo‘yiladigan matn (o‘chirish uchun bo‘sh), reason_uz — qisqa sabab. Ma’noni, raqamlarni va muallif ma’lumotlarini o‘zgartirma; butun jumlani qayta yozma.
+          prompt: `Vazifa: “Tahrir” — muallifga matnini o‘zi yaxshilashi uchun aniq takliflar ber (eng muhim 30 tasigacha). Ikki darajada qara:
+1) Til: imlo, punktuatsiya, uslub, akademik til, atamalar (kind: spelling, punctuation, style, clarity, terminology, academic).
+2) Ma’no va mantiq — eng muhimi: kelishmagan, ma’nosi to‘g‘ri chiqmagan yoki kontekstga zid joylar (kind: meaning), bir-biriga zid da’volar, dalildan kelib chiqmaydigan xulosa, jumlalar orasidagi uzilgan bog‘lanish, bir tushuncha uchun turli atamalar (kind: logic). Bunday joyda butun jumlani olish mumkin.
+Har taklif: paragraph — xatboshi raqami; original — o‘sha xatboshidan AYNAN ko‘chirilgan qism (til tuzatishida faqat o‘zgaradigan so‘zlar, ma’no/mantiqda — jumla); replacement — eng yaxshi variant; alternatives — ma’no/mantiq va uslub uchun yana 1–2 ta boshqacha variant (muallif tanlaydi), oddiy imlo uchun bo‘sh ro‘yxat; reason — nima kelishmagani va nega shunday tuzatish yaxshiroq, 1–2 jumla.
+Variantlar muallifning o‘z fikrini aniqroq aytadi: yangi ma’lumot, raqam yoki manba qo‘shma, muallif ma’lumotlarini o‘zgartirma, yangi jumla yoki bo‘lim yozma. Jumla to‘g‘ri bo‘lsa, unga taklif berma.
+${languageLine(ctx.lang)}
 ${wrapText(numbered(paragraphs))}`,
         });
   const edits: EditSuggestion[] = [];
@@ -167,12 +177,12 @@ ${wrapText(numbered(paragraphs))}`,
 export async function translate(ctx: FeatureContext, title: string, abstract: string) {
   const res: { data: Translation; spend: Spend; model: string } =
     aiMode() === "mock"
-      ? mockResult(mockTranslation(title, abstract))
+      ? mockResult(mockTranslation(title, abstract, ctx.lang))
       : await structured({
           system: await systemPrompt(ctx.articleType, ctx.categoryId),
           effort: "medium",
           schema: TranslateSchema,
-          prompt: `Vazifa: “Tarjima”. Sarlavha va annotatsiyani ingliz va rus tiliga ilmiy uslubda tarjima qil. Sohaning xalqaro atamalarini ishlat, raqam va birliklarni o‘zgartirma, yangi ma’lumot qo‘shma. notes_uz — muallif tekshirishi kerak bo‘lgan atamalar (2–5 ta).
+          prompt: `Vazifa: “Tarjima”. Sarlavha va annotatsiyani ingliz va rus tiliga ilmiy uslubda tarjima qil. Sohaning xalqaro atamalarini ishlat, raqam va birliklarni o‘zgartirma, yangi ma’lumot qo‘shma. notes — muallif tekshirishi kerak bo‘lgan atamalar (2–5 ta), ${{ uz: "o‘zbek", ru: "rus", en: "ingliz" }[ctx.lang]} tilida izoh bilan.
 ${wrapText(`Sarlavha: ${title}\n\nAnnotatsiya: ${abstract}`)}`,
         });
   const checkId = await record(
@@ -260,13 +270,14 @@ export async function chat(
   draft: { title: string; text: string },
 ) {
   if (aiMode() === "mock") {
-    const answer = mockChat(question);
+    const answer = mockChat(question, ctx.lang);
     await record(ctx, "chat", "CHAT", question, { question, answer }, NO_SPEND, "mock");
     return { answer };
   }
   const context = `${wrapText(`Sarlavha: ${draft.title}\n\n${draft.text.slice(0, 40000)}`, "maqola")}
 
-Vazifa: “Chat”. Muallifning maqolasi bo‘yicha savoliga javob ber. Qisqa (odatda 3–8 jumla), aniq va amaliy bo‘l. Manba yoki raqamni o‘ylab topma — kerak bo‘lsa “Xalqaro manbalar” yoki “Fakt tekshiruvi” asbobini tavsiya qil. Bo‘limni muallif o‘rniga noldan yozma; muallifning o‘z matnini qisqartirish yoki tahrir qilish so‘ralsa — bajarishing mumkin.`;
+Vazifa: “Chat”. Muallifning maqolasi bo‘yicha savoliga javob ber. Qisqa (odatda 3–8 jumla), aniq va amaliy bo‘l. Manba yoki raqamni o‘ylab topma — kerak bo‘lsa “Xalqaro manbalar” yoki “Fakt tekshiruvi” asbobini tavsiya qil. Bo‘limni muallif o‘rniga noldan yozma; muallifning o‘z matnini qisqartirish yoki tahrir qilish so‘ralsa — bajarishing mumkin.
+${languageLine(ctx.lang)} Muallif boshqa tilda yozsa, shu tilda javob ber.`;
   const messages = [
     { role: "user" as const, content: context },
     { role: "assistant" as const, content: "Tushunarli. Savolingizni bering." },

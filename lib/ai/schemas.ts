@@ -36,8 +36,8 @@ export const VerdictsSchema = z.object({
     z.object({
       id: z.string().max(20),
       verdict: z.enum(VERDICTS),
-      explanation_uz: z.string().min(1).max(800),
-      correction_uz: z.string().max(400).nullable(),
+      explanation: z.string().min(1).max(800),
+      correction: z.string().max(400).nullable(),
       sources: z.array(SourceSchema).max(5),
     }),
   ),
@@ -74,11 +74,26 @@ export const EditsSchema = z.object({
     .array(
       z.object({
         paragraph: z.number().int().min(0),
-        /** Exact substring of that paragraph to replace (may be empty only for pure insertions). */
-        original: z.string().min(1).max(500),
-        replacement: z.string().max(500),
-        kind: z.enum(["spelling", "punctuation", "style", "clarity", "terminology", "academic"]),
-        reason_uz: z.string().min(1).max(300),
+        /** Exact substring of that paragraph to replace. */
+        original: z.string().min(1).max(800),
+        /** The best fix — shown as a tracked change. */
+        replacement: z.string().max(800),
+        /** Other ways to fix it; the author picks one ("variantlar"). */
+        alternatives: z.array(z.string().max(800)).max(2),
+        kind: z.enum([
+          "spelling",
+          "punctuation",
+          "style",
+          "clarity",
+          "terminology",
+          "academic",
+          // Meaning: the sentence says something other than the author means, or is wrong in context.
+          "meaning",
+          // Logic: a contradiction, a conclusion that does not follow, a broken link between sentences.
+          "logic",
+        ]),
+        /** Why, in the author's interface language. */
+        reason: z.string().min(1).max(400),
       }),
     )
     .max(30),
@@ -124,7 +139,7 @@ export const TranslateSchema = z.object({
   abstract_en: z.string().max(4000),
   title_ru: z.string().max(400),
   abstract_ru: z.string().max(4000),
-  notes_uz: z.array(z.string().max(300)).max(5),
+  notes: z.array(z.string().max(300)).max(5),
 });
 export type Translation = z.infer<typeof TranslateSchema>;
 
@@ -161,3 +176,9 @@ export const AI_FEATURES = [
   "chat",
 ] as const;
 export type AiFeature = (typeof AI_FEATURES)[number];
+
+/** Interface language: AI explanations come back in it (the text keeps its own language). */
+export const AI_LANGS = ["uz", "ru", "en"] as const;
+export type AiLang = (typeof AI_LANGS)[number];
+export const parseLang = (v: unknown): AiLang =>
+  AI_LANGS.includes(v as AiLang) ? (v as AiLang) : "uz";

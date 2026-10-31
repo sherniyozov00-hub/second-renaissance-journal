@@ -34,6 +34,7 @@ async function main() {
       articleType: c.articleType,
       categoryId: null,
       maxClaims: 20,
+      lang: "uz" as const,
     };
     const r = await runFactCheck(c.text, ctx, (e) => e.type === "result" && results.push(e.result));
     spend = addSpend(spend, r.spend);
@@ -59,6 +60,7 @@ async function main() {
       articleId: null,
       articleType: c.articleType,
       categoryId: null,
+      lang: "uz" as const,
     };
     const { plan } = await makePlan(ctx, c.title, "");
     const titles = plan.sections.map((s) => s.title.toLowerCase()).join(" | ");
@@ -83,6 +85,7 @@ async function main() {
       articleId: null,
       articleType: "RESEARCH" as const,
       categoryId: null,
+      lang: "uz" as const,
     };
     const { edits } = await suggestEdits(ctx, c.text);
     const notes: string[] = [];
@@ -92,10 +95,25 @@ async function main() {
       else notes.push(`tuzatilmadi: ${m}`);
     }
     for (const e of edits) {
-      if (digits(e.original) !== digits(e.replacement))
-        notes.push(`QOIDA: raqam o‘zgartirildi — ${e.original}`);
+      for (const v of [e.replacement, ...e.alternatives]) {
+        if (digits(e.original) !== digits(v))
+          notes.push(`QOIDA: raqam o‘zgartirildi — ${e.original}`);
+      }
     }
-    rows.push({ suite: "tahrir", name: c.name, score, total: c.mustTouch.length, notes });
+    if (c.needsVariants) {
+      const withVariants = edits.some(
+        (e) => (e.kind === "meaning" || e.kind === "logic") && e.alternatives.length >= 1,
+      );
+      if (withVariants) score++;
+      else notes.push("ma’no/mantiq xatosi uchun variantlar berilmadi");
+    }
+    rows.push({
+      suite: "tahrir",
+      name: c.name,
+      score,
+      total: c.mustTouch.length + (c.needsVariants ? 1 : 0),
+      notes,
+    });
   }
 
   let ok = true;

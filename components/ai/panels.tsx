@@ -2,7 +2,7 @@
 
 import type { Editor } from "@tiptap/react";
 import { ArrowRight, Check, Copy, ExternalLink } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useTransition } from "react";
 import {
   addReferenceAction,
@@ -60,6 +60,8 @@ type TrackedItem = {
   kind: string | null;
   original: string;
   replacement: string;
+  /** All fixes offered, the first is the AI's choice; the author can switch. */
+  variants: string[];
   status: "pending" | "accepted" | "rejected";
   checkId: string | null;
 };
@@ -130,6 +132,7 @@ export function Panel({
   mock: boolean;
 }) {
   const t = useTranslations("ai");
+  const locale = useLocale();
 
   // Fact check
   const [facts, setFacts] = useState<FactResult[]>(initialFacts);
@@ -168,10 +171,11 @@ export function Panel({
       .filter((e) => live.has(e.id))
       .map((e) => ({
         id: e.id,
-        reason: e.reason_uz,
+        reason: e.reason,
         kind: e.kind,
         original: e.original,
         replacement: e.replacement,
+        variants: [e.replacement, ...(e.alternatives ?? [])],
         status: "pending" as const,
         checkId: null,
       }));
@@ -227,7 +231,7 @@ export function Panel({
       finished: false,
     });
     const seen = new Set<number>();
-    await streamFactCheck({ draftId, text }, (e) => {
+    await streamFactCheck({ draftId, text, lang: locale }, (e) => {
       if (e.type === "start") setFactRun((s) => ({ ...s, total: e.paragraphs, mock: e.mock }));
       else if (e.type === "progress") {
         seen.add(e.paragraph);
@@ -276,6 +280,7 @@ export function Panel({
         kind: null,
         original: f.text,
         replacement: f.correction!,
+        variants: [f.correction!],
         status: "pending",
         checkId: null,
       },
@@ -353,10 +358,11 @@ export function Panel({
           .filter((e) => placed.has(e.id))
           .map((e) => ({
             id: e.id,
-            reason: e.reason_uz,
+            reason: e.reason,
             kind: e.kind,
             original: e.original,
             replacement: e.replacement,
+            variants: [e.replacement, ...e.alternatives],
             status: "pending" as const,
             checkId: r.checkId,
           })),
@@ -377,9 +383,33 @@ export function Panel({
         replacement: item.replacement,
         reason: item.reason,
         kind: item.kind,
+        variant: item.variants.indexOf(item.replacement) + 1,
       },
     });
   };
+  /** Swap the tracked change for another variant the AI offered. */
+  const chooseVariant = (item: TrackedItem, variant: string) => {
+    if (variant === item.replacement) return;
+    resolveTracked(editor, item.id, false);
+    const placed = applyTracked(editor, [
+      {
+        id: item.id,
+        paragraph: paragraphOf(item.original),
+        original: item.original,
+        replacement: variant,
+      },
+    ]);
+    if (placed.length)
+      setTracked((s) => s.map((x) => (x.id === item.id ? { ...x, replacement: variant } : x)));
+  };
+  /** Paragraph that still holds the original text (indices shift as the author edits). */
+  const paragraphOf = (original: string) =>
+    Math.max(
+      0,
+      aiText(editor)
+        .split("\n")
+        .findIndex((p) => p.replace(/\s+/g, " ").includes(original.replace(/\s+/g, " "))),
+    );
   const pendingTracked = tracked.filter((x) => x.status === "pending");
 
   /* ---------------- Chat ---------------- */
@@ -755,6 +785,29 @@ export function Panel({
                   {x.replacement ? <ins className="tc-ins">{x.replacement}</ins> : null}
                 </p>
                 <p className="mt-1.5 text-sm text-text-2">{x.reason}</p>
+                {x.status === "pending" && x.variants.length > 1 ? (
+                  <div className="mt-3 space-y-1.5" role="radiogroup" aria-label={t("variants")}>
+                    <p className="text-xs font-semibold text-text-2">{t("variants")}</p>
+                    {x.variants.map((v, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        role="radio"
+                        aria-checked={v === x.replacement}
+                        onClick={() => chooseVariant(x, v)}
+                        className={cn(
+                          "block w-full rounded-control border px-3 py-2 text-left text-sm",
+                          v === x.replacement
+                            ? "border-blue-800 bg-info-bg text-blue-900"
+                            : "border-border bg-white text-ink hover:border-blue-800",
+                        )}
+                      >
+                        <span className="mr-1.5 font-semibold">{i + 1}.</span>
+                        {v || t("variantDelete")}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
                 {x.status === "pending" ? (
                   <div className="mt-3 flex gap-2">
                     <button
@@ -1096,7 +1149,7 @@ export function Panel({
                           <p className="mt-1.5 text-sm leading-relaxed text-text-2">{ab}</p>
                         </div>
                       ))}
-                      <List title={t("translateNote")} items={r.notes_uz} />
+                      <List title={t("translateNote")} items={r.notes} />
                       <Disclaimer />
                     </div>
                   );

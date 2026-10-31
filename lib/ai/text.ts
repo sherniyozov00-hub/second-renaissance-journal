@@ -49,7 +49,7 @@ export function normalizeUrl(url: string): string | null {
  * "needs_source".
  */
 export function enforceVerdict(
-  v: Pick<ModelVerdict, "verdict" | "explanation_uz" | "correction_uz" | "sources">,
+  v: Pick<ModelVerdict, "verdict" | "explanation" | "correction" | "sources">,
   retrieved: ReadonlySet<string>,
 ): {
   verdict: Verdict;
@@ -76,7 +76,7 @@ export function enforceVerdict(
   return {
     verdict: v.verdict,
     sources,
-    correction: v.verdict === "incorrect" ? v.correction_uz?.trim() || null : null,
+    correction: v.verdict === "incorrect" ? v.correction?.trim() || null : null,
   };
 }
 

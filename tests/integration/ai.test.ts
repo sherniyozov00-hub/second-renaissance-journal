@@ -133,6 +133,7 @@ describe("fact check pipeline (TZ 10.3)", () => {
       articleType: "RESEARCH" as const,
       categoryId,
       maxClaims: 20,
+      lang: "uz" as const,
     };
     const text = PARAGRAPHS.join("\n");
 
@@ -193,6 +194,7 @@ describe("fact check pipeline (TZ 10.3)", () => {
         articleType: "RESEARCH",
         categoryId,
         maxClaims: 3,
+        lang: "uz" as const,
       },
       (e) => events.push(e),
     );
@@ -219,7 +221,14 @@ describe("workspace drafts", () => {
     expect(draft.wordCount).toBeGreaterThan(80);
 
     const { edits } = await suggestEdits(
-      { userId: user.id, draftId, articleId: null, articleType: "REVIEW", categoryId },
+      {
+        userId: user.id,
+        draftId,
+        articleId: null,
+        articleType: "REVIEW",
+        categoryId,
+        lang: "uz" as const,
+      },
       draft.text,
     );
     expect(edits.length).toBeGreaterThan(0);
