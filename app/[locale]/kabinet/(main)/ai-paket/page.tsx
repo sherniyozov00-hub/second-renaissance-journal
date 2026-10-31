@@ -6,7 +6,8 @@ import { requireCabinetUser } from "@/lib/auth/session";
 import { formatNumber } from "@/lib/l10n";
 import { getAiQuota } from "@/lib/queries/cabinet";
 import { getSettings } from "@/lib/settings/get";
-import { aiPackagePrice, PAYMENT_PROVIDERS } from "@/lib/submission/service";
+import { aiPackagePrice } from "@/lib/payments/ai-package";
+import { PROVIDERS } from "@/lib/submission/service";
 import { buyAiPackageAction } from "./actions";
 
 export async function generateMetadata({
@@ -76,7 +77,7 @@ export default async function AiPackagePage({
           <fieldset className="mt-4">
             <legend className="text-sm font-semibold">{t("method")}</legend>
             <div className="mt-2 grid grid-cols-2 gap-2">
-              {PAYMENT_PROVIDERS.map((p, i) => (
+              {PROVIDERS.map((p, i) => (
                 <label
                   key={p}
                   className="flex min-h-11 items-center gap-2 rounded-control border border-border px-3 text-sm has-[:checked]:border-blue-800 has-[:checked]:bg-blue-50"

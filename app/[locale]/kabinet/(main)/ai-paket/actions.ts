@@ -8,7 +8,8 @@ import { currentUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { checkoutUrl } from "@/lib/payments/service";
 import { siteConfig } from "@/lib/site";
-import { aiPackagePrice, parseProvider } from "@/lib/submission/service";
+import { aiPackagePrice } from "@/lib/payments/ai-package";
+import { parseProvider } from "@/lib/submission/service";
 
 /** "Limitni oshirish" (TZ 10.4): pays for an extra Xorazmiy AI package. */
 export async function buyAiPackageAction(form: FormData) {

@@ -46,6 +46,8 @@ beforeAll(async () => {
   categoryId = (await db.category.findFirstOrThrow()).id;
   await db.aiUsage.deleteMany({ where: { userId: u.id } });
   await db.aiUsage.deleteMany({ where: { guestKey: "g_test_guest" } });
+  // Start with an empty fact-check cache so the first run really checks.
+  await db.aiCheck.deleteMany({ where: { type: "FACTCHECK", model: { in: ["mock", "summary"] } } });
 });
 
 afterAll(async () => {

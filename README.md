@@ -46,18 +46,20 @@ npm run dev                                 # http://localhost:3000
 
 ### Buyruqlar
 
-| Buyruq               | Vazifa                                      |
-| -------------------- | ------------------------------------------- |
-| `npm run dev`        | Dev server                                  |
-| `npm run build`      | Production build                            |
-| `npm run lint`       | ESLint                                      |
-| `npm run typecheck`  | TypeScript tekshiruvi                       |
-| `npm run format`     | Prettier bilan formatlash                   |
-| `npm test`           | Unit testlar (Vitest)                       |
-| `npm run db:migrate` | Sxema o‘zgarganda yangi migratsiya yaratish |
-| `npm run db:deploy`  | Migratsiyalarni qo‘llash                    |
-| `npm run db:seed`    | Seed ma’lumotlar                            |
-| `npm run db:reset`   | Bazani tozalab, qaytadan qurish             |
+| Buyruq                     | Vazifa                                      |
+| -------------------------- | ------------------------------------------- |
+| `npm run dev`              | Dev server                                  |
+| `npm run build`            | Production build                            |
+| `npm run lint`             | ESLint                                      |
+| `npm run typecheck`        | TypeScript tekshiruvi                       |
+| `npm run format`           | Prettier bilan formatlash                   |
+| `npm test`                 | Unit testlar (Vitest)                       |
+| `npm run test:integration` | Integratsion testlar (seed qilingan baza)   |
+| `npm run ai:eval`          | Xorazmiy AI sifat to‘plami (eval)           |
+| `npm run db:migrate`       | Sxema o‘zgarganda yangi migratsiya yaratish |
+| `npm run db:deploy`        | Migratsiyalarni qo‘llash                    |
+| `npm run db:seed`          | Seed ma’lumotlar                            |
+| `npm run db:reset`         | Bazani tozalab, qaytadan qurish             |
 
 ## Seed ma’lumotlar
 
@@ -194,3 +196,36 @@ curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook" \
 
 Muallif kabinetdagi “Telegram-botni ulang” tugmasini bosadi → bot `/start <token>` ni oladi va
 hisob ulanadi.
+
+## Xorazmiy AI (6-bosqich)
+
+- **Ish maydoni** — `/kabinet/yozish` (qoralamalar) va `/kabinet/yozish/[id]` (Ekran 3): chapda
+  8 ta asbob, o‘rtada muharrir (fakt belgilari va tracked changes), o‘ngda Tekshiruv / Manbalar /
+  Tahrir / Chat. Qoralama avtomatik saqlanadi, `.docx` yuklanadi va yuklab olinadi, “Jurnalga
+  yuborish” Ekran 6 ga qo‘lyozma bilan o‘tkazadi.
+- **Fakt tekshiruvi** (`/api/ai/factcheck`, NDJSON oqim): xatboshilar → da’volar → har xatboshi uchun
+  Claude + web search → `submit_verdicts` (zod bilan tekshiriladi). Platforma qoidasi: qidiruvda
+  haqiqatda topilmagan manba olib tashlanadi; manbasiz “noto‘g‘ri”/“to‘g‘ri” → “manba kerak”.
+  O‘zgarmagan xatboshilar keshdan (AiCheck, hash).
+- **Manbalar** — OpenAlex, Crossref, Semantic Scholar; DOI Crossref orqali tasdiqlanadi.
+- **Limitlar** — mehmon: kuniga N ta (IP + qurilma cookie, IP xeshlanadi), 1 500 belgi; muallif: oyiga
+  N ta, keyin sotib olingan paket (`/kabinet/ai-paket`); to‘langan maqola uchun cheksiz. Hammasi
+  Admin → Sozlamalar (`ai.*`, `pricing.aiPackage`). Har chaqiruv tokeni va narxi AiCheck’da.
+- **Kalitsiz ishlash** — `ANTHROPIC_API_KEY` bo‘lmasa yoki `AI_MODE=mock` — oflayn mock (“sinov rejimi”).
+  Tarmoq yopiq muhitda `SCHOLAR_MODE=mock`.
+
+### AI’ni “o‘qitish”
+
+Model og‘irliklari qayta o‘qitilmaydi; AI har so‘rovda quyidagilardan o‘rganadi:
+
+1. **Bilim bazasi** (Admin → Xorazmiy AI) — har maqola turi (tadqiqot/IMRAD, sharh, keys-stadi,
+   ilmiy-ommabop) uchun qo‘llanma va tekshiruv ro‘yxati, o‘zbek ilmiy uslubi, jurnal talablari,
+   fakt tekshiruvi usuli, akademik halollik qoidalari, namunalar. Tahririyat tahrirlaydi — AI
+   bir daqiqa ichida yangi qoidaga amal qiladi.
+2. **Jurnal namunalari** — shu tur va yo‘nalishdagi eng ko‘p o‘qilgan nashr qilingan maqolalar
+   tuzilmasi so‘rovga qo‘shiladi: platforma o‘sgan sari AI yaxshilanadi.
+3. **Fikr-mulohaza** — muallif qabul/rad etgan tahrirlar va “foydali/foydasiz” baholar saqlanadi;
+   tahririyat yaxshi javobni bir bosishda namunaga aylantiradi.
+4. **Eval** — `tests/ai-eval/cases.ts` dagi oltin holatlar. `npm run ai:eval` CI’da mock bilan
+   (platforma qoidalari), kalit bilan esa haqiqiy Claude + web search bilan ishlaydi va narxini
+   ko‘rsatadi. Bilim bazasi yoki promptni o‘zgartirgandan keyin ishga tushiring.
