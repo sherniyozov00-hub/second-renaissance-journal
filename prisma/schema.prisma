@@ -214,6 +214,8 @@ model Article {
   license        String                   @default("CC BY 4.0")
   /// Xorazmiy AI features the author used (TZ 10.2), visible to reviewers.
   aiFeaturesUsed String[]                 @default([])
+  /// Fast-track review requested and paid.
+  fastTrack      Boolean                  @default(false)
   /// Normalised title + keywords + authors for trigram (typo-tolerant) search. Maintained by DB triggers.
   searchText     String?                  @map("search_text")
   /// Weighted full-text vector (TZ 8). Maintained by DB triggers.
@@ -353,6 +355,10 @@ model Payment {
   fiscalReceiptUrl String?
   promoCodeId      String?
   refundReason     String?
+  /// Fast-track review was paid for.
+  fastTrack        Boolean         @default(false)
+  /// Provider-specific transaction state (Payme create/perform/cancel times, Click prepare id).
+  providerData     Json?
   createdAt        DateTime        @default(now())
   paidAt           DateTime?
   updatedAt        DateTime        @updatedAt

@@ -5,6 +5,7 @@ import { Logo } from "@/components/brand/logo";
 import { buttonClass } from "@/components/ui/styles";
 import { Link } from "@/i18n/navigation";
 import { currentUser } from "@/lib/auth/session";
+import { initials } from "@/lib/l10n";
 import { getSetting } from "@/lib/settings/get";
 import { cn } from "@/lib/utils";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -20,7 +21,7 @@ export async function SiteHeader({
   narrow = false,
 }: {
   /** "minimal" — logo and submit button only (Ekran 5); "cabinet" — Ekran 7. */
-  variant?: "home" | "compact" | "minimal" | "cabinet";
+  variant?: "home" | "compact" | "minimal" | "cabinet" | "submit";
   narrow?: boolean;
 }) {
   const t = await getTranslations();
@@ -61,7 +62,7 @@ export async function SiteHeader({
           </Link>
 
           <nav
-            hidden={variant === "minimal" || variant === "cabinet"}
+            hidden={variant === "minimal" || variant === "cabinet" || variant === "submit"}
             aria-label={t("nav.home")}
             className="hidden items-center gap-[26px] text-[15px] text-ink md:flex lg:mr-16 lg:ml-auto"
           >
@@ -82,7 +83,20 @@ export async function SiteHeader({
                 <Search className="size-4" strokeWidth={2} />
               </Link>
             ) : null}
-            {variant === "cabinet" ? (
+            {variant === "submit" && user ? (
+              <Link
+                href="/kabinet"
+                className="flex items-center gap-3 text-[15px] text-blue-800 hover:underline"
+              >
+                {t("cabinet.myArticles")}
+                <span
+                  aria-hidden
+                  className="flex size-9 items-center justify-center rounded-full bg-info-bg text-sm font-semibold text-blue-800"
+                >
+                  {initials(user.profile?.fullName ?? user.name ?? "") || "?"}
+                </span>
+              </Link>
+            ) : variant === "cabinet" ? (
               <>
                 <Link href="/xorazmiy-ai" className={buttonClass("secondary", "md")}>
                   {t("nav.ai")}

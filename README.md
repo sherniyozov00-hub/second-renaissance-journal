@@ -147,3 +147,19 @@ Seed foydalanuvchilar (kirish — telefon + kod):
 | Muharrir           | 90 000 00 02 | editor@example.com   |
 | Taqrizchi          | 90 000 00 03 | reviewer@example.com |
 | Muallif (Aziza K.) | 90 000 00 04 | author@example.com   |
+
+## Maqola yuborish va to‘lov
+
+`/kabinet/yuborish` (Ekran 6): qoralama har 10 soniyada va maydondan chiqqanda saqlanadi;
+`.docx` (10 MB gacha, makrossiz) S3’ga yuklanadi; oldindan tekshiruv — originallik (platformadagi
+maqolalar bilan), shablon bo‘limlari, hajm, adabiyotlar soni va APA formati.
+
+To‘lov — `PAYMENTS_MODE`:
+
+- `sandbox` (standart): “To‘lash” sinov sahifasiga olib boradi, tasdiqlansa maqola
+  `UNDER_REVIEW` ga o‘tadi. Narx `[NARX]` bo‘lib turganida namunaviy 50 000 so‘m ishlatiladi.
+- `live`: Payme (`/api/payments/payme`, JSON-RPC Merchant API) va Click
+  (`/api/payments/click/prepare`, `/complete`). Kalitlar `.env` da; kassa sozlamalarida shu
+  manzillarni ko‘rsating. Karta (Uzcard/Humo/Visa) Payme checkout orqali.
+- Fiskal chek uchun MXIK va o‘lchov birligi kodi Sozlamalardan (`payments.mxikCode`,
+  `payments.unitCode`) Payme chekiga yuboriladi.
