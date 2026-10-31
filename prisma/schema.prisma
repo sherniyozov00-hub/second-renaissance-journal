@@ -85,18 +85,23 @@ enum AiCheckType {
 // ─── Users ──────────────────────────────────────────────────────────────────
 
 model User {
-  id             String   @id @default(cuid())
-  phone          String?  @unique
-  email          String?  @unique
-  name           String?
-  locale         Locale   @default(uz)
-  roles          Role[]   @default([AUTHOR])
-  telegramChatId String?  @unique
+  id                String    @id @default(cuid())
+  phone             String?   @unique
+  email             String?   @unique
+  name              String?
+  locale            Locale    @default(uz)
+  roles             Role[]    @default([AUTHOR])
+  telegramChatId    String?   @unique
   /// Per-user override of the monthly AI check quota; null = use Settings.
-  aiQuota        Int?
-  isBlocked      Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  aiQuota           Int?
+  isBlocked         Boolean   @default(false)
+  /// When the user accepted the privacy policy and personal-data processing (TZ 17).
+  consentAt         DateTime?
+  /// One-time token for the Telegram deep link (t.me/<bot>?start=<token>).
+  telegramLinkToken String?   @unique
+  lastLoginAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   profile           AuthorProfile?
   submittedArticles Article[]       @relation("ArticleSubmitter")
@@ -127,6 +132,27 @@ model AuthorProfile {
 
   user     User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   articles ArticleAuthor[]
+}
+
+enum OtpChannel {
+  PHONE
+  EMAIL
+}
+
+/// One-time login codes sent by SMS or email. Only a hash of the code is stored.
+model OtpCode {
+  id         String     @id @default(cuid())
+  channel    OtpChannel
+  /// Normalised phone (+998XXXXXXXXX) or lower-case email.
+  target     String
+  codeHash   String
+  attempts   Int        @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  ip         String?
+  createdAt  DateTime   @default(now())
+
+  @@index([target, createdAt])
 }
 
 // ─── Journal structure ──────────────────────────────────────────────────────

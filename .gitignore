@@ -28,3 +28,4 @@ playwright-report/
 *.pem
 *.log
 *.tsbuildinfo
+.tmp/

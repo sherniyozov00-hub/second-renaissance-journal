@@ -127,3 +127,23 @@ Ishga tushirgandan keyin (domen ulangach):
 5. Maqola sahifasini <https://search.google.com/test/rich-results> da tekshiring.
 6. Google Scholar uchun alohida ro‘yxatdan o‘tish shart emas: `citation_*` teglari va ochiq PDF
    yetarli; indekslash vaqtini Google belgilaydi.
+
+## Kirish (autentifikatsiya)
+
+Auth.js (`auth.ts`): telefon yoki email + 6 xonali bir martalik kod, Google (kalitlar berilsa).
+Kodlar bazada faqat hash ko‘rinishida saqlanadi, 5 daqiqa amal qiladi, 5 marta noto‘g‘ri
+kiritilsa bloklanadi; bir raqamga daqiqasiga 1 ta, soatiga 5 ta kod yuboriladi.
+
+- `SMS_PROVIDER=mock` (standart) — SMS yuborilmaydi, kod ilova logiga yoziladi:
+  `docker compose logs app | grep sms:mock`. Haqiqiy SMS: `SMS_PROVIDER=eskiz` va Eskiz kalitlari.
+- Email kodlari: `SMTP_URL` yoki `RESEND_API_KEY`; ikkalasi bo‘sh bo‘lsa kod logga yoziladi.
+- Demo va testlar uchun mock rejimda `OTP_MOCK_CODE=123456` qo‘yish mumkin (production’da bo‘sh qoldiring).
+
+Seed foydalanuvchilar (kirish — telefon + kod):
+
+| Rol                | Telefon      | Email                |
+| ------------------ | ------------ | -------------------- |
+| Admin + muharrir   | 90 000 00 01 | admin@example.com    |
+| Muharrir           | 90 000 00 02 | editor@example.com   |
+| Taqrizchi          | 90 000 00 03 | reviewer@example.com |
+| Muallif (Aziza K.) | 90 000 00 04 | author@example.com   |
