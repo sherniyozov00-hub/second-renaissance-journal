@@ -1,3 +1,5 @@
+import { getLocale, getTranslations } from "next-intl/server";
+import type { AppLocale } from "@/i18n/routing";
 import { refundAction, savePromoAction, togglePromoAction } from "@/app/admin/actions";
 import { Field, PageTitle, PaymentText, input, panel, td, th } from "@/components/admin/ui";
 import { buttonClass } from "@/components/ui/styles";
@@ -7,14 +9,11 @@ import { formatDate, formatNumber } from "@/lib/l10n";
 import { paymentsMode } from "@/lib/payments/service";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "To‘lovlar" };
+export async function generateMetadata() {
+  return { title: (await getTranslations("admin.payments"))("title") };
+}
 
-const RESULT: Record<string, string> = {
-  qaytarildi: "To‘lov qaytarildi va AuditLog’ga yozildi.",
-  promokod: "Promokod saqlandi.",
-  "xato-invalid": "Ma’lumot noto‘g‘ri (sabab kamida 5 belgi; promokod foiz yoki summa bilan).",
-  "xato-bad_status": "Faqat to‘langan to‘lovni qaytarish mumkin.",
-};
+const RESULTS = new Set(["qaytarildi", "promokod", "xato-invalid", "xato-bad_status"]);
 
 export default async function PaymentsAdminPage({
   searchParams,
@@ -36,28 +35,41 @@ export default async function PaymentsAdminPage({
     }),
     db.promoCode.findMany({ orderBy: { createdAt: "desc" } }),
   ]);
+  const [t, tc, locale] = await Promise.all([
+    getTranslations("admin.payments"),
+    getTranslations("admin.common"),
+    getLocale() as Promise<AppLocale>,
+  ]);
   return (
     <>
-      <PageTitle title="To‘lovlar">
+      <PageTitle title={t("title")}>
         <span className="rounded-full bg-warning-bg px-3 py-1 text-sm font-semibold text-warning">
-          Rejim: {paymentsMode()}
+          {t("mode", { mode: paymentsMode() })}
         </span>
       </PageTitle>
-      {natija && RESULT[natija] ? (
+      {natija && RESULTS.has(natija) ? (
         <p
           className={cn(
             "mt-4 rounded-control px-4 py-3 text-sm font-semibold",
             natija.startsWith("xato") ? "bg-danger-bg text-danger" : "bg-success-bg text-success",
           )}
         >
-          {RESULT[natija]}
+          {t(`res_${natija}`)}
         </p>
       ) : null}
       <section className={cn(panel, "mt-5 overflow-x-auto")}>
         <table className="w-full min-w-[980px]">
           <thead className="border-b border-border bg-blue-50/40">
             <tr>
-              {["Sana", "Foydalanuvchi", "Maqola", "Provayder", "Summa", "Holat", "Qaytarish"].map(
+              {[
+                t("colDate"),
+                t("colUser"),
+                t("colArticle"),
+                t("colProvider"),
+                t("colAmount"),
+                t("colStatus"),
+                t("colRefund"),
+              ].map(
                 (h) => (
                   <th key={h} className={th}>
                     {h}
@@ -70,17 +82,21 @@ export default async function PaymentsAdminPage({
             {payments.map((p) => (
               <tr key={p.id} className="border-b border-border last:border-0">
                 <td className={cn(td, "whitespace-nowrap")}>
-                  {formatDate(p.paidAt ?? p.createdAt, "uz")}
+                  {formatDate(p.paidAt ?? p.createdAt, locale)}
                 </td>
                 <td className={td}>{p.user.name ?? p.user.phone}</td>
                 <td className={td}>
-                  {p.article ? `#${String(p.article.number).padStart(4, "0")}` : "—"}
+                  {p.article
+                    ? `#${String(p.article.number).padStart(4, "0")}`
+                    : p.purpose === "AI_PACKAGE"
+                      ? t("aiPackage")
+                      : "—"}
                 </td>
                 <td className={td}>
                   {p.provider}
                   {p.promoCode ? ` · ${p.promoCode.code}` : ""}
                 </td>
-                <td className={cn(td, "whitespace-nowrap")}>{formatNumber(p.amount, "uz")} so‘m</td>
+                <td className={cn(td, "whitespace-nowrap")}>{formatNumber(p.amount, locale)} {tc("som")}</td>
                 <td className={td}>
                   <PaymentText status={p.status} />
                   {p.refundReason ? (
@@ -95,12 +111,12 @@ export default async function PaymentsAdminPage({
                         name="reason"
                         required
                         minLength={5}
-                        placeholder="Sabab"
-                        aria-label="Qaytarish sababi"
+                        placeholder={t("reason")}
+                        aria-label={t("refundReason")}
                         className={cn(input, "h-9 w-40 text-sm")}
                       />
                       <button className="text-sm font-semibold text-danger hover:underline">
-                        Qaytarish
+                        {t("refund")}
                       </button>
                     </form>
                   ) : null}
@@ -111,13 +127,13 @@ export default async function PaymentsAdminPage({
         </table>
       </section>
 
-      <h2 className="mt-10 font-sans text-xl font-bold">Promokodlar</h2>
+      <h2 className="mt-10 font-sans text-xl font-bold">{t("promos")}</h2>
       <div className="mt-4 grid items-start gap-5 lg:grid-cols-[1fr_320px]">
         <section className={cn(panel, "overflow-x-auto")}>
           <table className="w-full">
             <thead className="border-b border-border bg-blue-50/40">
               <tr>
-                {["Kod", "Chegirma", "Ishlatilgan", "Muddat", "Holat"].map((h) => (
+                {[t("colCode"), t("colDiscount"), t("colUsed"), t("colValid"), t("colStatus")].map((h) => (
                   <th key={h} className={th}>
                     {h}
                   </th>
@@ -131,13 +147,13 @@ export default async function PaymentsAdminPage({
                   <td className={td}>
                     {p.discountPercent
                       ? `${p.discountPercent}%`
-                      : `${formatNumber(p.discountAmount ?? 0, "uz")} so‘m`}
+                      : `${formatNumber(p.discountAmount ?? 0, locale)} ${tc("som")}`}
                   </td>
                   <td className={td}>
                     {p.used}
                     {p.usageLimit ? ` / ${p.usageLimit}` : ""}
                   </td>
-                  <td className={td}>{formatDate(p.validUntil, "uz")}</td>
+                  <td className={td}>{formatDate(p.validUntil, locale)}</td>
                   <td className={td}>
                     <form action={togglePromoAction}>
                       <input type="hidden" name="id" value={p.id} />
@@ -147,7 +163,7 @@ export default async function PaymentsAdminPage({
                           p.isActive ? "text-success" : "text-muted",
                         )}
                       >
-                        {p.isActive ? "faol" : "o‘chirilgan"}
+                        {p.isActive ? t("active") : t("inactive")}
                       </button>
                     </form>
                   </td>
@@ -157,12 +173,12 @@ export default async function PaymentsAdminPage({
           </table>
         </section>
         <form action={savePromoAction} className={cn(panel, "space-y-3 p-5")}>
-          <h3 className="font-sans font-semibold">Yangi promokod</h3>
-          <Field label="Kod">
+          <h3 className="font-sans font-semibold">{t("newPromo")}</h3>
+          <Field label={t("colCode")}>
             <input name="code" required className={cn(input, "w-full uppercase")} />
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Foiz">
+            <Field label={t("percent")}>
               <input
                 name="percent"
                 type="number"
@@ -171,19 +187,19 @@ export default async function PaymentsAdminPage({
                 className={cn(input, "w-full")}
               />
             </Field>
-            <Field label="yoki summa">
+            <Field label={t("orAmount")}>
               <input name="amount" type="number" min={1} className={cn(input, "w-full")} />
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Limit">
+            <Field label={t("limit")}>
               <input name="limit" type="number" min={1} className={cn(input, "w-full")} />
             </Field>
-            <Field label="Muddat">
+            <Field label={t("colValid")}>
               <input name="validUntil" type="date" className={cn(input, "w-full")} />
             </Field>
           </div>
-          <button className={buttonClass("primary", "md", "w-full")}>Saqlash</button>
+          <button className={buttonClass("primary", "md", "w-full")}>{tc("save")}</button>
         </form>
       </div>
     </>
