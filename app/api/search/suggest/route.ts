@@ -1,8 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { suggest } from "@/lib/search/query";
+import { clientIp, tooMany } from "@/lib/security/request";
 
 /** Autocomplete for the search box (TZ 8). */
 export async function GET(req: NextRequest) {
+  // TZ 17: search is rate limited (60 requests a minute per IP).
+  if (tooMany(`suggest:${clientIp(req.headers)}`, 60)) {
+    return NextResponse.json({ items: [] }, { status: 429, headers: { "Retry-After": "60" } });
+  }
   const q = (req.nextUrl.searchParams.get("q") ?? "").slice(0, 100);
   const items = await suggest(q);
   return NextResponse.json(

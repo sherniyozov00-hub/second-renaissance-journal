@@ -212,3 +212,28 @@ muassasa, saralash, tab, page`. Filtrlangan natija sahifalari `noindex`, kanonik
    xabar (`issue.announce` vazifasi; email bilan ommaviy yuborilmaydi).
 8. **Bosh sahifadagi “Platformada yana” kartalari** tegishli sahifalarga havola bo‘ldi; footer
    dizayndagidek o‘zgarmadi, yangi sahifalar sitemap’da.
+
+## 8-bosqich — Sifat va deploy
+
+1. **E2E — Playwright** (`@playwright/test` 1.63). Har rol uchun bitta kirish qilinadi va sessiya
+   qayta ishlatiladi, chunki OTP yuborish limitlangan. Testlar CI’ning alohida `e2e` job’ida
+   `next start` (production build) va seed qilingan bazaga qarshi ishlaydi.
+2. **Lighthouse** mobil profil bilan, Playwright Chromium’i orqali o‘lchanadi. Qidiruv natijalari
+   sahifasi ataylab `noindex` (SEO amaliyoti), shuning uchun uning o‘rniga `/maqolalar` o‘lchanadi.
+3. **Tezlik:**
+   - Lora va Inter shriftlari variable variantga o‘tkazildi: har subset uchun bitta fayl, `latin-ext`
+     va italic olib tashlandi (o‘zbek lotini uchun `latin` yetadi).
+   - Inter preload qilinmaydi: LCP elementi Lora sarlavha bo‘lgani uchun tarmoq unga beriladi.
+   - Natija: 9 ta shrift (319 KB) o‘rniga 2 ta preload; bosh sahifa LCP 4,3 s → ~2,7 s,
+     performance 85 → 96.
+4. **Kontrast:** `gold-text` rangi `#a16207` dan `#9a5d06` ga ozgina to‘qlashtirildi — blue-50 fonida
+   4,5:1 (WCAG AA) bo‘lishi uchun. Ko‘z bilan farqi deyarli sezilmaydi.
+5. **CSP** skriptlarni cheklamaydi (Next inline bootstrap); qolgan direktivalar va sarlavhalar
+   `next.config.ts` da. Tafsilot `docs/security.md` da.
+6. **Production compose** (`docker-compose.prod.yml`):
+   - tashqariga faqat Caddy (HTTPS, Let’s Encrypt) ochiladi;
+   - baza, Redis va MinIO faqat ichki tarmoqda;
+   - `SEED_DEMO=false` — demo maqolalar va akkauntlar yuklanmaydi.
+7. **Zaxira nusxa:** `pg_dump` (custom format) va MinIO fayllari har kuni cron orqali olinadi,
+   14 kun saqlanadi. Tiklash — `pg_restore --clean`. Lokal sinovda dump → yangi bazaga tiklash
+   xatosiz o‘tdi (qidiruv indeksi va triggerlar bilan).

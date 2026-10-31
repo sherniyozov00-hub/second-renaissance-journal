@@ -57,7 +57,7 @@ export async function SiteHeader({
             narrow && "lg:max-w-[1248px]",
           )}
         >
-          <Link href="/" aria-label={t("nav.home")}>
+          <Link href="/">
             <Logo subtitle={t("common.journalLabel")} subtitleClassName="hidden md:inline" />
           </Link>
 

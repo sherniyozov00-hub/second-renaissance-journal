@@ -1,0 +1,41 @@
+# Production overrides (docs/deploy.md):
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# - databases and storage are not published on the host, only Caddy (80/443);
+# - Caddy gets a Let's Encrypt certificate for $DOMAIN and proxies to the app;
+# - no demo content is seeded.
+# Requires Docker Compose 2.24+ (for !reset).
+
+services:
+  postgres:
+    ports: !reset []
+  redis:
+    ports: !reset []
+  minio:
+    ports: !reset []
+  migrate:
+    environment:
+      SEED_DEMO: ${SEED_DEMO:-false}
+  app:
+    ports: !reset []
+    environment:
+      NODE_ENV: production
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in .env, e.g. journal.uz}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

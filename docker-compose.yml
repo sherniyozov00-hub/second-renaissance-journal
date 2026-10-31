@@ -69,6 +69,8 @@ services:
     environment:
       DATABASE_URL: *db-url
       SEED_ON_START: ${SEED_ON_START:-true}
+      # false on a real server: no demo accounts and sample articles.
+      SEED_DEMO: ${SEED_DEMO:-true}
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
       SEED_ADMIN_PHONE: ${SEED_ADMIN_PHONE:-+998900000001}
 
