@@ -2,7 +2,7 @@
   "name": "second-renaissance-journal",
   "version": "0.1.0",
   "private": true,
-  "description": "The Second Renaissance of Uzbekistan \u2014 electronic scientific journal and Xorazmiy AI research assistant",
+  "description": "The Second Renaissance of Uzbekistan — electronic scientific journal and Xorazmiy AI research assistant",
   "engines": {
     "node": ">=22"
   },
@@ -26,10 +26,16 @@
     "worker": "tsx --conditions=react-server workers/index.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
     "@aws-sdk/client-s3": "^3.1161.0",
     "@aws-sdk/s3-request-presigner": "^3.1161.0",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "@tiptap/extension-image": "^3.32.2",
+    "@tiptap/extension-table": "^3.32.2",
+    "@tiptap/pm": "^3.32.2",
+    "@tiptap/react": "^3.32.2",
+    "@tiptap/starter-kit": "^3.32.2",
     "clsx": "^2.1.1",
     "jszip": "^3.10.2",
     "lucide-react": "^1.65.0",

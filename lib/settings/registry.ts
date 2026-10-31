@@ -126,16 +126,28 @@ export const SETTINGS: readonly SettingDefinition[] = [
     description: "Free checks per author per month",
   },
   {
-    key: "ai.modelMain",
+    key: "ai.authorMaxChars",
     group: "ai",
-    defaultValue: "claude-sonnet-5-5",
-    description: "Main model",
+    defaultValue: 60000,
+    description: "Max characters an author sends in one AI request",
   },
   {
-    key: "ai.modelFast",
+    key: "ai.maxClaimsPerCheck",
     group: "ai",
-    defaultValue: "claude-haiku-5-5",
-    description: "Model for cheap tasks",
+    defaultValue: 20,
+    description: "Max claims verified on the web in one fact check (cost cap)",
+  },
+  {
+    key: "ai.requestsPerMinute",
+    group: "ai",
+    defaultValue: 8,
+    description: "Rate limit: AI requests per user (or guest) per minute",
+  },
+  {
+    key: "ai.model",
+    group: "ai",
+    defaultValue: "claude-opus-5-5",
+    description: "Claude model for all Xorazmiy AI features",
   },
 
   // Integrations
