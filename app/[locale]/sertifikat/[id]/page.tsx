@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { LogoMark } from "@/components/brand/logo";
 import { PrintButton } from "@/components/article/print-button";
 import { PageShell } from "@/components/layout/page-shell";
-import { Link } from "@/i18n/navigation";
+import { getPathname, Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { db } from "@/lib/db";
 import { articleTitle, formatDate } from "@/lib/l10n";
@@ -13,7 +13,10 @@ import { qrSvg } from "@/lib/qr";
 import { absoluteUrl } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 
-type Props = { params: Promise<{ locale: string; id: string }> };
+type Props = {
+  params: Promise<{ locale: string; id: string }>;
+  searchParams: Promise<{ chop?: string }>;
+};
 
 function findCertificate(id: string) {
   return db.certificate.findUnique({
@@ -29,8 +32,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /** Public verification page behind the certificate QR code (TZ 14). */
-export default async function CertificatePage({ params }: Props) {
+export default async function CertificatePage({ params, searchParams }: Props) {
   const { locale: raw, id } = await params;
+  // ?chop=1 — bare certificate for the PDF worker (no header, footer or banner).
+  const print = (await searchParams).chop === "1";
   setRequestLocale(raw);
   const locale = raw as AppLocale;
   const cert = await findCertificate(id);
@@ -40,11 +45,15 @@ export default async function CertificatePage({ params }: Props) {
   const svg = await qrSvg(url);
   const issue = cert.article.issue;
 
+  const Shell = print ? Bare : PageShell;
   return (
-    <PageShell>
-      <div className="bg-blue-50 print:bg-white">
+    <Shell>
+      <div className={print ? "bg-white" : "bg-blue-50 print:bg-white"}>
         <div className="container-site py-10 md:py-14">
-          <p className="mx-auto flex max-w-[760px] items-center gap-2 rounded-card bg-success-bg px-4 py-3 text-sm font-semibold text-success print:hidden">
+          <p
+            hidden={print}
+            className="mx-auto flex max-w-[760px] items-center gap-2 rounded-card bg-success-bg px-4 py-3 text-sm font-semibold text-success print:hidden"
+          >
             <CheckCircle2 className="size-5" aria-hidden /> {t("valid")}
           </p>
           <article className="mx-auto mt-6 max-w-[760px] rounded-card border-2 border-gold/50 bg-white p-8 text-center md:p-12">
@@ -77,11 +86,24 @@ export default async function CertificatePage({ params }: Props) {
               />
             </div>
           </article>
-          <div className="mx-auto mt-6 flex max-w-[760px] justify-end print:hidden">
+          <div
+            className="mx-auto mt-6 flex max-w-[760px] justify-end gap-3 print:hidden"
+            hidden={print}
+          >
+            <a
+              href={getPathname({ href: `/sertifikat/${cert.id}/pdf`, locale })}
+              className="inline-flex min-h-11 items-center rounded-control border border-border-strong bg-white px-5 font-semibold text-blue-800"
+            >
+              PDF
+            </a>
             <PrintButton />
           </div>
         </div>
       </div>
-    </PageShell>
+    </Shell>
   );
+}
+
+function Bare({ children }: { children: React.ReactNode }) {
+  return <main>{children}</main>;
 }

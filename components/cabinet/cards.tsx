@@ -2,7 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { connectTelegramAction } from "@/app/[locale]/kabinet/actions";
 import { LogoMark } from "@/components/brand/logo";
 import { buttonClass, cardClass } from "@/components/ui/styles";
-import { Link } from "@/i18n/navigation";
+import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { qrSvg } from "@/lib/qr";
 import { absoluteUrl } from "@/lib/seo";
@@ -43,12 +43,13 @@ export async function CertificateCard({ cert }: { cert: Cert }) {
       </div>
       <div className="flex items-center justify-between bg-white px-4 py-3 text-sm">
         <span className="text-text-2">{t("certId", { id: cert.id })}</span>
-        <Link
-          href={`/sertifikat/${cert.id}`}
+        {/* Plain link: the PDF is a file, not a page. */}
+        <a
+          href={getPathname({ href: `/sertifikat/${cert.id}/pdf`, locale })}
           className="font-semibold text-blue-800 hover:underline"
         >
           {t("download")}
-        </Link>
+        </a>
       </div>
     </article>
   );

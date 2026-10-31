@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 import { initials } from "@/lib/l10n";
 import { cardClass } from "@/components/ui/styles";
@@ -7,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { CabinetNav } from "./nav";
 
 type SidebarUser = {
+  roles: string[];
   name: string | null;
   phone: string | null;
   email: string | null;
@@ -62,6 +64,27 @@ export async function CabinetSidebar({
       </section>
 
       <CabinetNav />
+
+      {user.roles.some((r) => r === "EDITOR" || r === "ADMIN" || r === "REVIEWER") ? (
+        <nav aria-label="Staff" className="rounded-card border border-border bg-white p-2 text-sm">
+          {user.roles.some((r) => r === "EDITOR" || r === "ADMIN") ? (
+            <NextLink
+              href="/admin"
+              className="flex min-h-11 items-center rounded-control px-3.5 font-semibold text-blue-800 hover:bg-blue-50"
+            >
+              Admin panel →
+            </NextLink>
+          ) : null}
+          {user.roles.includes("REVIEWER") ? (
+            <NextLink
+              href="/taqriz"
+              className="flex min-h-11 items-center rounded-control px-3.5 font-semibold text-blue-800 hover:bg-blue-50"
+            >
+              Taqrizchi paneli →
+            </NextLink>
+          ) : null}
+        </nav>
+      ) : null}
 
       <section className="rounded-card bg-blue-900 p-5 text-white">
         <p className="text-[13px] text-blue-50/80">{t("aiLimit")}</p>

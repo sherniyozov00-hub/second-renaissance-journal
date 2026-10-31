@@ -13,8 +13,8 @@ Branch: `claude/second-renaissance-journal-5ibpnu`. Har bosqich merge bo‘lgach
 | 1. Ommaviy sayt (Ekran 1, 2, 4), i18n | Merge qilindi             | #2  |
 | 2. Qidiruv va SEO (Ekran 5)           | Merge qilindi             | #3  |
 | 3. Kirish va kabinet (Ekran 7)        | Merge qilindi             | #4  |
-| 4. Yuborish va to‘lov (Ekran 6)       | PR ochildi, CI kutilmoqda | #5  |
-| 5. Tahririyat oqimi, admin (Ekran 8)  | Navbatda                  | —   |
+| 4. Yuborish va to‘lov (Ekran 6)       | Merge qilindi             | #5  |
+| 5. Tahririyat oqimi, admin (Ekran 8)  | PR ochildi, CI kutilmoqda | #6  |
 | 6. Xorazmiy AI (Ekran 3) + “o‘qitish” | Navbatda                  | —   |
 | 7. Akademiya va qo‘shimchalar         | Navbatda                  | —   |
 | 8. Sifat va deploy                    | Navbatda                  | —   |

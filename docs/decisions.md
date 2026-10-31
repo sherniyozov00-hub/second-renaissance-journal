@@ -138,3 +138,23 @@ muassasa, saralash, tab, page`. Filtrlangan natija sahifalari `noindex`, kanonik
 9. **Fayllar** S3’da yopiq; lokal/test muhitda S3 sozlanmagan bo‘lsa `.data/uploads` va
    imzolangan, muddati cheklangan havolalar.
 10. **Server Actions va proxy hajm chegarasi** 12 MB ga oshirildi (10 MB fayl uchun).
+
+## 5-bosqich — Tahririyat oqimi
+
+1. **Admin va taqrizchi paneli faqat o‘zbek tilida** (xodimlar interfeysi, TZ 5 da “indekslanmaydi”);
+   ommaviy sayt va muallif kabineti uch tilda qoladi.
+2. **Navbat — pg-boss** (TZ 4 dagi variantlardan biri): o‘sha PostgreSQL’da ishlaydi, Redis
+   kerak emas. Redis xizmati docker compose’da keyingi kesh/limit uchun qoldi.
+3. **PDF — Chromium (Playwright) alohida `worker` konteynerida** (rasmiy
+   `mcr.microsoft.com/playwright:v1.63.0-noble`), veb-ilova image’i yengil qoladi. PDF
+   metama’lumoti (sarlavha, mualliflar, kalit so‘zlar) `pdf-lib` bilan yoziladi.
+4. **`/maqola/[slug]/pdf`** — tayyor PDF bo‘lsa fayl (yuklab olishlar sanaladi), bo‘lmasa
+   chop etish ko‘rinishiga (`/chop`) yo‘naltiradi. PDF havolalari oddiy `<a>` — prefetch
+   yuklab olishlar sonini buzmasligi uchun.
+5. **Holat o‘tishlari jadval bilan cheklangan** (`TRANSITIONS`); nashr faqat ACCEPTED dan va
+   jurnal soni tanlangan bo‘lsa. Muallif o‘z maqolasiga taqrizchi bo‘la olmaydi; admin o‘zidan
+   admin rolini ololmaydi va o‘zini bloklay olmaydi.
+6. **Eksport “Excel”** — UTF-8 BOM’li CSV (Excel to‘g‘ri ochadi, qo‘shimcha kutubxonasiz).
+7. **Telegram** — webhook `secret_token` bilan himoyalangan; token bo‘lmasa xabarlar logga
+   yoziladi (mock).
+8. **Akademiya darslarini tahrirlash** — 7-bosqichda; hozircha admin’da ro‘yxat.

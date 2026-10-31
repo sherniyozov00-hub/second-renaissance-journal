@@ -289,9 +289,10 @@ export default async function ArticlePage({ params }: Props) {
             </dl>
 
             <div className="mt-5 flex flex-wrap gap-2.5">
-              <Link href={`/maqola/${article.slug}/pdf`} className={buttonClass("primary", "md")}>
+              {/* Plain link: prefetching would count downloads. */}
+              <a href={pdfUrl} className={buttonClass("primary", "md")}>
                 <Download className="size-4" aria-hidden /> {t("article.downloadPdf")}
-              </Link>
+              </a>
               <a href="#iqtibos" className={buttonClass("outline", "md")}>
                 {t("article.cite")}
               </a>

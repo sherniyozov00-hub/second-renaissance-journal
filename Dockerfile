@@ -21,6 +21,21 @@ RUN npm run build
 FROM builder AS migrator
 CMD ["sh", "-c", "npx prisma migrate deploy && if [ \"$SEED_ON_START\" = \"true\" ]; then npx prisma db seed; fi"]
 
+# ── Worker: PDF generation (Chromium) and notifications ────────────────────
+# Official Playwright image: browsers preinstalled, version = playwright-core.
+FROM mcr.microsoft.com/playwright:v1.63.0-noble AS worker
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/generated ./generated
+COPY --from=builder /app/package.json /app/tsconfig.json ./
+COPY --from=builder /app/lib ./lib
+COPY --from=builder /app/workers ./workers
+COPY --from=builder /app/i18n ./i18n
+COPY --from=builder /app/components ./components
+USER pwuser
+CMD ["npm", "run", "worker"]
+
 # ── Runtime: minimal standalone Next.js server ──────────────────────────────
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app
