@@ -33,6 +33,19 @@ So‘ng <http://localhost:3000> ni oching. Holatni tekshirish: <http://localhost
 
 To‘xtatish: `docker compose down` (ma’lumotlar bilan birga o‘chirish: `docker compose down -v`).
 
+## Serverga o‘rnatish (production)
+
+To‘liq qo‘llanma: [`docs/deploy.md`](docs/deploy.md). Unda server talablari, `.env`, HTTPS (Caddy),
+birinchi sozlash, to‘lovlarni “live” rejimga o‘tkazish, yangilash, **har kungi zaxira nusxa va
+undan tiklash** (`scripts/backup.sh`, `scripts/restore.sh`) hamda monitoring yoritilgan.
+
+```bash
+cp .env.example .env    # DOMAIN, AUTH_SECRET, parollar, SEED_ADMIN_* …
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+Xavfsizlik tekshiruvi: [`docs/security.md`](docs/security.md).
+
 ## Lokal ishlab chiqish (Node.js 22)
 
 ```bash
@@ -239,3 +252,25 @@ Model og‘irliklari qayta o‘qitilmaydi; AI har so‘rovda quyidagilardan o‘
 - `/otm-reytingi` — OTMlar reytingi; `/tanlovlar` — tanlovlar sahifasi (Admin → Sahifalar).
 - Telegram-bot: `/maqolalar`, `/qidiruv <so‘z>`, `/son`, `/darslar`, `/holat`, `/yordam`. Yangi son
   nashr qilinganda bot obunachilarga xabar yuboradi (worker).
+
+## Sifat: E2E testlar va Lighthouse (8-bosqich)
+
+- **E2E** (`tests/e2e`, Playwright) asosiy oqimlarni tekshiradi:
+  - ommaviy sahifalar desktop va 360 px kenglikda, gorizontal aylantirish yo‘qligi bilan;
+  - uch xil yozuvdagi qidiruv;
+  - Akademiya, shablon va reyting;
+  - mehmon AI sinovi va uning limiti;
+  - AI ish maydoni: fakt belgilari va tracked changes;
+  - **maqola yuborish → sandbox to‘lov → taqriz → qabul → nashr → ommaviy sahifa**.
+
+  CI’ning `e2e` job’ida seed qilingan baza bilan ishlaydi.
+
+- **Lighthouse** (`scripts/lighthouse.mjs`) mobil profil (sekin 4G) bilan bosh sahifa, maqola,
+  maqolalar ro‘yxati, Akademiya va Xorazmiy AI sahifalarini o‘lchaydi. Performance, Accessibility
+  va SEO ≥ 90 bo‘lmasa, CI qizil bo‘ladi. Hisobotlar CI artefaktida saqlanadi.
+
+```bash
+npm run build && npm run start                       # 1-terminal
+npm run test:e2e                                     # yoki E2E_BASE_URL=http://localhost:3000
+LH_BASE_URL=http://localhost:3000 npm run lighthouse  # 2-terminal
+```

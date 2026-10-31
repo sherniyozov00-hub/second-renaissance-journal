@@ -67,11 +67,69 @@ jobs:
       - name: Xorazmiy AI eval (offline mock — platform rules)
         run: npm run ai:eval
 
+  e2e:
+    name: E2E (Playwright) and Lighthouse
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: journal
+          POSTGRES_PASSWORD: journal
+          POSTGRES_DB: journal
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U journal"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://journal:journal@localhost:5432/journal?schema=public
+      AUTH_SECRET: ci-only-secret-0123456789abcdef0123456789
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      SMS_PROVIDER: mock
+      OTP_MOCK_CODE: "123456"
+      PAYMENTS_MODE: sandbox
+      JOBS_MODE: inline
+      APP_INTERNAL_URL: http://localhost:3000
+      AI_MODE: mock
+      SCHOLAR_MODE: mock
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx prisma migrate deploy
+      - run: npx prisma db seed
+      - run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: E2E tests (main flows, desktop + 360 px)
+        run: npm run test:e2e
+      - name: Lighthouse ≥ 90 (performance, accessibility, SEO)
+        run: |
+          npm run start -- -p 3000 > /tmp/server.log 2>&1 &
+          for i in $(seq 60); do curl -sf http://localhost:3000/api/health && break; sleep 1; done
+          LH_BASE_URL=http://localhost:3000 npm run lighthouse
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-and-lighthouse-reports
+          path: |
+            playwright-report/
+            test-results/
+            lighthouse-report/
+          retention-days: 7
+
   docker:
     name: docker compose up
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Production overrides are valid
+        run: DOMAIN=example.uz docker compose -f docker-compose.yml -f docker-compose.prod.yml config -q
       - name: Start the stack
         run: docker compose up -d --build --wait --wait-timeout 300
       - name: Smoke test

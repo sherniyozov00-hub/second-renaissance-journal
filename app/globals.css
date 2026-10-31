@@ -21,7 +21,7 @@
 
   /* Gold — decoration only, never for text */
   --color-gold: #c99a2e;
-  --color-gold-text: #a16207; /* category labels and small eyebrow headings */
+  --color-gold-text: #9a5d06; /* category labels and eyebrows; #a16207 darkened to reach 4.5:1 on blue-50 (WCAG AA) */
 
   /* Status */
   --color-success: #166534;

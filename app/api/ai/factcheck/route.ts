@@ -6,6 +6,7 @@ import { markFeature } from "@/lib/ai/features";
 import { aiLimits, type AiActor, consumeCheck } from "@/lib/ai/quota";
 import type { AiErrorCode, FactEvent } from "@/lib/ai/schemas";
 import { guestKey } from "@/lib/ai/text";
+import { clientIp, isSameOriginJson } from "@/lib/security/request";
 import { currentUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { extractDocx } from "@/lib/submission/docx";
@@ -39,6 +40,8 @@ async function articleText(articleId: string) {
  * (draftId + current editor text) and the submission pre-check (articleId).
  */
 export async function POST(req: Request) {
+  // The check spends the user's AI quota, so cross-site requests are refused (CSRF).
+  if (!isSameOriginJson(req)) return fail("forbidden", 403);
   let body: { text?: unknown; draftId?: unknown; articleId?: unknown };
   try {
     body = await req.json();
@@ -95,8 +98,7 @@ export async function POST(req: Request) {
         path: "/",
       });
     }
-    const h = await headers();
-    const ip = (h.get("x-forwarded-for") ?? "").split(",")[0]!.trim() || h.get("x-real-ip") || "0";
+    const ip = clientIp(await headers());
     actor = { kind: "guest", key: guestKey(ip, device) };
   }
 

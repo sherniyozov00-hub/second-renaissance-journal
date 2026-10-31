@@ -1,0 +1,27 @@
+import { expect, type Page } from "@playwright/test";
+
+/** Seed users (prisma/seed.ts); OTP_MOCK_CODE=123456 in the test environment. */
+export const USERS = {
+  admin: "90 000 00 01",
+  editor: "90 000 00 02",
+  reviewer: "90 000 00 03",
+  author: "90 000 00 04",
+} as const;
+
+export async function login(page: Page, phone: string, next: string) {
+  await page.goto(`/kirish?next=${encodeURIComponent(next)}`);
+  await page.getByLabel("Telefon raqami").fill(phone);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Kod yuborish" }).click();
+  await page.getByLabel("6 xonali kod").fill(process.env.OTP_MOCK_CODE ?? "123456");
+  await page.getByRole("button", { name: "Kirish", exact: true }).click();
+  await page.waitForURL((u) => u.pathname === next.split("?")[0], { timeout: 60_000 });
+}
+
+/** TZ 17: nothing scrolls sideways at 360 px. */
+export async function expectNoHorizontalScroll(page: Page) {
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+}

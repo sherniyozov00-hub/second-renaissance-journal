@@ -16,8 +16,8 @@ Branch: `claude/second-renaissance-journal-5ibpnu`. Har bosqich merge bo‘lgach
 | 4. Yuborish va to‘lov (Ekran 6)       | Merge qilindi             | #5  |
 | 5. Tahririyat oqimi, admin (Ekran 8)  | Merge qilindi             | #6  |
 | 6. Xorazmiy AI (Ekran 3) + “o‘qitish” | Merge qilindi             | #7  |
-| 7. Akademiya va qo‘shimchalar         | PR ochildi, CI kutilmoqda | #8  |
-| 8. Sifat va deploy                    | Navbatda                  | —   |
+| 7. Akademiya va qo‘shimchalar         | Merge qilindi             | #8  |
+| 8. Sifat va deploy                    | PR ochildi, CI kutilmoqda | #9  |
 
 ## Xorazmiy AI’ni “o‘qitish” rejasi (buyurtmachi talabi, 6-bosqich)
 

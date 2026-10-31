@@ -64,25 +64,6 @@ async function main() {
     name: "Administrator",
     roles: ["ADMIN", "EDITOR"],
   });
-  const editor = await upsertUser({
-    email: "editor@example.com",
-    phone: "+998900000002",
-    name: "Bosh muharrir",
-    roles: ["EDITOR"],
-  });
-  const reviewer = await upsertUser({
-    email: "reviewer@example.com",
-    phone: "+998900000003",
-    name: "Taqrizchi",
-    roles: ["REVIEWER"],
-  });
-  const demoAuthor = await upsertUser({
-    email: "author@example.com",
-    phone: "+998900000004",
-    name: "Aziza Karimova",
-    roles: ["AUTHOR"],
-  });
-
   // ── Categories ───────────────────────────────────────────────────────────
   const categoryIds = new Map<string, string>();
   for (const [order, c] of categories.entries()) {
@@ -94,152 +75,175 @@ async function main() {
     categoryIds.set(c.slug, row.id);
   }
 
-  // ── Issue ────────────────────────────────────────────────────────────────
-  const issue = await db.issue.upsert({
-    where: { year_number: { year: 2026, number: 1 } },
-    update: {},
-    create: {
-      year: 2026,
-      number: 1,
-      title: "2026 · 1-son",
-      status: "PUBLISHED",
-      publishedAt: new Date("2026-10-20"),
-    },
-  });
+  // ── Demo content (SEED_DEMO=false on a production server) ──────────────
+  // Demo staff/author accounts, the first issue and the 14 sample articles.
+  if (process.env.SEED_DEMO !== "false") {
+    const editor = await upsertUser({
+      email: "editor@example.com",
+      phone: "+998900000002",
+      name: "Bosh muharrir",
+      roles: ["EDITOR"],
+    });
+    const reviewer = await upsertUser({
+      email: "reviewer@example.com",
+      phone: "+998900000003",
+      name: "Taqrizchi",
+      roles: ["REVIEWER"],
+    });
+    const demoAuthor = await upsertUser({
+      email: "author@example.com",
+      phone: "+998900000004",
+      name: "Aziza Karimova",
+      roles: ["AUTHOR"],
+    });
 
-  // ── Author profiles ──────────────────────────────────────────────────────
-  const profileIds = new Map<string, string>();
-  for (const a of authors) {
-    const userId = a.slug === "aziza-karimova" ? demoAuthor.id : undefined;
-    const row = await db.authorProfile.upsert({
-      where: { slug: a.slug },
-      update: { fullName: a.fullName, position: a.position, userId },
+    // ── Issue ────────────────────────────────────────────────────────────────
+    const issue = await db.issue.upsert({
+      where: { year_number: { year: 2026, number: 1 } },
+      update: {},
       create: {
-        slug: a.slug,
-        fullName: a.fullName,
-        position: a.position,
-        affiliation: AFFILIATION,
-        orcid: "[RAQAM]",
-        userId,
+        year: 2026,
+        number: 1,
+        title: "2026 · 1-son",
+        status: "PUBLISHED",
+        publishedAt: new Date("2026-10-20"),
       },
     });
-    profileIds.set(a.slug, row.id);
-  }
 
-  // ── Articles ─────────────────────────────────────────────────────────────
-  for (const [index, a] of articles.entries()) {
-    const slug = slugify(a.titleUz);
-    const published = a.status === "PUBLISHED";
-    const publishedAt = a.publishedAt ? new Date(a.publishedAt) : null;
-    const categoryId = categoryIds.get(a.category);
-    if (!categoryId) throw new Error(`Unknown category "${a.category}" for "${slug}"`);
-
-    const data = {
-      titleUz: a.titleUz,
-      titleEn: a.titleEn,
-      titleRu: a.titleRu ?? null,
-      abstractUz: a.abstractUz,
-      abstractEn: a.abstractEn,
-      abstractRu: a.abstractRu ?? null,
-      keywords: a.keywords,
-      type: a.type,
-      status: a.status,
-      categoryId,
-      issueId: published ? issue.id : null,
-      submitterId: a.authors[0] === "aziza-karimova" ? demoAuthor.id : null,
-      pageStart: a.pages?.[0] ?? null,
-      pageEnd: a.pages?.[1] ?? null,
-      submittedAt: publishedAt ? new Date(publishedAt.getTime() - 30 * 864e5) : new Date(),
-      acceptedAt: publishedAt ? new Date(publishedAt.getTime() - 7 * 864e5) : null,
-      publishedAt,
-    };
-
-    // Sample counters only on first insert so re-seeding never resets real stats.
-    const stats = published
-      ? {
-          views: 120 + ((index * 53) % 400),
-          downloads: 30 + ((index * 17) % 90),
-          citations: (index * 7) % 11,
-        }
-      : {};
-    const article = await db.article.upsert({
-      where: { slug },
-      update: data,
-      create: { slug, ...data, ...stats },
-    });
-
-    // Children are fully owned by the seed; rebuild them on every run.
-    await db.$transaction([
-      db.certificate.deleteMany({ where: { articleId: article.id } }),
-      db.articleAuthor.deleteMany({ where: { articleId: article.id } }),
-      db.articleVersion.deleteMany({ where: { articleId: article.id } }),
-      db.reference.deleteMany({ where: { articleId: article.id } }),
-      db.editorComment.deleteMany({ where: { articleId: article.id } }),
-      db.payment.deleteMany({ where: { articleId: article.id } }),
-    ]);
-
-    for (const [order, authorSlug] of a.authors.entries()) {
-      const author = await db.articleAuthor.create({
-        data: {
-          articleId: article.id,
-          authorProfileId: profileIds.get(authorSlug),
-          order,
-          isCorresponding: order === 0,
+    // ── Author profiles ──────────────────────────────────────────────────────
+    const profileIds = new Map<string, string>();
+    for (const a of authors) {
+      const userId = a.slug === "aziza-karimova" ? demoAuthor.id : undefined;
+      const row = await db.authorProfile.upsert({
+        where: { slug: a.slug },
+        update: { fullName: a.fullName, position: a.position, userId },
+        create: {
+          slug: a.slug,
+          fullName: a.fullName,
+          position: a.position,
+          affiliation: AFFILIATION,
+          orcid: "[RAQAM]",
+          userId,
         },
       });
-      if (published) {
-        await db.certificate.create({
+      profileIds.set(a.slug, row.id);
+    }
+
+    // ── Articles ─────────────────────────────────────────────────────────────
+    for (const [index, a] of articles.entries()) {
+      const slug = slugify(a.titleUz);
+      const published = a.status === "PUBLISHED";
+      const publishedAt = a.publishedAt ? new Date(a.publishedAt) : null;
+      const categoryId = categoryIds.get(a.category);
+      if (!categoryId) throw new Error(`Unknown category "${a.category}" for "${slug}"`);
+
+      const data = {
+        titleUz: a.titleUz,
+        titleEn: a.titleEn,
+        titleRu: a.titleRu ?? null,
+        abstractUz: a.abstractUz,
+        abstractEn: a.abstractEn,
+        abstractRu: a.abstractRu ?? null,
+        keywords: a.keywords,
+        type: a.type,
+        status: a.status,
+        categoryId,
+        issueId: published ? issue.id : null,
+        submitterId: a.authors[0] === "aziza-karimova" ? demoAuthor.id : null,
+        pageStart: a.pages?.[0] ?? null,
+        pageEnd: a.pages?.[1] ?? null,
+        submittedAt: publishedAt ? new Date(publishedAt.getTime() - 30 * 864e5) : new Date(),
+        acceptedAt: publishedAt ? new Date(publishedAt.getTime() - 7 * 864e5) : null,
+        publishedAt,
+      };
+
+      // Sample counters only on first insert so re-seeding never resets real stats.
+      const stats = published
+        ? {
+            views: 120 + ((index * 53) % 400),
+            downloads: 30 + ((index * 17) % 90),
+            citations: (index * 7) % 11,
+          }
+        : {};
+      const article = await db.article.upsert({
+        where: { slug },
+        update: data,
+        create: { slug, ...data, ...stats },
+      });
+
+      // Children are fully owned by the seed; rebuild them on every run.
+      await db.$transaction([
+        db.certificate.deleteMany({ where: { articleId: article.id } }),
+        db.articleAuthor.deleteMany({ where: { articleId: article.id } }),
+        db.articleVersion.deleteMany({ where: { articleId: article.id } }),
+        db.reference.deleteMany({ where: { articleId: article.id } }),
+        db.editorComment.deleteMany({ where: { articleId: article.id } }),
+        db.payment.deleteMany({ where: { articleId: article.id } }),
+      ]);
+
+      for (const [order, authorSlug] of a.authors.entries()) {
+        const author = await db.articleAuthor.create({
           data: {
-            id: certificateCode(slug, authorSlug),
             articleId: article.id,
-            articleAuthorId: author.id,
-            authorName: authors.find((x) => x.slug === authorSlug)!.fullName,
-            issuedAt: publishedAt ?? new Date(),
+            authorProfileId: profileIds.get(authorSlug),
+            order,
+            isCorresponding: order === 0,
+          },
+        });
+        if (published) {
+          await db.certificate.create({
+            data: {
+              id: certificateCode(slug, authorSlug),
+              articleId: article.id,
+              articleAuthorId: author.id,
+              authorName: authors.find((x) => x.slug === authorSlug)!.fullName,
+              issuedAt: publishedAt ?? new Date(),
+            },
+          });
+        }
+      }
+
+      await db.articleVersion.create({
+        data: { articleId: article.id, version: 1, htmlBody: articleHtml(a), note: "Seed" },
+      });
+      await db.reference.createMany({
+        data: REFERENCES.map((raw, order) => ({ articleId: article.id, order, raw })),
+      });
+
+      if (a.status === "REVISION_REQUESTED") {
+        await db.editorComment.create({
+          data: {
+            articleId: article.id,
+            authorId: editor.id,
+            body: "Usullar bo‘limida so‘rovnoma qatnashchilari soni va tanlov mezonlari ko‘rsatilmagan. 3-jadvalga manba qo‘shing.",
           },
         });
       }
-    }
-
-    await db.articleVersion.create({
-      data: { articleId: article.id, version: 1, htmlBody: articleHtml(a), note: "Seed" },
-    });
-    await db.reference.createMany({
-      data: REFERENCES.map((raw, order) => ({ articleId: article.id, order, raw })),
-    });
-
-    if (a.status === "REVISION_REQUESTED") {
-      await db.editorComment.create({
-        data: {
-          articleId: article.id,
-          authorId: editor.id,
-          body: "Usullar bo‘limida so‘rovnoma qatnashchilari soni va tanlov mezonlari ko‘rsatilmagan. 3-jadvalga manba qo‘shing.",
-        },
-      });
-    }
-    if (a.status !== "PUBLISHED" && demoAuthor.id === data.submitterId) {
-      await db.payment.create({
-        data: {
-          articleId: article.id,
-          userId: demoAuthor.id,
-          provider: "CLICK",
-          amount: 0,
-          status: a.status === "AWAITING_PAYMENT" ? "PENDING" : "PAID",
-          paidAt: a.status === "AWAITING_PAYMENT" ? null : new Date(),
-        },
-      });
-    }
-    if (a.status === "UNDER_REVIEW") {
-      const existing = await db.review.findFirst({
-        where: { articleId: article.id, reviewerId: reviewer.id },
-      });
-      if (!existing) {
-        await db.review.create({
+      if (a.status !== "PUBLISHED" && demoAuthor.id === data.submitterId) {
+        await db.payment.create({
           data: {
             articleId: article.id,
-            reviewerId: reviewer.id,
-            dueAt: new Date(Date.now() + 14 * 864e5),
+            userId: demoAuthor.id,
+            provider: "CLICK",
+            amount: 0,
+            status: a.status === "AWAITING_PAYMENT" ? "PENDING" : "PAID",
+            paidAt: a.status === "AWAITING_PAYMENT" ? null : new Date(),
           },
         });
+      }
+      if (a.status === "UNDER_REVIEW") {
+        const existing = await db.review.findFirst({
+          where: { articleId: article.id, reviewerId: reviewer.id },
+        });
+        if (!existing) {
+          await db.review.create({
+            data: {
+              articleId: article.id,
+              reviewerId: reviewer.id,
+              dueAt: new Date(Date.now() + 14 * 864e5),
+            },
+          });
+        }
       }
     }
   }
