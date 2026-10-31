@@ -1051,6 +1051,33 @@
       "role_ADMIN": "Admin",
       "blocked": "bloklangan",
       "preview": "Ko‘rinish (nashr qilinmagan)"
+    },
+    "lessons": {
+      "title": "Akademiya darslari",
+      "lessonTitle": "Sarlavha (o‘zbekcha)",
+      "slug": "Slug (URL)",
+      "slugHint": "Bo‘sh qolsa sarlavhadan",
+      "minutes": "Daqiqa",
+      "order": "Tartib",
+      "summary": "Qisqa tavsif (kartada)",
+      "body": "Matn",
+      "bodyHint": "Xatboshilar bo‘sh qator bilan; “## ” — sarlavha, “- ” — ro‘yxat, **qalin**.",
+      "example": "Namuna",
+      "exercise": "Mashq (Xorazmiy AI bilan)",
+      "video": "Video havolasi (ixtiyoriy)",
+      "videoHint": "YouTube yoki Vimeo, https://…",
+      "tr_ru": "Ruscha tarjima",
+      "tr_en": "Inglizcha tarjima",
+      "trMissing": " — kiritilmagan (o‘zbekcha ko‘rsatiladi)",
+      "trTitle": "Sarlavha",
+      "trSummary": "Qisqa tavsif",
+      "trExercise": "Mashq",
+      "visible": "Saytda ko‘rinadi",
+      "slugTaken": "Bu slug band — boshqasini kiriting.",
+      "required": "Sarlavha va matn majburiy.",
+      "meta": "{min} daq · tugatganlar: {done}",
+      "hidden": " · yashirin",
+      "new": "+ Yangi dars"
     }
   }
 }

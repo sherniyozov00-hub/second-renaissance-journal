@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { saveLessonAction } from "@/app/admin/actions";
 import { Field, PageTitle, input, panel } from "@/components/admin/ui";
 import { buttonClass } from "@/components/ui/styles";
@@ -6,7 +7,9 @@ import { requireAdmin } from "@/lib/admin/auth";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Akademiya darslari" };
+export async function generateMetadata() {
+  return { title: (await getTranslations("admin.lessons"))("title") };
+}
 
 const area =
   "w-full rounded-control border border-border-strong p-3 text-[14px] leading-relaxed focus:border-blue-800 focus:outline-none";
@@ -23,12 +26,16 @@ function translation(lesson: Lesson | undefined, lang: "ru" | "en") {
   };
 }
 
-function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number }) {
+async function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number }) {
+  const [t, tc] = await Promise.all([
+    getTranslations("admin.lessons"),
+    getTranslations("admin.common"),
+  ]);
   return (
     <form action={saveLessonAction} className="space-y-4 p-5">
       {lesson ? <input type="hidden" name="id" value={lesson.id} /> : null}
       <div className="grid gap-3 md:grid-cols-[2fr_1fr_100px_100px]">
-        <Field label="Sarlavha">
+        <Field label={t("lessonTitle")}>
           <input
             name="title"
             required
@@ -36,10 +43,10 @@ function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number 
             className={cn(input, "w-full")}
           />
         </Field>
-        <Field label="Slug (URL)" hint="Bo‘sh qolsa sarlavhadan">
+        <Field label={t("slug")} hint={t("slugHint")}>
           <input name="slug" defaultValue={lesson?.slug} className={cn(input, "w-full")} />
         </Field>
-        <Field label="Daqiqa">
+        <Field label={t("minutes")}>
           <input
             name="durationMin"
             type="number"
@@ -48,7 +55,7 @@ function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number 
             className={cn(input, "w-full")}
           />
         </Field>
-        <Field label="Tartib">
+        <Field label={t("order")}>
           <input
             name="order"
             type="number"
@@ -57,7 +64,7 @@ function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number 
           />
         </Field>
       </div>
-      <Field label="Qisqa tavsif (kartada)">
+      <Field label={t("summary")}>
         <input
           name="summary"
           defaultValue={lesson?.summary ?? ""}
@@ -65,16 +72,16 @@ function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number 
         />
       </Field>
       <Field
-        label="Matn"
-        hint="Xatboshilar bo‘sh qator bilan; “## ” — sarlavha, “- ” — ro‘yxat, **qalin**."
+        label={t("body")}
+        hint={t("bodyHint")}
       >
         <textarea name="body" required rows={12} defaultValue={lesson?.body} className={area} />
       </Field>
-      <Field label="Namuna">
+      <Field label={t("example")}>
         <textarea name="example" rows={5} defaultValue={lesson?.example ?? ""} className={area} />
       </Field>
       <div className="grid gap-3 md:grid-cols-2">
-        <Field label="Mashq (Xorazmiy AI bilan)">
+        <Field label={t("exercise")}>
           <textarea
             name="exercise"
             rows={3}
@@ -82,7 +89,7 @@ function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number 
             className={area}
           />
         </Field>
-        <Field label="Video havolasi (ixtiyoriy)" hint="YouTube yoki Vimeo, https://…">
+        <Field label={t("video")} hint={t("videoHint")}>
           <input
             name="videoUrl"
             defaultValue={lesson?.videoUrl ?? ""}
@@ -95,26 +102,26 @@ function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number 
         return (
           <details key={lang} className="rounded-control border border-border">
             <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">
-              {lang === "ru" ? "Ruscha tarjima" : "Inglizcha tarjima"}
-              {tr.title ? "" : " — kiritilmagan (o‘zbekcha ko‘rsatiladi)"}
+              {t(`tr_${lang}`)}
+              {tr.title ? "" : t("trMissing")}
             </summary>
             <div className="space-y-3 border-t border-border p-4">
               <div className="grid gap-3 md:grid-cols-2">
-                <Field label="Sarlavha">
+                <Field label={t("trTitle")}>
                   <input name={`${lang}_title`} defaultValue={tr.title} className={cn(input, "w-full")} />
                 </Field>
-                <Field label="Qisqa tavsif">
+                <Field label={t("trSummary")}>
                   <input name={`${lang}_summary`} defaultValue={tr.summary} className={cn(input, "w-full")} />
                 </Field>
               </div>
-              <Field label="Matn">
+              <Field label={t("body")}>
                 <textarea name={`${lang}_body`} rows={8} defaultValue={tr.body} className={area} />
               </Field>
               <div className="grid gap-3 md:grid-cols-2">
-                <Field label="Namuna">
+                <Field label={t("example")}>
                   <textarea name={`${lang}_example`} rows={4} defaultValue={tr.example} className={area} />
                 </Field>
-                <Field label="Mashq">
+                <Field label={t("trExercise")}>
                   <textarea name={`${lang}_exercise`} rows={4} defaultValue={tr.exercise} className={area} />
                 </Field>
               </div>
@@ -130,10 +137,10 @@ function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number 
             value="1"
             defaultChecked={lesson?.isPublished ?? true}
           />{" "}
-          Saytda ko‘rinadi
+          {t("visible")}
         </label>
         <button type="submit" className={buttonClass("primary", "md")}>
-          {lesson ? "Saqlash" : "Qo‘shish"}
+          {lesson ? tc("save") : tc("add")}
         </button>
       </div>
     </form>
@@ -153,9 +160,13 @@ export default async function LessonsAdminPage({
     include: { _count: { select: { progress: true } } },
   });
   const nextOrder = (lessons.at(-1)?.order ?? -1) + 1;
+  const [t, tc] = await Promise.all([
+    getTranslations("admin.lessons"),
+    getTranslations("admin.common"),
+  ]);
   return (
     <>
-      <PageTitle title="Akademiya darslari" />
+      <PageTitle title={t("title")} />
       {natija ? (
         <p
           className={cn(
@@ -164,10 +175,10 @@ export default async function LessonsAdminPage({
           )}
         >
           {natija === "saqlandi"
-            ? "Saqlandi."
+            ? tc("saved")
             : natija === "slug"
-              ? "Bu slug band — boshqasini kiriting."
-              : "Sarlavha va matn majburiy."}
+              ? t("slugTaken")
+              : t("required")}
         </p>
       ) : null}
       <div className="mt-5 space-y-3">
@@ -178,9 +189,9 @@ export default async function LessonsAdminPage({
                 {i + 1}. {l.title}
               </span>
               <span className="text-xs text-text-2">
-                /akademiya/{l.slug} · {l.durationMin} daq · tugatganlar: {l._count.progress}
+                /akademiya/{l.slug} · {t("meta", { min: l.durationMin, done: l._count.progress })}
                 {l.videoUrl ? " · video" : ""}
-                {l.isPublished ? "" : " · yashirin"}
+                {l.isPublished ? "" : t("hidden")}
               </span>
             </summary>
             <div className="border-t border-border">
@@ -190,7 +201,7 @@ export default async function LessonsAdminPage({
         ))}
         <details className={panel}>
           <summary className="cursor-pointer px-5 py-4 font-semibold text-blue-800">
-            + Yangi dars
+            {t("new")}
           </summary>
           <div className="border-t border-border">
             <LessonForm nextOrder={nextOrder} />

@@ -1051,6 +1051,33 @@
       "role_ADMIN": "Admin",
       "blocked": "blocked",
       "preview": "Preview (not published)"
+    },
+    "lessons": {
+      "title": "Academy lessons",
+      "lessonTitle": "Title (Uzbek)",
+      "slug": "Slug (URL)",
+      "slugHint": "Generated from the title if empty",
+      "minutes": "Minutes",
+      "order": "Order",
+      "summary": "Short description (on the card)",
+      "body": "Text",
+      "bodyHint": "Blank line between paragraphs; “## ” heading, “- ” list, **bold**.",
+      "example": "Example",
+      "exercise": "Exercise (with Xorazmiy AI)",
+      "video": "Video link (optional)",
+      "videoHint": "YouTube or Vimeo, https://…",
+      "tr_ru": "Russian translation",
+      "tr_en": "English translation",
+      "trMissing": " — empty (Uzbek is shown)",
+      "trTitle": "Title",
+      "trSummary": "Short description",
+      "trExercise": "Exercise",
+      "visible": "Visible on the site",
+      "slugTaken": "This slug is taken — enter another.",
+      "required": "Title and text are required.",
+      "meta": "{min} min · completed: {done}",
+      "hidden": " · hidden",
+      "new": "+ New lesson"
     }
   }
 }
