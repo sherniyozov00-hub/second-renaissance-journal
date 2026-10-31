@@ -248,7 +248,8 @@ async function main() {
   for (const [order, l] of lessons.entries()) {
     await db.lesson.upsert({
       where: { slug: l.slug },
-      update: { title: l.title, summary: l.summary, durationMin: l.durationMin, order },
+      // Lessons are edited in Admin → Akademiya; the seed never overwrites them.
+      update: {},
       create: { ...l, order },
     });
   }

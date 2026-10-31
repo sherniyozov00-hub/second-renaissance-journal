@@ -318,12 +318,12 @@ export async function Academy({ lessons }: { lessons: LessonItem[] }) {
 export async function PlatformMore() {
   const t = await getTranslations("home");
   const items = [
-    { key: "originality", icon: FileText },
-    { key: "profile", icon: Award },
-    { key: "contests", icon: Trophy },
-    { key: "ranking", icon: ChartNoAxesColumn },
-    { key: "telegram", icon: Send },
-    { key: "mentors", icon: Users },
+    { key: "originality", icon: FileText, href: "/xorazmiy-ai" },
+    { key: "profile", icon: Award, href: "/kabinet/profil" },
+    { key: "contests", icon: Trophy, href: "/tanlovlar" },
+    { key: "ranking", icon: ChartNoAxesColumn, href: "/otm-reytingi" },
+    { key: "telegram", icon: Send, href: "/kabinet/sertifikatlar" },
+    { key: "mentors", icon: Users, href: "/tahrir-hayati" },
   ] as const;
 
   return (
@@ -331,18 +331,28 @@ export async function PlatformMore() {
       <div className="container-site">
         <SectionHeading title={t("moreTitle")} lead={t("moreLead")} />
         <ul className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {items.map(({ key, icon: Icon }) => (
-            <li key={key} className={cn(cardClass, "flex gap-4 p-5")}>
-              <span
-                className="flex size-11 shrink-0 items-center justify-center rounded-control bg-blue-50"
-                aria-hidden
+          {items.map(({ key, icon: Icon, href }) => (
+            <li key={key}>
+              <Link
+                href={href}
+                className={cn(
+                  cardClass,
+                  "flex h-full gap-4 p-5 transition-colors hover:border-blue-800",
+                )}
               >
-                <Icon className="size-5 text-blue-800" strokeWidth={1.8} />
-              </span>
-              <span>
-                <h3 className="font-sans font-semibold text-ink">{t(`more.${key}.title`)}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-text-2">{t(`more.${key}.text`)}</p>
-              </span>
+                <span
+                  className="flex size-11 shrink-0 items-center justify-center rounded-control bg-blue-50"
+                  aria-hidden
+                >
+                  <Icon className="size-5 text-blue-800" strokeWidth={1.8} />
+                </span>
+                <span>
+                  <h3 className="font-sans font-semibold text-ink">{t(`more.${key}.title`)}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-text-2">
+                    {t(`more.${key}.text`)}
+                  </p>
+                </span>
+              </Link>
             </li>
           ))}
         </ul>

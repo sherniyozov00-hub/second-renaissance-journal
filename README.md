@@ -229,3 +229,13 @@ Model og‘irliklari qayta o‘qitilmaydi; AI har so‘rovda quyidagilardan o‘
 4. **Eval** — `tests/ai-eval/cases.ts` dagi oltin holatlar. `npm run ai:eval` CI’da mock bilan
    (platforma qoidalari), kalit bilan esa haqiqiy Claude + web search bilan ishlaydi va narxini
    ko‘rsatadi. Bilim bazasi yoki promptni o‘zgartirgandan keyin ishga tushiring.
+
+## Akademiya, reyting, tanlovlar, Telegram-bot (7-bosqich)
+
+- `/akademiya` — darslar (progress bilan), shablon, yo‘nalishlar bo‘yicha namuna maqolalar;
+  `/akademiya/[slug]` — matn, video, namuna, “Xorazmiy AI bilan mashq”, “Darsni tugatdim”.
+  Darslar Admin → Akademiya darslari’da tahrirlanadi.
+- `/shablon/maqola-shabloni.docx` — jurnal shabloni (talablar Sozlamalardan).
+- `/otm-reytingi` — OTMlar reytingi; `/tanlovlar` — tanlovlar sahifasi (Admin → Sahifalar).
+- Telegram-bot: `/maqolalar`, `/qidiruv <so‘z>`, `/son`, `/darslar`, `/holat`, `/yordam`. Yangi son
+  nashr qilinganda bot obunachilarga xabar yuboradi (worker).

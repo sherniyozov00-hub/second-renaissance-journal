@@ -190,3 +190,25 @@ muassasa, saralash, tab, page`. Filtrlangan natija sahifalari `noindex`, kanonik
     fine-tuning qilinmaydi.
 12. **Ekran 1 hero kartasi** dizayndagidek namunaviy qoldi; “Matnimni tekshirish” tugmasi
     `/xorazmiy-ai#sinov` dagi haqiqiy bepul sinovga olib boradi.
+
+## 7-bosqich — Akademiya va qo‘shimchalar
+
+1. **Dars** — matn (oddiy belgilash: `## ` sarlavha, `- ` ro‘yxat, `**qalin**`; HTML yo‘q — XSS xavfi
+   yo‘q), ixtiyoriy video (faqat YouTube — `youtube-nocookie.com` — va Vimeo `dnt=1` embed), namuna va
+   mashq. Seed darslar faqat yo‘q bo‘lsa yaratiladi — admin tahriri ustidan yozilmaydi.
+2. **“Xorazmiy AI bilan mashq”** — dars mashqi bilan yangi qoralama ochadi (ish maydoni, Ekran 3).
+   Kirmagan foydalanuvchi kirishdan keyin shu darsga qaytadi.
+3. **Progress** — muallif “Darsni tugatdim” bilan belgilaydi (`LessonProgress`); kabinetda va
+   Akademiyada ko‘rinadi.
+4. **Shablon** `/shablon/maqola-shabloni.docx` — statik fayl emas, so‘rovda yaratiladi:
+   Sozlamalardagi talablar (so‘z soni, manbalar) avtomatik kiradi va shablon tuzilma tekshiruvidan o‘tadi.
+5. **OTMlar reytingi** `/otm-reytingi` — nashr qilingan maqolalar soni (har maqola muassasaga bir marta),
+   so‘ng iqtiboslar va ko‘rishlar; yil bo‘yicha filtr. Muassasa — maqoladagi yoki profildagi nom
+   (vergulgacha qismi); `[Muassasa nomi]` kabi placeholderlar hisobga olinmaydi, shuning uchun seed’da
+   reyting bo‘sh va tushuntirish ko‘rsatiladi.
+6. **Tanlovlar** `/tanlovlar` — oddiy statik sahifa (Admin → Sahifalar), muddat va mukofotlar placeholder.
+7. **Telegram-bot buyruqlari**: `/maqolalar`, `/qidiruv`, `/son`, `/darslar`, `/holat`, `/yordam`;
+   oddiy matn — qidiruv. Yangi son nashr qilinganda Telegram’ni ulagan barcha foydalanuvchilarga
+   xabar (`issue.announce` vazifasi; email bilan ommaviy yuborilmaydi).
+8. **Bosh sahifadagi “Platformada yana” kartalari** tegishli sahifalarga havola bo‘ldi; footer
+   dizayndagidek o‘zgarmadi, yangi sahifalar sitemap’da.

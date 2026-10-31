@@ -8,7 +8,8 @@ export type NotifyEvent =
   | { kind: "status"; status: ArticleStatus; title: string; number: number; note?: string | null }
   | { kind: "comment"; title: string; number: number; body: string }
   | { kind: "paid"; title: string; number: number; amount: number }
-  | { kind: "published"; title: string; url: string; certificateUrl?: string };
+  | { kind: "published"; title: string; url: string; certificateUrl?: string }
+  | { kind: "issue"; year: number; number: number; count: number; url: string };
 
 type Text = { subject: string; text: string };
 
@@ -106,6 +107,19 @@ export function renderNotification(e: NotifyEvent, locale: Locale = "uz"): Text 
           : null,
       ];
       return { subject, text: lines.filter(Boolean).join("\n") };
+    }
+    case "issue": {
+      const subject = {
+        uz: `Yangi son: ${e.year}-yil, ${e.number}-son`,
+        ru: `Новый выпуск: ${e.year}, № ${e.number}`,
+        en: `New issue: ${e.year}, No. ${e.number}`,
+      }[l];
+      const text = {
+        uz: `Jurnalning yangi soni chiqdi — ${e.count} ta maqola: ${e.url}`,
+        ru: `Вышел новый выпуск журнала — статей: ${e.count}: ${e.url}`,
+        en: `A new issue is out with ${e.count} articles: ${e.url}`,
+      }[l];
+      return { subject, text };
     }
   }
 }

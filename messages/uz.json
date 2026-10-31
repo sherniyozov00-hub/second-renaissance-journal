@@ -230,7 +230,21 @@
     "lead": "Ilmiy maqola yozishni bosqichma-bosqich o‘rganing. Darslar bepul.",
     "exercise": "Mashq",
     "practiceWithAi": "Xorazmiy AI bilan mashq",
-    "back": "Barcha darslar"
+    "back": "Barcha darslar",
+    "example": "Namuna",
+    "video": "Video dars",
+    "markDone": "Darsni tugatdim",
+    "done": "Tugatilgan",
+    "undo": "Belgini olib tashlash",
+    "loginToTrack": "Kirib, progressni saqlang",
+    "progress": "{finished} / {total} dars tugatildi",
+    "prev": "Oldingi dars",
+    "next": "Keyingi dars",
+    "templateTitle": "Maqola shabloni (.docx)",
+    "templateText": "Jurnal talablariga mos tuzilma: annotatsiya, kalit so‘zlar, IMRAD bo‘limlari, jadval va adabiyotlar namunasi.",
+    "templateButton": "Shablonni yuklab olish",
+    "samplesTitle": "Yo‘nalishlar bo‘yicha namuna maqolalar",
+    "samplesLead": "Jurnalda nashr qilingan eng ko‘p o‘qilgan maqolalar — tuzilma va uslubni ulardan o‘rganing."
   },
   "aiLanding": {
     "title": "Xorazmiy AI — ilmiy yordamchi",
@@ -734,5 +748,18 @@
     "submittedAs": "Maqola #{number}",
     "precheckRun": "Faktlarni tekshirish",
     "precheckSummary": "{correct} to‘g‘ri · {incorrect} noto‘g‘ri · {needs} manba kerak"
+  },
+  "ranking": {
+    "title": "OTMlar reytingi",
+    "lead": "Qaysi oliy ta’lim muassasalari mualliflari jurnalda eng ko‘p maqola nashr qilmoqda.",
+    "year": "Yil",
+    "allYears": "Barcha yillar",
+    "institution": "Muassasa",
+    "articles": "Maqolalar",
+    "authors": "Mualliflar",
+    "citations": "Iqtiboslar",
+    "views": "Ko‘rishlar",
+    "empty": "Reyting mualliflar muassasa nomini kiritgach shakllanadi.",
+    "method": "Hisoblash: nashr qilingan maqolalar soni (har maqola muassasaga bir marta), so‘ng iqtiboslar va ko‘rishlar. Muassasa — muallif maqolada yoki profilida ko‘rsatgan nom."
   }
 }

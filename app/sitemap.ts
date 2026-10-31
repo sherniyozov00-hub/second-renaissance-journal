@@ -45,6 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/sonlar", null, 0.6),
     entry("/akademiya", null, 0.6),
     entry("/xorazmiy-ai", null, 0.6),
+    entry("/otm-reytingi", null, 0.5),
     ...articles.map((a) => entry(`/maqola/${a.slug}`, a.updatedAt, 0.9)),
     ...categories.map((c) => entry(`/yonalish/${c.slug}`, c.updatedAt, 0.6)),
     ...authors.map((a) => entry(`/muallif/${a.slug}`, a.updatedAt, 0.6)),

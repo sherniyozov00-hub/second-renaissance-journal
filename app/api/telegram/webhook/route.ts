@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
-import { db } from "@/lib/db";
 import { sendTelegram } from "@/lib/notify/telegram";
+import { botReply } from "@/lib/telegram/bot";
 
 type Update = { message?: { chat?: { id?: number }; text?: string } };
 
@@ -14,8 +14,9 @@ function secretOk(header: string | null) {
 }
 
 /**
- * Telegram bot webhook (TZ 14): "/start <token>" from the cabinet deep link
- * links the chat to the user, after which notifications go to Telegram.
+ * Telegram bot webhook (TZ 14): account linking ("/start <token>" from the
+ * cabinet deep link) and commands — latest articles, search, issue, lessons,
+ * the status of the user's articles. See lib/telegram/bot.ts.
  */
 export async function POST(req: NextRequest) {
   if (!secretOk(req.headers.get("x-telegram-bot-api-secret-token"))) {
@@ -24,26 +25,12 @@ export async function POST(req: NextRequest) {
   const update = (await req.json().catch(() => ({}))) as Update;
   const chatId = update.message?.chat?.id;
   const text = update.message?.text ?? "";
-  if (!chatId) return NextResponse.json({ ok: true });
-
-  const token = /^\/start\s+([a-f0-9]{32})$/.exec(text.trim())?.[1];
-  if (token) {
-    const user = await db.user.findUnique({ where: { telegramLinkToken: token } });
-    if (user) {
-      await db.user.update({
-        where: { id: user.id },
-        data: { telegramChatId: String(chatId), telegramLinkToken: null },
-      });
-      await sendTelegram(
-        String(chatId),
-        "Hisobingiz ulandi. Maqola holati o‘zgarsa, shu yerga xabar keladi.",
-      );
-      return NextResponse.json({ ok: true });
-    }
+  if (!chatId || !text) return NextResponse.json({ ok: true });
+  try {
+    await sendTelegram(String(chatId), await botReply(String(chatId), text));
+  } catch (err) {
+    console.error("[telegram]", err);
   }
-  await sendTelegram(
-    String(chatId),
-    "Ulash uchun saytdagi kabinetingizdan “Telegram-botni ulang” tugmasini bosing.",
-  );
+  // Always 200, so Telegram does not retry the same update.
   return NextResponse.json({ ok: true });
 }

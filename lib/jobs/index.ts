@@ -5,13 +5,14 @@ import { PgBoss } from "pg-boss";
  * Background jobs (TZ 4): pg-boss on the same PostgreSQL — no extra service.
  * JOBS_MODE=inline runs handlers immediately (tests, single-process setups).
  */
-export const QUEUES = ["pdf.article", "pdf.certificate", "notify"] as const;
+export const QUEUES = ["pdf.article", "pdf.certificate", "notify", "issue.announce"] as const;
 export type QueueName = (typeof QUEUES)[number];
 
 export type JobData = {
   "pdf.article": { articleId: string };
   "pdf.certificate": { certificateId: string };
   notify: { userId: string; event: import("@/lib/notify/templates").NotifyEvent };
+  "issue.announce": { issueId: string };
 };
 
 let boss: Promise<PgBoss> | null = null;
