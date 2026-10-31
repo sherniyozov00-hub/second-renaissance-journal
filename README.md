@@ -163,3 +163,34 @@ To‘lov — `PAYMENTS_MODE`:
   manzillarni ko‘rsating. Karta (Uzcard/Humo/Visa) Payme checkout orqali.
 - Fiskal chek uchun MXIK va o‘lchov birligi kodi Sozlamalardan (`payments.mxikCode`,
   `payments.unitCode`) Payme chekiga yuboriladi.
+
+## Tahririyat, admin va taqrizchi panellari
+
+- **`/admin`** (muharrir va admin, Ekran 8): boshqaruv paneli, maqolalar jadvali (filtr,
+  qidiruv, CSV eksport), maqola kartasi (versiyalar, originallik, taqrizlar, izohlar, AuditLog,
+  taqrizchi biriktirish, tuzatishga qaytarish, qabul, rad, son/betlar/DOI, nashrdan oldin
+  ko‘rinish, nashr), jurnal sonlari, kategoriyalar, mualliflar, taqrizchilar (yuklama, muddati
+  o‘tganlar), to‘lovlar (qaytarish, promokodlar), sahifalar va SEO, foydalanuvchilar va rollar,
+  sozlamalar. Har bir muhim amal `AuditLog` ga yoziladi.
+- **`/taqriz`** (taqrizchi): biriktirilgan maqolalar, ko‘r taqriz — muallif ma’lumotlari
+  ko‘rsatilmaydi; 4 mezon bo‘yicha baho (1–5), izoh va tavsiya.
+- Nashrda: o‘qiladigan slug, nashr sanasi, har bir hammuallifga sertifikat, PDF (Chromium bilan,
+  matnli, metama’lumotli) — `public/pdf/<slug>.pdf`, sertifikat PDF — `certificates/<id>.pdf`.
+
+## Fon vazifalari (worker) va xabarnomalar
+
+`worker` xizmati (`npm run worker`, docker compose’da avtomatik) pg-boss navbatidan PDF va
+xabarnoma vazifalarini bajaradi. Lokal ishlab chiqishda worker’siz ishlash uchun
+`JOBS_MODE=inline` + `APP_INTERNAL_URL=http://localhost:3000`.
+
+Xabarnomalar (status o‘zgarishi, muharrir izohi, to‘lov, nashr) — email va Telegram.
+Telegram botni ulash:
+
+```bash
+# .env: TELEGRAM_BOT_TOKEN=..., TELEGRAM_WEBHOOK_SECRET=<tasodifiy satr>, Sozlamalar → telegram.botName
+curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook" \
+  -d "url=https://<domen>/api/telegram/webhook" -d "secret_token=$TELEGRAM_WEBHOOK_SECRET"
+```
+
+Muallif kabinetdagi “Telegram-botni ulang” tugmasini bosadi → bot `/start <token>` ni oladi va
+hisob ulanadi.

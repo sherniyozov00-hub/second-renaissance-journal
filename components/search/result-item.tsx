@@ -1,6 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { ArticleEyebrow, AuthorLinks } from "@/components/article/article-meta";
-import { Link } from "@/i18n/navigation";
+import { getPathname, Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { articleAbstract, articleTitle, formatNumber } from "@/lib/l10n";
 import type { ArticleCard } from "@/lib/queries/articles";
@@ -56,12 +56,12 @@ export async function SearchResultItem({ article, q }: { article: ArticleCard; q
       </p>
       <p className="mt-2 text-[15px] leading-relaxed text-text-2">{snippet}</p>
       <p className="mt-2 flex flex-wrap gap-x-4 text-sm">
-        <Link
-          href={`/maqola/${article.slug}/pdf`}
+        <a
+          href={getPathname({ href: `/maqola/${article.slug}/pdf`, locale })}
           className="font-semibold text-blue-800 hover:underline"
         >
           PDF
-        </Link>
+        </a>
         <Link href={`/maqola/${article.slug}#iqtibos`} className="text-blue-800 hover:underline">
           {t("article.cites")}
         </Link>

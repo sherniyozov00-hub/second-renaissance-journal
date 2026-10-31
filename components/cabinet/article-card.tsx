@@ -1,7 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ArticleStatus } from "@/generated/prisma/client";
 import { buttonClass } from "@/components/ui/styles";
-import { Link } from "@/i18n/navigation";
+import { getPathname, Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { articleTitle, formatDate, formatNumber, pick } from "@/lib/l10n";
 import type { MyArticle } from "@/lib/queries/cabinet";
@@ -88,9 +88,12 @@ export async function ArticleStatusCard({ article }: { article: MyArticle }) {
         <div className="flex items-center gap-4">
           <StatusBadge status={article.status} />
           {certificate ? (
-            <Link href={`/sertifikat/${certificate.id}`} className={buttonClass("secondary", "md")}>
+            <a
+              href={getPathname({ href: `/sertifikat/${certificate.id}/pdf`, locale })}
+              className={buttonClass("secondary", "md")}
+            >
               {t("certificatePdf")}
-            </Link>
+            </a>
           ) : null}
         </div>
       </article>

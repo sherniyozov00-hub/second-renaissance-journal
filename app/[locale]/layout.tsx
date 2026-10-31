@@ -1,28 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Inter, Lora } from "next/font/google";
 import { notFound } from "next/navigation";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { routing } from "@/i18n/routing";
+import { fontVariables } from "@/lib/fonts";
 import { getSettings } from "@/lib/settings/get";
 import { siteConfig } from "@/lib/site";
 import "../globals.css";
-
-// Latin + Cyrillic (TZ 12.2).
-const lora = Lora({
-  subsets: ["latin", "latin-ext", "cyrillic"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-lora",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin", "latin-ext", "cyrillic"],
-  variable: "--font-inter",
-  display: "swap",
-});
 
 export async function generateMetadata({
   params,
@@ -62,7 +47,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} className={`${lora.variable} ${inter.variable}`}>
+    <html lang={locale} className={fontVariables}>
       <body className="pb-[60px] md:pb-0">
         <NextIntlClientProvider>
           {children}
