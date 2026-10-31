@@ -1,10 +1,13 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { PageTitle, panel, td, th } from "@/components/admin/ui";
 import { requireEditor } from "@/lib/admin/auth";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Mualliflar" };
+export async function generateMetadata() {
+  return { title: (await getTranslations("admin.people"))("authorsTitle") };
+}
 
 export default async function AuthorsAdminPage({
   searchParams,
@@ -22,15 +25,16 @@ export default async function AuthorsAdminPage({
       _count: { select: { articles: true } },
     },
   });
+  const t = await getTranslations("admin.people");
   return (
     <>
-      <PageTitle title="Mualliflar" />
+      <PageTitle title={t("authorsTitle")} />
       <form className="mt-5">
         <input
           name="q"
           defaultValue={q}
-          placeholder="Ism bo‘yicha qidirish"
-          aria-label="Qidirish"
+          placeholder={t("searchByName")}
+          aria-label={t("search")}
           className="h-11 w-full max-w-md rounded-control border border-border-strong px-3"
         />
       </form>
@@ -38,7 +42,7 @@ export default async function AuthorsAdminPage({
         <table className="w-full min-w-[720px]">
           <thead className="border-b border-border bg-blue-50/40">
             <tr>
-              {["F.I.Sh.", "Muassasa", "ORCID", "Maqolalar", "Aloqa", "Profil"].map((h) => (
+              {[t("fullName"), t("affiliation"), "ORCID", t("articles"), t("contact"), t("profile")].map((h) => (
                 <th key={h} className={th}>
                   {h}
                 </th>
@@ -60,10 +64,10 @@ export default async function AuthorsAdminPage({
                       className="text-blue-800 hover:underline"
                       target="_blank"
                     >
-                      ochiq ↗
+                      {t("public")}
                     </Link>
                   ) : (
-                    "yopiq"
+                    t("private")
                   )}
                 </td>
               </tr>
