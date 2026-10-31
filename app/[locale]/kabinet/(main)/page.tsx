@@ -18,11 +18,19 @@ export async function generateMetadata({
   return { title: t("myArticles"), robots: { index: false, follow: false } };
 }
 
-export default async function CabinetPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function CabinetPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ tolandi?: string }>;
+}) {
   const { locale } = await params;
+  const { tolandi } = await searchParams;
   setRequestLocale(locale);
   const user = await requireCabinetUser(locale, "/kabinet");
   const t = await getTranslations("cabinet");
+  const ts = await getTranslations("submit");
   const [articles, certificates, bot] = await Promise.all([
     getMyArticles(user),
     getMyCertificates(user),
@@ -31,6 +39,14 @@ export default async function CabinetPage({ params }: { params: Promise<{ locale
 
   return (
     <>
+      {tolandi ? (
+        <p
+          role="status"
+          className="mb-5 rounded-card bg-success-bg px-4 py-3 font-semibold text-success"
+        >
+          {ts("paidBanner")}
+        </p>
+      ) : null}
       <h1 className="text-[28px] leading-tight md:text-section">{t("myArticles")}</h1>
       {articles.length ? (
         <div className="mt-5 space-y-4">

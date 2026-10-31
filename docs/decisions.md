@@ -112,3 +112,29 @@ muassasa, saralash, tab, page`. Filtrlangan natija sahifalari `noindex`, kanonik
    bo‘lib turganida tugma faol emas.
 10. **“AI bilan tuzatish”, “Yangi versiyani yuklash”, “To‘lovni amalga oshirish”** tugmalari
     4- va 6-bosqich sahifalariga olib boradi (hozircha ular hali yo‘q).
+
+## 4-bosqich — Yuborish va to‘lov
+
+1. **Yuborish sahifasi Ekran 6 dagidek** kabinetning chap ustunisiz (route group `(submit)`).
+2. **Qadamlar bitta sahifada**, yuqoridagi 6 ta qadam to‘ldirilganini ko‘rsatadi; o‘ng ustunda
+   to‘lov kartasi. Hammuallif tartibi “yuqoriga/pastga” tugmalari bilan (sudrab o‘zgartirish
+   o‘rniga — klaviatura bilan ham ishlaydi, TZ 17).
+3. **Annotatsiya inglizcha maydoni qo‘shildi** — Ekran 6 da bitta annotatsiya, lekin TZ 16
+   o‘zbek va ingliz tilida talab qiladi.
+4. **Qoralama slug’i** `qoralama-…`; haqiqiy o‘qiladigan slug nashrda (5-bosqich) beriladi.
+5. **Oldindan tekshiruv:** originallik — 5 so‘zli shingllar bilan platformadagi nashrlarga
+   nisbatan (TZ 10.1 da ruxsat etilgan; tashqi xizmat keyin shu funksiya ortiga ulanadi);
+   shablon, hajm, adabiyotlar va APA yili — qoidalar bo‘yicha. **Fakt tekshiruvi** Xorazmiy AI
+   bilan 6-bosqichda — hozir kartada “AI ulanganda” deb turadi. Kamchiliklar yuborishni
+   to‘xtatmaydi (TZ 7.4).
+6. **Narx `[NARX]` bo‘lsa:** sandbox rejimida namunaviy 50 000 so‘m (sahifada yozib qo‘yilgan),
+   live rejimida to‘lov yopiq va “narx belgilanmagan” xabari chiqadi. Tezlashtirilgan ko‘rib
+   chiqish narxi berilmaguncha bu variant ko‘rinmaydi.
+7. **Payme va Click** rasmiy protokollar bo‘yicha (Payme JSON-RPC: barcha 6 metod, idempotent,
+   12 soatlik timeout; Click: MD5 imzo, Prepare/Complete). **Karta** Payme checkout orqali.
+   **Uzum Bank**: merchant API shartnoma va hujjatlari bilan beriladi — kalitlar va hujjat
+   kelguncha sinov sahifasi ishlatiladi; adapter shu `checkoutUrl()` ortiga qo‘shiladi.
+8. **100% promokod** — to‘lov provayderga bormaydi, darhol to‘langan deb belgilanadi.
+9. **Fayllar** S3’da yopiq; lokal/test muhitda S3 sozlanmagan bo‘lsa `.data/uploads` va
+   imzolangan, muddati cheklangan havolalar.
+10. **Server Actions va proxy hajm chegarasi** 12 MB ga oshirildi (10 MB fayl uchun).
