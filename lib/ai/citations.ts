@@ -29,7 +29,7 @@ const fold = (s: string) =>
     .replace(/[^\p{L}]/gu, "");
 
 const APA =
-  /\(([^()]*?\p{Lu}[\p{L}‘’'-]+(?:\s+(?:va|and|&)\s+\p{Lu}[\p{L}‘’'-]+|\s+(?:va boshq\.|et al\.|и др\.))?,\s*(?:19|20)\d\d[a-z]?(?:;\s*[^()]+?)*)\)|(\p{Lu}[\p{L}‘’'-]+)(?:\s+(?:va boshq\.|et al\.))?\s+\(((?:19|20)\d\d)[a-z]?\)/gu;
+  /\(([^()]*?\p{Lu}[\p{L}‘’'-]+(?:\s+(?:va|and|&)\s+\p{Lu}[\p{L}‘’'-]+|\s+(?:va boshq\.|et al\.|и др\.))?,\s*(?:(?:19|20)\d\d[a-z]?|n\.d\.)(?:;\s*[^()]+?)*)\)|(\p{Lu}[\p{L}‘’'-]+)(?:\s+(?:va boshq\.|et al\.))?\s+\(((?:19|20)\d\d)[a-z]?\)/gu;
 
 type AuthorYear = { label: string; name: string; year: string };
 
@@ -38,7 +38,7 @@ export function findApaCitations(text: string): AuthorYear[] {
   for (const m of text.matchAll(APA)) {
     if (m[1]) {
       for (const part of m[1].split(";")) {
-        const pm = part.trim().match(/(\p{Lu}[\p{L}‘’'-]+).*?,\s*((?:19|20)\d\d)/u);
+        const pm = part.trim().match(/(\p{Lu}[\p{L}‘’'-]+).*?,\s*((?:19|20)\d\d|n\.d\.)/u);
         if (pm) out.push({ label: part.trim(), name: pm[1]!, year: pm[2]! });
       }
     } else if (m[2] && m[3]) {
@@ -64,7 +64,7 @@ export function checkCitations(text: string, refs: DraftReference[]): CitationCh
   const apa = findApaCitations(text);
   const numeric = findNumericCitations(text);
   const label = (r: DraftReference) =>
-    `${r.authors[0] ? surname(r.authors[0]) : r.title.slice(0, 40)} (${r.year ?? "y.y."})`;
+    `${r.authors[0] ? surname(r.authors[0]) : r.title.slice(0, 40)} (${r.year ?? "n.d."})`;
 
   if (numeric.length > apa.length) {
     const missing = numeric.filter((n) => n > refs.length).map((n) => `[${n}]`);
@@ -82,7 +82,8 @@ export function checkCitations(text: string, refs: DraftReference[]): CitationCh
   for (const c of apa) {
     const i = refs.findIndex(
       (r) =>
-        String(r.year ?? "") === c.year && r.authors.some((a) => fold(surname(a)) === fold(c.name)),
+        String(r.year ?? "n.d.") === c.year &&
+        r.authors.some((a) => fold(surname(a)) === fold(c.name)),
     );
     if (i >= 0) {
       used.add(i);
@@ -105,5 +106,5 @@ export function inTextCitation(r: DraftReference, style: "apa" | "numeric", n: n
         : names.length === 2
           ? `${names[0]} va ${names[1]}`
           : `${names[0]} va boshq.`;
-  return `(${who}, ${r.year ?? "y.y."})`;
+  return `(${who}, ${r.year ?? "n.d."})`;
 }

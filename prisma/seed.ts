@@ -7,6 +7,7 @@ import { createHash } from "node:crypto";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, type Role } from "../generated/prisma/client";
 import { slugify } from "../lib/text/uz";
+import { KNOWLEDGE_DEFAULTS } from "../lib/ai/knowledge-defaults";
 import { SETTINGS } from "../lib/settings/registry";
 import { categories } from "./seed-data/categories";
 import { articles, authors, type SeedArticle } from "./seed-data/articles";
@@ -269,6 +270,21 @@ async function main() {
     });
   }
 
+  // Xorazmiy AI knowledge base: created once, then edited by the editorial team.
+  for (const k of KNOWLEDGE_DEFAULTS) {
+    await db.aiKnowledge.upsert({
+      where: { key: k.key },
+      update: {},
+      create: {
+        key: k.key,
+        kind: k.kind,
+        articleType: k.articleType,
+        title: k.title,
+        body: k.body,
+      },
+    });
+  }
+
   await db.auditLog.create({
     data: { actorId: admin.id, action: "seed", entity: "system", entityId: "seed" },
   });
@@ -282,6 +298,7 @@ async function main() {
     lessons: await db.lesson.count(),
     pages: await db.page.count(),
     settings: await db.setting.count(),
+    aiKnowledge: await db.aiKnowledge.count(),
   };
   console.log("Seed complete:", counts);
 }

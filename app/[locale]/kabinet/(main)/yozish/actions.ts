@@ -75,13 +75,18 @@ export async function deleteDraftAction(form: FormData) {
 
 export async function saveDraftAction(
   id: string,
-  input: { title?: string; body?: unknown; references?: DraftReference[] },
+  input: { title?: string; body?: string },
 ): Promise<{ savedAt: string } | { error: "save" }> {
   const user = await requireUser();
   try {
-    const at = await saveDraftBody(user.id, id, input);
+    // The document travels as a JSON string: editor objects are not plain values for React.
+    const at = await saveDraftBody(user.id, id, {
+      title: input.title,
+      body: input.body === undefined ? undefined : JSON.parse(input.body),
+    });
     return { savedAt: at.toISOString() };
-  } catch {
+  } catch (e) {
+    console.error("[draft save]", e);
     return { error: "save" };
   }
 }

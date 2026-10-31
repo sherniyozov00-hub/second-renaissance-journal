@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/kabinet", label: "myArticles" },
+  { href: "/kabinet/yozish", label: "writing" },
   { href: "/kabinet/sertifikatlar", label: "certificates" },
   { href: "/kabinet/tolovlar", label: "payments" },
   { href: "/kabinet/darslar", label: "lessons" },

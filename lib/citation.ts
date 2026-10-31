@@ -6,7 +6,8 @@
 export type CitationInput = {
   title: string;
   authors: string[];
-  year: number;
+  /** null when the source gives no date: APA "n.d.", GOST "б. г.". */
+  year: number | null;
   journal: string;
   volume?: number | null;
   issue?: number | null;
@@ -47,7 +48,8 @@ export function formatApa(c: CitationInput): string {
   const issue = c.issue ? `(${c.issue})` : "";
   const pages = c.pages ? `, ${c.pages}` : "";
   const link = c.doi ? ` https://doi.org/${c.doi}` : ` ${c.url}`;
-  return `${apaAuthors(c.authors)} (${c.year}). ${c.title}. ${c.journal},${volume}${issue}${pages}.${link}`;
+  const source = c.journal ? ` ${c.journal},${volume}${issue}${pages}.` : "";
+  return `${apaAuthors(c.authors)} (${c.year ?? "n.d."}). ${c.title}.${source}${link}`;
 }
 
 export function formatGost(c: CitationInput): string {
@@ -58,7 +60,8 @@ export function formatGost(c: CitationInput): string {
   const pages = c.pages ? ` С. ${c.pages}.` : "";
   const doi = c.doi ? ` DOI: ${c.doi}.` : "";
   const responsibility = rest.length ? ` / ${all}` : "";
-  return `${lead}${c.title}${responsibility} // ${c.journal}. ${c.year}.${issue}${pages}${doi} URL: ${c.url}`;
+  const source = c.journal ? ` // ${c.journal}.` : ".";
+  return `${lead}${c.title}${responsibility}${source} ${c.year ?? "б. г."}.${issue}${pages}${doi} URL: ${c.url}`;
 }
 
 export function formatBibtex(c: CitationInput, key: string): string {

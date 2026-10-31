@@ -229,7 +229,7 @@ export function toCitation(r: DraftReference) {
   return {
     title: r.title,
     authors: r.authors.length ? r.authors : ["[Muallif]"],
-    year: r.year ?? new Date().getFullYear(),
+    year: r.year,
     journal: r.journal ?? "",
     doi: r.doi,
     url: r.url,
