@@ -40,9 +40,7 @@ export default async function PagesAdminPage({
           {tc("saved")}
         </p>
       ) : null}
-      <p className="mt-2 text-sm text-text-2">
-        {t("hint")}
-      </p>
+      <p className="mt-2 text-sm text-text-2">{t("hint")}</p>
       <div className="mt-5 space-y-4">
         {pages.map((p) => (
           <details key={p.id} className={panel}>

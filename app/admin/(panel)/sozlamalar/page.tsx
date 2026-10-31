@@ -11,7 +11,16 @@ export async function generateMetadata() {
   return { title: (await getTranslations("admin.settings"))("title") };
 }
 
-const GROUPS = ["journal", "contacts", "pricing", "payments", "review", "ai", "integrations", "seo"];
+const GROUPS = [
+  "journal",
+  "contacts",
+  "pricing",
+  "payments",
+  "review",
+  "ai",
+  "integrations",
+  "seo",
+];
 
 /** All placeholders ([NARX], [ISSN]...) are edited here — never in code (TZ 1.7, 19). */
 export default async function SettingsAdminPage({
@@ -40,9 +49,7 @@ export default async function SettingsAdminPage({
           {tc("saved")}
         </p>
       ) : null}
-      <p className="mt-2 text-sm text-text-2">
-        {t("unfilled", { count: placeholders })}
-      </p>
+      <p className="mt-2 text-sm text-text-2">{t("unfilled", { count: placeholders })}</p>
       <form action={saveSettingsAction} className="mt-5 space-y-5">
         {GROUPS.map((g) => (
           <section key={g} className={cn(panel, "p-5")}>

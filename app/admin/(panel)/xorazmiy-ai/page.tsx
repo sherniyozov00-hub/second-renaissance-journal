@@ -1,3 +1,5 @@
+import { getLocale, getTranslations } from "next-intl/server";
+import type { AppLocale } from "@/i18n/routing";
 import {
   deleteKnowledgeAction,
   promoteFeedbackAction,
@@ -14,86 +16,67 @@ import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Xorazmiy AI" };
 
-const KIND_LABEL = {
-  STYLE: "Uslub va qoidalar",
-  GUIDE: "Maqola turi qo‘llanmasi",
-  CHECKLIST: "Tekshiruv ro‘yxati",
-  EXAMPLE: "Namuna",
-} as const;
-const TYPE_LABEL = {
-  RESEARCH: "Tadqiqot",
-  REVIEW: "Sharh",
-  CASE_STUDY: "Keys-stadi",
-  POPULAR: "Ilmiy-ommabop",
-} as const;
-const FEATURE_LABEL: Record<string, string> = {
-  FACTCHECK: "Fakt tekshiruvi",
-  SOURCES: "Manbalar",
-  EDIT: "Tahrir",
-  ORIGINALITY: "Originallik",
-  PLAN: "Reja",
-  ASSIST: "Yozishga yordam",
-  CITATIONS: "Iqtiboslar",
-  TRANSLATE: "Tarjima",
-  CHAT: "Chat",
-};
+const KINDS = ["STYLE", "GUIDE", "CHECKLIST", "EXAMPLE"] as const;
+const TYPES = ["RESEARCH", "REVIEW", "CASE_STUDY", "POPULAR"] as const;
 
-function KnowledgeForm({
+async function KnowledgeForm({
   k,
   categories,
 }: {
   k?: AiKnowledge;
   categories: { id: string; name: unknown }[];
 }) {
+  const [t, tc, locale] = await Promise.all([
+    getTranslations("admin.ai"),
+    getTranslations("admin.common"),
+    getLocale() as Promise<AppLocale>,
+  ]);
   return (
     <form action={saveKnowledgeAction} className="space-y-4 p-5">
       {k ? <input type="hidden" name="id" value={k.id} /> : null}
       <div className="grid gap-3 md:grid-cols-4">
-        <Field label="Nomi">
+        <Field label={t("name")}>
           <input name="title" required defaultValue={k?.title} className={cn(input, "w-full")} />
         </Field>
-        <Field label="Turi">
+        <Field label={t("kind")}>
           <select name="kind" defaultValue={k?.kind ?? "GUIDE"} className={cn(select, "w-full")}>
-            {Object.entries(KIND_LABEL).map(([v, l]) => (
+            {KINDS.map((v) => (
               <option key={v} value={v}>
-                {l}
+                {t(`kind_${v}`)}
               </option>
             ))}
           </select>
         </Field>
-        <Field label="Maqola turi">
+        <Field label={t("articleType")}>
           <select
             name="articleType"
             defaultValue={k?.articleType ?? ""}
             className={cn(select, "w-full")}
           >
-            <option value="">Barchasi</option>
-            {Object.entries(TYPE_LABEL).map(([v, l]) => (
+            <option value="">{tc("all")}</option>
+            {TYPES.map((v) => (
               <option key={v} value={v}>
-                {l}
+                {t(`type_${v}`)}
               </option>
             ))}
           </select>
         </Field>
-        <Field label="Yo‘nalish">
+        <Field label={t("category")}>
           <select
             name="categoryId"
             defaultValue={k?.categoryId ?? ""}
             className={cn(select, "w-full")}
           >
-            <option value="">Barchasi</option>
+            <option value="">{tc("all")}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
-                {pick(c.name, "uz")}
+                {pick(c.name, locale)}
               </option>
             ))}
           </select>
         </Field>
       </div>
-      <Field
-        label="Matn (Markdown)"
-        hint="AI har so‘rovda shu matnni o‘qiydi. Qisqa, aniq qoidalar va namunalar yozing."
-      >
+      <Field label={t("body")} hint={t("bodyHint")}>
         <textarea
           name="body"
           required
@@ -104,10 +87,11 @@ function KnowledgeForm({
       </Field>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" name="active" value="1" defaultChecked={k?.active ?? true} /> Faol
+          <input type="checkbox" name="active" value="1" defaultChecked={k?.active ?? true} />{" "}
+          {t("active")}
         </label>
         <button type="submit" className={buttonClass("primary", "md")}>
-          {k ? "Saqlash" : "Qo‘shish"}
+          {k ? tc("save") : tc("add")}
         </button>
       </div>
     </form>
@@ -146,6 +130,11 @@ export default async function AiAdminPage({
   const accepted = vote("edit", "accepted");
   const rejected = vote("edit", "rejected");
 
+  const [t, tc, locale] = await Promise.all([
+    getTranslations("admin.ai"),
+    getTranslations("admin.common"),
+    getLocale() as Promise<AppLocale>,
+  ]);
   return (
     <>
       <PageTitle title="Xorazmiy AI" />
@@ -156,53 +145,45 @@ export default async function AiAdminPage({
             natija === "xato" ? "bg-danger-bg text-danger" : "bg-success-bg text-success",
           )}
         >
-          {natija === "xato"
-            ? "Saqlanmadi: nomi va matni majburiy."
-            : natija === "namuna"
-              ? "Javob namunalar bazasiga qo‘shildi."
-              : natija === "ochirildi"
-                ? "O‘chirildi."
-                : "Saqlandi. AI bir daqiqa ichida yangi bilimdan foydalanadi."}
+          {t(
+            `res_${["xato", "namuna", "ochirildi"].includes(natija) ? natija : "saqlandi"}` as "res_saqlandi",
+          )}
         </p>
       ) : null}
       <p className="mt-2 text-sm text-text-2">
-        Rejim:{" "}
-        <strong>
-          {aiMode() === "live" ? "Claude API ulangan" : "sinov (ANTHROPIC_API_KEY yo‘q)"}
-        </strong>
-        . Model va limitlar — Sozlamalar → ai.*.
+        {t("mode")}: <strong>{aiMode() === "live" ? t("live") : t("mock")}</strong>. {t("modeHint")}
       </p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="AI xarajati (oy)" value={`$${Number(total._sum.cost ?? 0).toFixed(2)}`} />
-        <StatCard label="So‘rovlar (oy)" value={byType.reduce((n, x) => n + x._count, 0)} />
+        <StatCard label={t("cost")} value={`$${Number(total._sum.cost ?? 0).toFixed(2)}`} />
+        <StatCard label={t("requests")} value={byType.reduce((n, x) => n + x._count, 0)} />
         <StatCard
-          label="Tahrir qabul qilindi"
+          label={t("acceptedRate")}
           value={
             accepted + rejected ? `${Math.round((accepted / (accepted + rejected)) * 100)}%` : "—"
           }
         />
-        <StatCard label="Bilim bazasi" value={knowledge.filter((k) => k.active).length} />
+        <StatCard label={t("knowledgeCount")} value={knowledge.filter((k) => k.active).length} />
       </div>
 
       <section className={cn(panel, "mt-6 overflow-x-auto")}>
         <table className="w-full min-w-[560px]">
           <thead className="border-b border-border bg-blue-50/60">
             <tr>
-              <th className={th}>Funksiya</th>
-              <th className={th}>So‘rovlar</th>
-              <th className={th}>Tokenlar (kirish / chiqish)</th>
-              <th className={th}>Narx</th>
+              <th className={th}>{t("colFeature")}</th>
+              <th className={th}>{t("colRequests")}</th>
+              <th className={th}>{t("colTokens")}</th>
+              <th className={th}>{t("colPrice")}</th>
             </tr>
           </thead>
           <tbody>
             {byType.map((r) => (
               <tr key={r.type} className="border-b border-border last:border-0">
-                <td className={td}>{FEATURE_LABEL[r.type] ?? r.type}</td>
+                <td className={td}>{t(`f_${r.type}`)}</td>
                 <td className={td}>{r._count}</td>
                 <td className={td}>
-                  {(r._sum.tokensIn ?? 0).toLocaleString("ru-RU")} /{" "}
-                  {(r._sum.tokensOut ?? 0).toLocaleString("ru-RU")}
+                  {(r._sum.tokensIn ?? 0).toLocaleString(locale)} /{" "}
+                  {(r._sum.tokensOut ?? 0).toLocaleString(locale)}
                 </td>
                 <td className={td}>${Number(r._sum.cost ?? 0).toFixed(4)}</td>
               </tr>
@@ -210,7 +191,7 @@ export default async function AiAdminPage({
             {!byType.length ? (
               <tr>
                 <td className={td} colSpan={4}>
-                  Shu oy so‘rov bo‘lmagan.
+                  {t("noRequests")}
                 </td>
               </tr>
             ) : null}
@@ -218,21 +199,17 @@ export default async function AiAdminPage({
         </table>
       </section>
 
-      <h2 className="mt-8 font-sans text-xl font-semibold">Bilim bazasi — AI’ni o‘qitish</h2>
-      <p className="mt-1 max-w-[760px] text-sm text-text-2">
-        Har bir so‘rovda AI shu yozuvlarni (maqola turi va yo‘nalishiga mosini) hamda jurnalda nashr
-        qilingan eng ko‘p o‘qilgan maqolalar tuzilmasini o‘qiydi. Yangi qoida yoki namuna
-        qo‘shsangiz, AI darhol unga amal qiladi. Sifatni tekshirish: <code>npm run ai:eval</code>.
-      </p>
+      <h2 className="mt-8 font-sans text-xl font-semibold">{t("kbTitle")}</h2>
+      <p className="mt-1 max-w-[760px] text-sm text-text-2">{t("kbLead")}</p>
       <div className="mt-4 space-y-3">
         {knowledge.map((k) => (
           <details key={k.id} className={cn(panel, !k.active && "opacity-60")}>
             <summary className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 px-5 py-4">
               <span className="font-semibold">{k.title}</span>
               <span className="text-xs text-text-2">
-                {KIND_LABEL[k.kind]} · {k.articleType ? TYPE_LABEL[k.articleType] : "barcha turlar"}{" "}
+                {t(`kind_${k.kind}`)} · {k.articleType ? t(`type_${k.articleType}`) : t("allTypes")}{" "}
                 · v{k.version}
-                {k.active ? "" : " · nofaol"}
+                {k.active ? "" : t("inactive")}
               </span>
             </summary>
             <div className="border-t border-border">
@@ -240,7 +217,7 @@ export default async function AiAdminPage({
               <form action={deleteKnowledgeAction} className="px-5 pb-5">
                 <input type="hidden" name="id" value={k.id} />
                 <button type="submit" className="text-sm font-semibold text-danger hover:underline">
-                  O‘chirish
+                  {tc("delete")}
                 </button>
               </form>
             </div>
@@ -248,7 +225,7 @@ export default async function AiAdminPage({
         ))}
         <details className={panel}>
           <summary className="cursor-pointer px-5 py-4 font-semibold text-blue-800">
-            + Yangi yozuv
+            {t("newEntry")}
           </summary>
           <div className="border-t border-border">
             <KnowledgeForm categories={categories} />
@@ -256,19 +233,16 @@ export default async function AiAdminPage({
         </details>
       </div>
 
-      <h2 className="mt-8 font-sans text-xl font-semibold">Mualliflar fikri</h2>
-      <p className="mt-1 text-sm text-text-2">
-        Qabul qilingan tahrirlar va “foydali” deb belgilangan javoblarni namunaga aylantiring — AI
-        shunday javob berishni o‘rganadi.
-      </p>
+      <h2 className="mt-8 font-sans text-xl font-semibold">{t("feedbackTitle")}</h2>
+      <p className="mt-1 text-sm text-text-2">{t("feedbackLead")}</p>
       <section className={cn(panel, "mt-4 overflow-x-auto")}>
         <table className="w-full min-w-[720px]">
           <thead className="border-b border-border bg-blue-50/60">
             <tr>
-              <th className={th}>Sana</th>
-              <th className={th}>Funksiya</th>
-              <th className={th}>Baho</th>
-              <th className={th}>Mazmun</th>
+              <th className={th}>{t("colDate")}</th>
+              <th className={th}>{t("colFeature")}</th>
+              <th className={th}>{t("colVerdict")}</th>
+              <th className={th}>{t("colContent")}</th>
               <th className={th} />
             </tr>
           </thead>
@@ -285,13 +259,13 @@ export default async function AiAdminPage({
                       : "";
               return (
                 <tr key={f.id} className="border-b border-border last:border-0">
-                  <td className={td}>{formatDate(f.createdAt, "uz")}</td>
+                  <td className={td}>{formatDate(f.createdAt, locale)}</td>
                   <td className={td}>{f.feature}</td>
                   <td className={td}>{f.verdict}</td>
                   <td className={cn(td, "max-w-[420px] truncate")}>{text}</td>
                   <td className={td}>
                     {f.promoted ? (
-                      <span className="text-xs text-success">namuna</span>
+                      <span className="text-xs text-success">{t("isExample")}</span>
                     ) : f.verdict === "up" || f.verdict === "accepted" ? (
                       <form action={promoteFeedbackAction}>
                         <input type="hidden" name="id" value={f.id} />
@@ -299,7 +273,7 @@ export default async function AiAdminPage({
                           type="submit"
                           className="text-sm font-semibold text-blue-800 hover:underline"
                         >
-                          Namunaga aylantirish
+                          {t("promote")}
                         </button>
                       </form>
                     ) : null}
@@ -310,7 +284,7 @@ export default async function AiAdminPage({
             {!feedback.length ? (
               <tr>
                 <td className={td} colSpan={5}>
-                  Hali fikr yo‘q.
+                  {t("noFeedback")}
                 </td>
               </tr>
             ) : null}

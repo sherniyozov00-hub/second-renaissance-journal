@@ -103,7 +103,9 @@ export default async function UsersAdminPage({
                       <input type="checkbox" name="isBlocked" defaultChecked={u.isBlocked} />{" "}
                       {t("blocked")}
                     </label>
-                    <button className="font-semibold text-blue-800 hover:underline">{tc("save")}</button>
+                    <button className="font-semibold text-blue-800 hover:underline">
+                      {tc("save")}
+                    </button>
                   </form>
                 </td>
               </tr>

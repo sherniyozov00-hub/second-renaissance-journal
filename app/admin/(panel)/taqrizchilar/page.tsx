@@ -36,20 +36,16 @@ export default async function ReviewersAdminPage() {
   return (
     <>
       <PageTitle title={t("reviewersTitle")} />
-      <p className="mt-2 text-sm text-text-2">
-        {t("reviewersHint")}
-      </p>
+      <p className="mt-2 text-sm text-text-2">{t("reviewersHint")}</p>
       <section className={cn(panel, "mt-5 overflow-x-auto")}>
         <table className="w-full min-w-[720px]">
           <thead className="border-b border-border bg-blue-50/40">
             <tr>
-              {[t("reviewer"), t("open"), t("overdue"), t("done"), t("current")].map(
-                (h) => (
-                  <th key={h} className={th}>
-                    {h}
-                  </th>
-                ),
-              )}
+              {[t("reviewer"), t("open"), t("overdue"), t("done"), t("current")].map((h) => (
+                <th key={h} className={th}>
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>

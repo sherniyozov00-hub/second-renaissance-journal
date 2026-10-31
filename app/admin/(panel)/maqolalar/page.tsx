@@ -140,13 +140,20 @@ export default async function AdminArticlesPage({
           <table className="w-full min-w-[900px]">
             <thead className="border-b border-border bg-blue-50/40">
               <tr>
-                {["ID", t("colTitle"), t("colAuthor"), t("category"), t("colPayment"), t("status"), t("colDate"), ""].map(
-                  (h) => (
-                    <th key={h} scope="col" className={th}>
-                      {h}
-                    </th>
-                  ),
-                )}
+                {[
+                  "ID",
+                  t("colTitle"),
+                  t("colAuthor"),
+                  t("category"),
+                  t("colPayment"),
+                  t("status"),
+                  t("colDate"),
+                  "",
+                ].map((h) => (
+                  <th key={h} scope="col" className={th}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -155,7 +162,9 @@ export default async function AdminArticlesPage({
                 return (
                   <tr key={a.id} className="border-b border-border last:border-0">
                     <td className={cn(td, "text-text-2")}>#{String(a.number).padStart(4, "0")}</td>
-                    <td className={cn(td, "max-w-[320px] font-semibold text-ink")}>{articleTitle(a, locale)}</td>
+                    <td className={cn(td, "max-w-[320px] font-semibold text-ink")}>
+                      {articleTitle(a, locale)}
+                    </td>
                     <td className={td}>{shortName(author)}</td>
                     <td className={td}>{pick(a.category.name, locale)}</td>
                     <td className={td}>

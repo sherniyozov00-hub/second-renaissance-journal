@@ -42,7 +42,14 @@ export default async function AuthorsAdminPage({
         <table className="w-full min-w-[720px]">
           <thead className="border-b border-border bg-blue-50/40">
             <tr>
-              {[t("fullName"), t("affiliation"), "ORCID", t("articles"), t("contact"), t("profile")].map((h) => (
+              {[
+                t("fullName"),
+                t("affiliation"),
+                "ORCID",
+                t("articles"),
+                t("contact"),
+                t("profile"),
+              ].map((h) => (
                 <th key={h} className={th}>
                   {h}
                 </th>

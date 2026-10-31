@@ -47,7 +47,9 @@ export async function StatusBadge({ status }: { status: ArticleStatus }) {
 export async function PaymentText({ status }: { status: PaymentStatus | null }) {
   if (!status) return <span className="text-muted">—</span>;
   const t = await getTranslations("admin.common");
-  return <span className={cn("font-semibold", PAYMENT_CLASS[status])}>{t(`payment_${status}`)}</span>;
+  return (
+    <span className={cn("font-semibold", PAYMENT_CLASS[status])}>{t(`payment_${status}`)}</span>
+  );
 }
 
 export function PageTitle({ title, children }: { title: string; children?: React.ReactNode }) {

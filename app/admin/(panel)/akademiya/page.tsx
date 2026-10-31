@@ -71,10 +71,7 @@ async function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: n
           className={cn(input, "w-full")}
         />
       </Field>
-      <Field
-        label={t("body")}
-        hint={t("bodyHint")}
-      >
+      <Field label={t("body")} hint={t("bodyHint")}>
         <textarea name="body" required rows={12} defaultValue={lesson?.body} className={area} />
       </Field>
       <Field label={t("example")}>
@@ -108,10 +105,18 @@ async function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: n
             <div className="space-y-3 border-t border-border p-4">
               <div className="grid gap-3 md:grid-cols-2">
                 <Field label={t("trTitle")}>
-                  <input name={`${lang}_title`} defaultValue={tr.title} className={cn(input, "w-full")} />
+                  <input
+                    name={`${lang}_title`}
+                    defaultValue={tr.title}
+                    className={cn(input, "w-full")}
+                  />
                 </Field>
                 <Field label={t("trSummary")}>
-                  <input name={`${lang}_summary`} defaultValue={tr.summary} className={cn(input, "w-full")} />
+                  <input
+                    name={`${lang}_summary`}
+                    defaultValue={tr.summary}
+                    className={cn(input, "w-full")}
+                  />
                 </Field>
               </div>
               <Field label={t("body")}>
@@ -119,10 +124,20 @@ async function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: n
               </Field>
               <div className="grid gap-3 md:grid-cols-2">
                 <Field label={t("example")}>
-                  <textarea name={`${lang}_example`} rows={4} defaultValue={tr.example} className={area} />
+                  <textarea
+                    name={`${lang}_example`}
+                    rows={4}
+                    defaultValue={tr.example}
+                    className={area}
+                  />
                 </Field>
                 <Field label={t("trExercise")}>
-                  <textarea name={`${lang}_exercise`} rows={4} defaultValue={tr.exercise} className={area} />
+                  <textarea
+                    name={`${lang}_exercise`}
+                    rows={4}
+                    defaultValue={tr.exercise}
+                    className={area}
+                  />
                 </Field>
               </div>
             </div>
@@ -174,11 +189,7 @@ export default async function LessonsAdminPage({
             natija === "saqlandi" ? "bg-success-bg text-success" : "bg-danger-bg text-danger",
           )}
         >
-          {natija === "saqlandi"
-            ? tc("saved")
-            : natija === "slug"
-              ? t("slugTaken")
-              : t("required")}
+          {natija === "saqlandi" ? tc("saved") : natija === "slug" ? t("slugTaken") : t("required")}
         </p>
       ) : null}
       <div className="mt-5 space-y-3">

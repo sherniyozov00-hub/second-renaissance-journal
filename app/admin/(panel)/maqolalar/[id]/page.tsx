@@ -238,9 +238,7 @@ export default async function AdminArticlePage({
                   ) : null}
                 </li>
               ))}
-              {!article.reviews.length ? (
-                <li className="text-text-2">{t("noReviewer")}</li>
-              ) : null}
+              {!article.reviews.length ? <li className="text-text-2">{t("noReviewer")}</li> : null}
             </ul>
           </section>
 
@@ -438,9 +436,7 @@ export default async function AdminArticlePage({
                   {t("publish")}
                 </button>
               </form>
-              {!article.issueId ? (
-                <p className="text-xs text-muted">{t("chooseIssue")}</p>
-              ) : null}
+              {!article.issueId ? <p className="text-xs text-muted">{t("chooseIssue")}</p> : null}
             </section>
           ) : null}
 

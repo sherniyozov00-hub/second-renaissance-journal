@@ -62,7 +62,8 @@ async function CategoryForm({ c }: { c: Cat }) {
           className={cn(input, "h-10 w-full")}
         />
         <label className="flex items-center gap-1 text-xs">
-          <input type="checkbox" name="isActive" defaultChecked={c.isActive ?? true} /> {t("active")}
+          <input type="checkbox" name="isActive" defaultChecked={c.isActive ?? true} />{" "}
+          {t("active")}
         </label>
       </div>
       <div className="flex flex-col gap-1">
@@ -96,9 +97,7 @@ export default async function CategoriesAdminPage() {
   return (
     <>
       <PageTitle title={t("title")} />
-      <p className="mt-2 text-sm text-text-2">
-        {t("count", { count: cats.length })}
-      </p>
+      <p className="mt-2 text-sm text-text-2">{t("count", { count: cats.length })}</p>
       <div className="mt-5 space-y-3">
         {cats.map((c) => (
           <div key={c.id}>

@@ -69,13 +69,11 @@ export default async function PaymentsAdminPage({
                 t("colAmount"),
                 t("colStatus"),
                 t("colRefund"),
-              ].map(
-                (h) => (
-                  <th key={h} className={th}>
-                    {h}
-                  </th>
-                ),
-              )}
+              ].map((h) => (
+                <th key={h} className={th}>
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -96,7 +94,9 @@ export default async function PaymentsAdminPage({
                   {p.provider}
                   {p.promoCode ? ` · ${p.promoCode.code}` : ""}
                 </td>
-                <td className={cn(td, "whitespace-nowrap")}>{formatNumber(p.amount, locale)} {tc("som")}</td>
+                <td className={cn(td, "whitespace-nowrap")}>
+                  {formatNumber(p.amount, locale)} {tc("som")}
+                </td>
                 <td className={td}>
                   <PaymentText status={p.status} />
                   {p.refundReason ? (
@@ -133,11 +133,13 @@ export default async function PaymentsAdminPage({
           <table className="w-full">
             <thead className="border-b border-border bg-blue-50/40">
               <tr>
-                {[t("colCode"), t("colDiscount"), t("colUsed"), t("colValid"), t("colStatus")].map((h) => (
-                  <th key={h} className={th}>
-                    {h}
-                  </th>
-                ))}
+                {[t("colCode"), t("colDiscount"), t("colUsed"), t("colValid"), t("colStatus")].map(
+                  (h) => (
+                    <th key={h} className={th}>
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>
