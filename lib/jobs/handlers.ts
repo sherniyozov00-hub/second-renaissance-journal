@@ -101,6 +101,33 @@ async function notify({ userId, event }: JobData["notify"]) {
   for (const r of results) if (r.status === "rejected") console.error("[notify]", r.reason);
 }
 
+/** "Yangi son" (TZ 14): every user who linked Telegram gets the new issue. */
+async function issueAnnounce({ issueId }: JobData["issue.announce"]) {
+  const issue = await db.issue.findUnique({
+    where: { id: issueId },
+    include: { _count: { select: { articles: { where: { status: "PUBLISHED" } } } } },
+  });
+  if (!issue || issue.status !== "PUBLISHED") return;
+  const event = {
+    kind: "issue" as const,
+    year: issue.year,
+    number: issue.number,
+    count: issue._count.articles,
+    url: `${siteConfig.url.replace(/\/$/, "")}/son/${issue.year}-${issue.number}`,
+  };
+  const users = await db.user.findMany({
+    where: { telegramChatId: { not: null }, isBlocked: false },
+    select: { telegramChatId: true, locale: true },
+  });
+  for (const u of users) {
+    const { subject, text } = renderNotification(event, u.locale);
+    // Sequential: Telegram allows about 30 messages a second per bot.
+    await sendTelegram(u.telegramChatId!, `${subject}\n\n${text}`).catch((err) =>
+      console.error("[issue.announce]", err),
+    );
+  }
+}
+
 export async function runJob<Q extends QueueName>(queue: Q, data: JobData[Q]) {
   switch (queue) {
     case "pdf.article":
@@ -109,5 +136,7 @@ export async function runJob<Q extends QueueName>(queue: Q, data: JobData[Q]) {
       return certificatePdf(data as JobData["pdf.certificate"]);
     case "notify":
       return notify(data as JobData["notify"]);
+    case "issue.announce":
+      return issueAnnounce(data as JobData["issue.announce"]);
   }
 }

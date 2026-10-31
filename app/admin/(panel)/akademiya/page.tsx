@@ -1,50 +1,158 @@
-import Link from "next/link";
-import { PageTitle, panel, td, th } from "@/components/admin/ui";
+import { saveLessonAction } from "@/app/admin/actions";
+import { Field, PageTitle, input, panel } from "@/components/admin/ui";
+import { buttonClass } from "@/components/ui/styles";
+import type { Lesson } from "@/generated/prisma/client";
 import { requireAdmin } from "@/lib/admin/auth";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Akademiya darslari" };
 
-// Lesson editing (text editor, video, exercises) arrives with stage 7.
-export default async function LessonsAdminPage() {
+const area =
+  "w-full rounded-control border border-border-strong p-3 text-[14px] leading-relaxed focus:border-blue-800 focus:outline-none";
+
+function LessonForm({ lesson, nextOrder }: { lesson?: Lesson; nextOrder: number }) {
+  return (
+    <form action={saveLessonAction} className="space-y-4 p-5">
+      {lesson ? <input type="hidden" name="id" value={lesson.id} /> : null}
+      <div className="grid gap-3 md:grid-cols-[2fr_1fr_100px_100px]">
+        <Field label="Sarlavha">
+          <input
+            name="title"
+            required
+            defaultValue={lesson?.title}
+            className={cn(input, "w-full")}
+          />
+        </Field>
+        <Field label="Slug (URL)" hint="Bo‘sh qolsa sarlavhadan">
+          <input name="slug" defaultValue={lesson?.slug} className={cn(input, "w-full")} />
+        </Field>
+        <Field label="Daqiqa">
+          <input
+            name="durationMin"
+            type="number"
+            min={1}
+            defaultValue={lesson?.durationMin ?? 10}
+            className={cn(input, "w-full")}
+          />
+        </Field>
+        <Field label="Tartib">
+          <input
+            name="order"
+            type="number"
+            defaultValue={lesson?.order ?? nextOrder}
+            className={cn(input, "w-full")}
+          />
+        </Field>
+      </div>
+      <Field label="Qisqa tavsif (kartada)">
+        <input
+          name="summary"
+          defaultValue={lesson?.summary ?? ""}
+          className={cn(input, "w-full")}
+        />
+      </Field>
+      <Field
+        label="Matn"
+        hint="Xatboshilar bo‘sh qator bilan; “## ” — sarlavha, “- ” — ro‘yxat, **qalin**."
+      >
+        <textarea name="body" required rows={12} defaultValue={lesson?.body} className={area} />
+      </Field>
+      <Field label="Namuna">
+        <textarea name="example" rows={5} defaultValue={lesson?.example ?? ""} className={area} />
+      </Field>
+      <div className="grid gap-3 md:grid-cols-2">
+        <Field label="Mashq (Xorazmiy AI bilan)">
+          <textarea
+            name="exercise"
+            rows={3}
+            defaultValue={lesson?.exercise ?? ""}
+            className={area}
+          />
+        </Field>
+        <Field label="Video havolasi (ixtiyoriy)" hint="YouTube yoki Vimeo, https://…">
+          <input
+            name="videoUrl"
+            defaultValue={lesson?.videoUrl ?? ""}
+            className={cn(input, "w-full")}
+          />
+        </Field>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="isPublished"
+            value="1"
+            defaultChecked={lesson?.isPublished ?? true}
+          />{" "}
+          Saytda ko‘rinadi
+        </label>
+        <button type="submit" className={buttonClass("primary", "md")}>
+          {lesson ? "Saqlash" : "Qo‘shish"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/** Akademiya lessons (TZ 13, 15): text, example, exercise, video, order, visibility. */
+export default async function LessonsAdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ natija?: string }>;
+}) {
   await requireAdmin("/admin/akademiya");
-  const lessons = await db.lesson.findMany({ orderBy: { order: "asc" } });
+  const { natija } = await searchParams;
+  const lessons = await db.lesson.findMany({
+    orderBy: { order: "asc" },
+    include: { _count: { select: { progress: true } } },
+  });
+  const nextOrder = (lessons.at(-1)?.order ?? -1) + 1;
   return (
     <>
       <PageTitle title="Akademiya darslari" />
-      <p className="mt-2 text-sm text-text-2">Darslarni tahrirlash 7-bosqichda qo‘shiladi.</p>
-      <section className={cn(panel, "mt-5 overflow-x-auto")}>
-        <table className="w-full">
-          <thead className="border-b border-border bg-blue-50/40">
-            <tr>
-              {["#", "Dars", "Davomiylik", "Holat"].map((h) => (
-                <th key={h} className={th}>
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {lessons.map((l, i) => (
-              <tr key={l.id} className="border-b border-border last:border-0">
-                <td className={td}>{i + 1}</td>
-                <td className={td}>
-                  <Link
-                    href={`/akademiya/${l.slug}`}
-                    target="_blank"
-                    className="text-blue-800 hover:underline"
-                  >
-                    {l.title}
-                  </Link>
-                </td>
-                <td className={td}>{l.durationMin} daq.</td>
-                <td className={td}>{l.isPublished ? "e’lon qilingan" : "yashirin"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      {natija ? (
+        <p
+          className={cn(
+            "mt-4 rounded-control px-4 py-3 text-sm font-semibold",
+            natija === "saqlandi" ? "bg-success-bg text-success" : "bg-danger-bg text-danger",
+          )}
+        >
+          {natija === "saqlandi"
+            ? "Saqlandi."
+            : natija === "slug"
+              ? "Bu slug band — boshqasini kiriting."
+              : "Sarlavha va matn majburiy."}
+        </p>
+      ) : null}
+      <div className="mt-5 space-y-3">
+        {lessons.map((l, i) => (
+          <details key={l.id} className={cn(panel, !l.isPublished && "opacity-60")}>
+            <summary className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 px-5 py-4">
+              <span className="font-semibold">
+                {i + 1}. {l.title}
+              </span>
+              <span className="text-xs text-text-2">
+                /akademiya/{l.slug} · {l.durationMin} daq · tugatganlar: {l._count.progress}
+                {l.videoUrl ? " · video" : ""}
+                {l.isPublished ? "" : " · yashirin"}
+              </span>
+            </summary>
+            <div className="border-t border-border">
+              <LessonForm lesson={l} nextOrder={nextOrder} />
+            </div>
+          </details>
+        ))}
+        <details className={panel}>
+          <summary className="cursor-pointer px-5 py-4 font-semibold text-blue-800">
+            + Yangi dars
+          </summary>
+          <div className="border-t border-border">
+            <LessonForm nextOrder={nextOrder} />
+          </div>
+        </details>
+      </div>
     </>
   );
 }

@@ -123,7 +123,7 @@ model User {
   updatedAt         DateTime  @updatedAt
 
   profile           AuthorProfile?
-  submittedArticles Article[]       @relation("ArticleSubmitter")
+  submittedArticles Article[]        @relation("ArticleSubmitter")
   reviews           Review[]
   editorComments    EditorComment[]
   payments          Payment[]
@@ -131,6 +131,7 @@ model User {
   aiChecks          AiCheck[]
   aiUsage           AiUsage[]
   aiFeedback        AiFeedback[]
+  lessonProgress    LessonProgress[]
   auditLogs         AuditLog[]
 }
 
@@ -557,10 +558,26 @@ model Lesson {
   durationMin Int
   order       Int      @default(0)
   videoUrl    String?
+  /// Worked example shown under the lesson ("namuna", TZ 15). Markdown.
+  example     String?
   exercise    String?
   isPublished Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  progress LessonProgress[]
+}
+
+/// Lessons a user has finished (Ekran 7 "Akademiya progressi").
+model LessonProgress {
+  userId      String
+  lessonId    String
+  completedAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@id([userId, lessonId])
 }
 
 /// Static pages (about, policies, offer...). All text fields are { uz, ru, en }.

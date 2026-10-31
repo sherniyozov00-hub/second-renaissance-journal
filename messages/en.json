@@ -230,7 +230,21 @@
     "lead": "Learn to write a research paper step by step. The lessons are free.",
     "exercise": "Exercise",
     "practiceWithAi": "Practise with Xorazmiy AI",
-    "back": "All lessons"
+    "back": "All lessons",
+    "example": "Example",
+    "video": "Video lesson",
+    "markDone": "Mark as done",
+    "done": "Done",
+    "undo": "Remove the mark",
+    "loginToTrack": "Sign in to save your progress",
+    "progress": "{finished} / {total} lessons done",
+    "prev": "Previous lesson",
+    "next": "Next lesson",
+    "templateTitle": "Article template (.docx)",
+    "templateText": "The structure the journal requires: abstract, keywords, IMRAD sections, sample table and references.",
+    "templateButton": "Download the template",
+    "samplesTitle": "Sample articles by field",
+    "samplesLead": "The journal’s most-read articles — learn structure and style from them."
   },
   "aiLanding": {
     "title": "Xorazmiy AI — research assistant",
@@ -734,5 +748,18 @@
     "submittedAs": "Article #{number}",
     "precheckRun": "Check the facts",
     "precheckSummary": "{correct} correct · {incorrect} incorrect · {needs} need a source"
+  },
+  "ranking": {
+    "title": "University ranking",
+    "lead": "Which universities’ authors publish the most articles in the journal.",
+    "year": "Year",
+    "allYears": "All years",
+    "institution": "Institution",
+    "articles": "Articles",
+    "authors": "Authors",
+    "citations": "Citations",
+    "views": "Views",
+    "empty": "The ranking appears once authors enter their institution names.",
+    "method": "Ranked by published articles (each article counts once per institution), then citations and views. The institution is the name the author gave in the article or profile."
   }
 }

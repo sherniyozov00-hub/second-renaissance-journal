@@ -144,6 +144,8 @@ export async function publishIssueAction(form: FormData) {
   await db.auditLog.create({
     data: { actorId: user.id, action: "issue_published", entity: "Issue", entityId: issue.id },
   });
+  const { enqueue } = await import("@/lib/jobs");
+  await enqueue("issue.announce", { issueId: issue.id });
   revalidatePath("/admin/sonlar");
   redirect("/admin/sonlar?natija=nashr");
 }
@@ -324,4 +326,44 @@ export async function togglePromoAction(form: FormData) {
   const p = await db.promoCode.findUniqueOrThrow({ where: { id } });
   await db.promoCode.update({ where: { id }, data: { isActive: !p.isActive } });
   redirect("/admin/tolovlar");
+}
+
+// ── Akademiya lessons (stage 7) ─────────────────────────────────────────────
+
+export async function saveLessonAction(form: FormData) {
+  const user = await staffOrThrow(ADMIN);
+  const id = str(form, "id", 40);
+  const title = str(form, "title", 200);
+  const body = str(form, "body", 50000);
+  if (!title || !body) redirect(`/admin/akademiya?natija=xato`);
+  const video = str(form, "videoUrl", 400);
+  const data = {
+    title,
+    slug: slugify(str(form, "slug", 120) || title),
+    summary: str(form, "summary", 300) || null,
+    body,
+    example: str(form, "example", 20000) || null,
+    exercise: str(form, "exercise", 2000) || null,
+    videoUrl: /^https:\/\//.test(video) ? video : null,
+    durationMin: int(form, "durationMin") ?? 10,
+    order: Number(form.get("order")) || 0,
+    isPublished: form.get("isPublished") === "1",
+  };
+  try {
+    if (id) await db.lesson.update({ where: { id }, data });
+    else await db.lesson.create({ data });
+  } catch {
+    // Unique slug taken.
+    redirect(`/admin/akademiya?natija=slug`);
+  }
+  await db.auditLog.create({
+    data: {
+      actorId: user.id,
+      action: id ? "lesson_updated" : "lesson_created",
+      entity: "Lesson",
+      entityId: id || data.slug,
+    },
+  });
+  revalidatePath("/", "layout");
+  redirect(`/admin/akademiya?natija=saqlandi`);
 }
