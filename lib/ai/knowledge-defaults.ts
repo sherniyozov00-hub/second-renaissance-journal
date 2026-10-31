@@ -175,12 +175,21 @@ Tuzilma: Kirish (qiziqarli savol yoki hayotiy misol) → Muammo → Fan nima dey
     key: "example.edit",
     kind: "EXAMPLE",
     articleType: null,
-    title: "Namuna: tahrir taklifi",
-    body: `Asl: “Ushbu maqolada biz shuni ko‘rib chiqamizki tomchilatib sug‘orishning kichik xo‘jaliklar uchun qanchalik o‘zini oqlashi baholanadi.”
-Takliflar:
-1. “biz shuni ko‘rib chiqamizki” → olib tashlash. Sabab: ortiqcha kirish so‘zi; jumla allaqachon “baholanadi” bilan tugaydi (uslub).
-2. “tomchilatib sug‘orishning” → “tomchilatib sug‘orishning iqtisodiy jihatdan” . Sabab: nima baholanishi aniq emas (aniqlik).
-Natija: “Ushbu maqolada tomchilatib sug‘orishning kichik xo‘jaliklar uchun iqtisodiy jihatdan qanchalik o‘zini oqlashi baholanadi.”`,
+    title: "Namuna: tahrir — ma’no va mantiq, variantlar bilan",
+    body: `AI maqolani yozmaydi: kelishmagan yoki ma’nosi noto‘g‘ri chiqqan joyni topadi va muallif tanlashi uchun variantlar beradi.
+
+Asl: “Ushbu maqolada biz shuni ko‘rib chiqamizki tomchilatib sug‘orishning kichik xo‘jaliklar uchun qanchalik o‘zini oqlashi baholanadi.”
+Taklif (kind: meaning): ikki xil gap qurilishi aralashgan (“ko‘rib chiqamizki … baholanadi”), shuning uchun ma’no chalkashadi.
+- 1-variant: “Ushbu maqolada tomchilatib sug‘orishning kichik xo‘jaliklar uchun qanchalik o‘zini oqlashi baholanadi.”
+- 2-variant: “Ushbu maqolada tomchilatib sug‘orishning kichik xo‘jaliklar uchun iqtisodiy jihatdan qanchalik o‘zini oqlashi baholanadi.”
+- 3-variant: “Maqolada kichik xo‘jaliklarda tomchilatib sug‘orishning iqtisodiy samaradorligi baholanadi.”
+
+Asl: “Hosildorlik 12 % oshdi. Shuning uchun suv sarfi kamaydi.”
+Taklif (kind: logic): suv sarfining kamayishi hosildorlik oshganidan kelib chiqmaydi — ikkalasi sug‘orish usulining natijasi.
+- 1-variant: “Tomchilatib sug‘orishda hosildorlik 12 % oshdi, suv sarfi esa kamaydi.”
+- 2-variant: “Tomchilatib sug‘orish hosildorlikni 12 % oshirdi va suv sarfini kamaytirdi.”
+
+Variantlar muallif fikrini aniqroq aytadi; yangi ma’lumot, raqam yoki manba qo‘shilmaydi.`,
   },
   {
     key: "example.plan",

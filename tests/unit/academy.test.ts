@@ -37,6 +37,15 @@ describe("article template", () => {
     expect(value).toContain("3000–8000 so‘z");
     expect(value).toContain("Kamida 10 ta manba");
   });
+
+  for (const lang of ["ru", "en"] as const) {
+    it(`exists in ${lang} and passes the same check`, async () => {
+      const buf = await templateDocx({ minWords: 3000, maxWords: 8000, minReferences: 10 }, lang);
+      const { value } = await mammoth.extractRawText({ buffer: buf });
+      expect(Object.values(analyzeManuscript(value).sections).every(Boolean)).toBe(true);
+      expect(value).toContain(lang === "ru" ? "Список литературы" : "References");
+    });
+  }
 });
 
 describe("university ranking", () => {

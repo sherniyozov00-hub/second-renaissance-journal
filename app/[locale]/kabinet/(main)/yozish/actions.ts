@@ -26,6 +26,7 @@ import {
   translate,
 } from "@/lib/ai/features";
 import { allowLight, consumeCheck } from "@/lib/ai/quota";
+import { parseLang } from "@/lib/ai/schemas";
 import type {
   AiErrorCode,
   Assist,
@@ -153,6 +154,7 @@ export async function runToolAction(draftId: string, req: ToolRequest): Promise<
     articleId: null,
     articleType: draft.articleType,
     categoryId: draft.categoryId,
+    lang: parseLang(await getLocale()),
   };
   const actor = { kind: "user" as const, id: user.id, aiQuota: user.aiQuota };
   const size =

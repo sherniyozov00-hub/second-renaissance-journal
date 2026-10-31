@@ -5,7 +5,7 @@ import {
   PaymentText,
   StatCard,
   StatusBadge,
-  STATUS_LABEL,
+  STATUSES,
   panel,
   select,
   td,
@@ -20,10 +20,14 @@ import {
   parseAdminFilters,
 } from "@/lib/admin/articles";
 import { db } from "@/lib/db";
-import { formatDate, formatNumber, pick } from "@/lib/l10n";
+import { articleTitle, formatDate, formatNumber, pick } from "@/lib/l10n";
 import { cn } from "@/lib/utils";
+import { getLocale, getTranslations } from "next-intl/server";
+import type { AppLocale } from "@/i18n/routing";
 
-export const metadata = { title: "Maqolalar" };
+export async function generateMetadata() {
+  return { title: (await getTranslations("admin.articles"))("title") };
+}
 
 function shortName(full: string) {
   const parts = full.trim().split(/\s+/);
@@ -45,6 +49,11 @@ export default async function AdminArticlesPage({
     db.category.findMany({ orderBy: { order: "asc" } }),
     db.issue.findMany({ orderBy: [{ year: "desc" }, { number: "desc" }] }),
   ]);
+  const [t, tc, locale] = await Promise.all([
+    getTranslations("admin.articles"),
+    getTranslations("admin.common"),
+    getLocale() as Promise<AppLocale>,
+  ]);
   const from = total ? (f.page - 1) * ADMIN_PAGE_SIZE + 1 : 0;
   const to = Math.min(total, f.page * ADMIN_PAGE_SIZE);
   const qs = (page: number) => {
@@ -55,30 +64,33 @@ export default async function AdminArticlesPage({
 
   return (
     <>
-      <PageTitle title="Maqolalar">
+      <PageTitle title={t("title")}>
         <a
           href={`/admin/eksport?${new URLSearchParams(Object.entries(sp).filter(([, v]) => v) as [string, string][])}`}
           className={buttonClass("secondary", "md", "text-ink")}
         >
-          Eksport (Excel)
+          {t("export")}
         </a>
         <Link href="/kabinet/yuborish" className={buttonClass("primary", "md")}>
-          + Maqola qo‘shish
+          {t("addArticle")}
         </Link>
       </PageTitle>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <StatCard label="Yangi (7 kun)" value={stats.fresh} />
-        <StatCard label="To‘lov kutilmoqda" value={stats.awaiting} />
-        <StatCard label="Taqrizda" value={stats.review} />
-        <StatCard label="Nashrga tayyor" value={stats.accepted} />
-        <StatCard label="Shu oy tushum" value={`${formatNumber(stats.revenue, "uz")} so‘m`} />
+        <StatCard label={t("fresh")} value={stats.fresh} />
+        <StatCard label={t("awaiting")} value={stats.awaiting} />
+        <StatCard label={t("review")} value={stats.review} />
+        <StatCard label={t("ready")} value={stats.accepted} />
+        <StatCard
+          label={t("revenue")}
+          value={`${formatNumber(stats.revenue, locale)} ${tc("som")}`}
+        />
       </div>
 
       <section className={cn(panel, "mt-6 overflow-hidden")}>
         <form className="flex flex-wrap gap-3 border-b border-border p-4" role="search">
           <label className="relative min-w-[220px] flex-1">
-            <span className="sr-only">Qidirish</span>
+            <span className="sr-only">{t("search")}</span>
             <Search
               className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted"
               aria-hidden
@@ -86,43 +98,41 @@ export default async function AdminArticlesPage({
             <input
               name="q"
               defaultValue={f.q}
-              placeholder="Sarlavha, muallif yoki ID"
+              placeholder={t("searchPlaceholder")}
               className="h-11 w-full rounded-control border border-border-strong pr-3 pl-9 text-[15px] outline-none focus:border-blue-800"
             />
           </label>
-          <select name="holat" defaultValue={f.status} aria-label="Holat" className={select}>
-            <option value="">Barcha holatlar</option>
-            {Object.entries(STATUS_LABEL)
-              .filter(([k]) => k !== "DRAFT")
-              .map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v}
-                </option>
-              ))}
+          <select name="holat" defaultValue={f.status} aria-label={t("status")} className={select}>
+            <option value="">{t("allStatuses")}</option>
+            {STATUSES.filter((k) => k !== "DRAFT").map((k) => (
+              <option key={k} value={k}>
+                {tc(`status_${k}`)}
+              </option>
+            ))}
           </select>
           <select
             name="yonalish"
             defaultValue={f.category}
-            aria-label="Yo‘nalish"
+            aria-label={t("category")}
             className={select}
           >
-            <option value="">Barcha yo‘nalishlar</option>
+            <option value="">{t("allCategories")}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
-                {pick(c.name, "uz")}
+                {pick(c.name, locale)}
               </option>
             ))}
           </select>
-          <select name="son" defaultValue={f.issue} aria-label="Son" className={select}>
-            <option value="">Barcha sonlar</option>
+          <select name="son" defaultValue={f.issue} aria-label={t("issue")} className={select}>
+            <option value="">{t("allIssues")}</option>
             {issues.map((i) => (
               <option key={i.id} value={i.id}>
-                {i.year} · {i.number}-son
+                {t("issueLabel", { year: i.year, number: i.number })}
               </option>
             ))}
           </select>
           <button type="submit" className={buttonClass("primary", "md")}>
-            Filtrlash
+            {t("filter")}
           </button>
         </form>
 
@@ -130,13 +140,20 @@ export default async function AdminArticlesPage({
           <table className="w-full min-w-[900px]">
             <thead className="border-b border-border bg-blue-50/40">
               <tr>
-                {["ID", "Sarlavha", "Muallif", "Yo‘nalish", "To‘lov", "Holat", "Sana", ""].map(
-                  (h) => (
-                    <th key={h} scope="col" className={th}>
-                      {h}
-                    </th>
-                  ),
-                )}
+                {[
+                  "ID",
+                  t("colTitle"),
+                  t("colAuthor"),
+                  t("category"),
+                  t("colPayment"),
+                  t("status"),
+                  t("colDate"),
+                  "",
+                ].map((h) => (
+                  <th key={h} scope="col" className={th}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -145,9 +162,11 @@ export default async function AdminArticlesPage({
                 return (
                   <tr key={a.id} className="border-b border-border last:border-0">
                     <td className={cn(td, "text-text-2")}>#{String(a.number).padStart(4, "0")}</td>
-                    <td className={cn(td, "max-w-[320px] font-semibold text-ink")}>{a.titleUz}</td>
+                    <td className={cn(td, "max-w-[320px] font-semibold text-ink")}>
+                      {articleTitle(a, locale)}
+                    </td>
                     <td className={td}>{shortName(author)}</td>
-                    <td className={td}>{pick(a.category.name, "uz")}</td>
+                    <td className={td}>{pick(a.category.name, locale)}</td>
                     <td className={td}>
                       <PaymentText status={a.payments[0]?.status ?? null} />
                     </td>
@@ -155,14 +174,14 @@ export default async function AdminArticlesPage({
                       <StatusBadge status={a.status} />
                     </td>
                     <td className={cn(td, "whitespace-nowrap text-text-2")}>
-                      {formatDate(a.submittedAt ?? a.updatedAt, "uz")}
+                      {formatDate(a.submittedAt ?? a.updatedAt, locale)}
                     </td>
                     <td className={td}>
                       <Link
                         href={`/admin/maqolalar/${a.id}`}
                         className="font-semibold text-blue-800 hover:underline"
                       >
-                        Ochish
+                        {tc("open")}
                       </Link>
                     </td>
                   </tr>
@@ -171,7 +190,7 @@ export default async function AdminArticlesPage({
               {!items.length ? (
                 <tr>
                   <td colSpan={8} className={cn(td, "py-8 text-center text-text-2")}>
-                    Maqola topilmadi.
+                    {t("notFound")}
                   </td>
                 </tr>
               ) : null}
@@ -185,12 +204,12 @@ export default async function AdminArticlesPage({
           <span className="flex gap-4">
             {f.page > 1 ? (
               <Link href={qs(f.page - 1)} className="text-blue-800 hover:underline">
-                ← Oldingi
+                {t("prev")}
               </Link>
             ) : null}
             {to < total ? (
               <Link href={qs(f.page + 1)} className="text-blue-800 hover:underline">
-                Keyingi →
+                {t("next")}
               </Link>
             ) : null}
           </span>

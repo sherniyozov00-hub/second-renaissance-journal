@@ -86,7 +86,7 @@ export function SummaryTiles({ summary }: { summary: FactSummary }) {
 
 /** POSTs to the fact-check endpoint and calls `onEvent` for every NDJSON line. */
 export async function streamFactCheck(
-  body: { text?: string; draftId?: string; articleId?: string },
+  body: { text?: string; draftId?: string; articleId?: string; lang?: string },
   onEvent: (e: FactEvent) => void,
 ) {
   let res: Response;

@@ -15,8 +15,9 @@ import {
 } from "./client";
 import { MOCK_RETRIEVED, mockClaims, mockVerdict } from "./mock";
 import { addSpend, NO_SPEND, spendOf, type Spend } from "./pricing";
-import { systemPrompt, wrapText } from "./prompts";
+import { languageLine, systemPrompt, wrapText } from "./prompts";
 import {
+  type AiLang,
   ClaimsSchema,
   type FactEvent,
   type FactResult,
@@ -46,6 +47,8 @@ export type FactCheckContext = {
   articleType: ArticleType;
   categoryId: string | null;
   maxClaims: number;
+  /** Interface language for explanations. */
+  lang: AiLang;
 };
 
 const CACHE_VERSION = "fc-v1";
@@ -124,6 +127,7 @@ async function verifyLive(
   system: string,
   paragraph: string,
   claims: Claim[],
+  lang: AiLang,
 ): Promise<{ verdicts: ModelVerdict[]; retrieved: Set<string>; spend: Spend; model: string }> {
   const model = await aiModel();
   const tools: Anthropic.Beta.BetaToolUnion[] = [
@@ -135,7 +139,7 @@ async function verifyLive(
     {
       name: "submit_verdicts",
       description:
-        "Har bir da’vo bo‘yicha yakuniy xulosani yuborish. Faqat web_search natijalarida haqiqatda ko‘rilgan manbalarni (aniq URL bilan) yoz. Noto‘g‘ri xulosada to‘g‘ri ma’lumot (correction_uz) va kamida bitta manba bo‘lishi shart; manba topilmasa — needs_source.",
+        "Har bir da’vo bo‘yicha yakuniy xulosani yuborish. Faqat web_search natijalarida haqiqatda ko‘rilgan manbalarni (aniq URL bilan) yoz. Noto‘g‘ri xulosada to‘g‘ri ma’lumot (correction) va kamida bitta manba bo‘lishi shart; manba topilmasa — needs_source.",
       input_schema: VERDICT_TOOL_SCHEMA,
       strict: true,
     },
@@ -144,8 +148,9 @@ async function verifyLive(
     {
       role: "user",
       content: `Vazifa: quyidagi da’volarni internetdan mustaqil tekshir. Har da’vo uchun kamida bitta qidiruv (o‘zbek/rus va ingliz tilida) qil, ishonchli manbalarni o‘qi, keyin submit_verdicts vositasini BIR marta chaqir.
-Xulosalar: correct — manba tasdiqlaydi; incorrect — manba boshqacha ma’lumot beradi (correction_uz da to‘g‘risini muallif jumlasiga qo‘yiladigan shaklda yoz); needs_source — topilmadi yoki manbalar zid.
-explanation_uz — 1–3 jumla, nima topilgani va qaysi manbada.
+Xulosalar: correct — manba tasdiqlaydi; incorrect — manba boshqacha ma’lumot beradi (correction da to‘g‘risini muallif jumlasiga qo‘yiladigan shaklda yoz); needs_source — topilmadi yoki manbalar zid.
+explanation — 1–3 jumla, nima topilgani va qaysi manbada.
+${languageLine(lang)}
 
 ${wrapText(paragraph, "xatboshi")}
 
@@ -208,6 +213,7 @@ async function checkParagraph(
   index: number,
   paragraph: string,
   claims: Claim[],
+  lang: AiLang,
 ): Promise<ParagraphResult> {
   if (!claims.length)
     return { results: [], spend: NO_SPEND, model: aiMode() === "mock" ? "mock" : "" };
@@ -216,17 +222,21 @@ async function checkParagraph(
   let spend = NO_SPEND;
   let model = "mock";
   if (aiMode() === "mock") {
-    verdicts = claims.map((c) => mockVerdict(c.id, c.text));
+    verdicts = claims.map((c) => mockVerdict(c.id, c.text, lang));
     retrieved = new Set(MOCK_RETRIEVED.map((u) => normalizeUrl(u)!));
   } else {
-    ({ verdicts, retrieved, spend, model } = await verifyLive(system, paragraph, claims));
+    ({ verdicts, retrieved, spend, model } = await verifyLive(system, paragraph, claims, lang));
   }
   const results: FactResult[] = claims.map((c) => {
     const v = verdicts.find((x) => x.id === c.id) ?? {
       id: c.id,
       verdict: "needs_source" as const,
-      explanation_uz: "Bu da’vo bo‘yicha xulosa olinmadi; manba ko‘rsating.",
-      correction_uz: null,
+      explanation: {
+        uz: "Bu da’vo bo‘yicha xulosa olinmadi; manba ko‘rsating.",
+        ru: "По этому утверждению вывод не получен; укажите источник.",
+        en: "No verdict was returned for this claim; cite a source.",
+      }[lang],
+      correction: null,
       sources: [],
     };
     const enforced = enforceVerdict(v, retrieved);
@@ -235,7 +245,7 @@ async function checkParagraph(
       paragraph: index,
       text: c.text,
       verdict: enforced.verdict,
-      explanation: v.explanation_uz,
+      explanation: v.explanation,
       correction: enforced.correction,
       sources: enforced.sources,
       ...(enforced.downgraded ? { downgraded: enforced.downgraded } : {}),
@@ -256,7 +266,7 @@ export async function runFactCheck(
 
   const model = mock ? "mock" : await aiModel();
   const since = new Date(Date.now() - CACHE_DAYS * 864e5);
-  const keyOf = (p: string) => hashText(CACHE_VERSION, model, ctx.articleType, p);
+  const keyOf = (p: string) => hashText(CACHE_VERSION, model, ctx.articleType, ctx.lang, p);
 
   const all: FactResult[] = [];
   let spend = NO_SPEND;
@@ -307,7 +317,7 @@ export async function runFactCheck(
           claims: item.claims.length,
           cached: false,
         });
-        const r = await checkParagraph(system, item.index, item.text, item.claims);
+        const r = await checkParagraph(system, item.index, item.text, item.claims, ctx.lang);
         for (const res of r.results) emit({ type: "result", result: res });
         all.push(...r.results);
         spend = addSpend(spend, r.spend);

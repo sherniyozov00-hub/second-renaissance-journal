@@ -7,6 +7,7 @@ import { buttonClass, cardClass } from "@/components/ui/styles";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { lessonProgress, sampleArticles } from "@/lib/academy/service";
+import { templateHref } from "@/lib/academy/template-href";
 import { currentUser } from "@/lib/auth/session";
 import { articleTitle, pick } from "@/lib/l10n";
 import { getLessons } from "@/lib/queries/catalog";
@@ -33,7 +34,7 @@ export default async function AcademyPage({ params }: Props) {
   const l = locale as AppLocale;
   const [t, lessons, samples, user] = await Promise.all([
     getTranslations(),
-    getLessons(),
+    getLessons(locale),
     sampleArticles(),
     currentUser(),
   ]);
@@ -94,7 +95,7 @@ export default async function AcademyPage({ params }: Props) {
             </h2>
             <p className="mt-1 text-blue-50/80">{t("academy.templateText")}</p>
           </div>
-          <a href="/shablon/maqola-shabloni.docx" className={buttonClass("gold", "lg")} download>
+          <a href={templateHref(locale)} className={buttonClass("gold", "lg")} download>
             {t("academy.templateButton")}
           </a>
         </section>

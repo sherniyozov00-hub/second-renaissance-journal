@@ -15,6 +15,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { ArticleEyebrow, AuthorLinks, authorNames } from "@/components/article/article-meta";
 import { buttonClass, cardClass, chipClass } from "@/components/ui/styles";
 import { Link } from "@/i18n/navigation";
+import { templateHref } from "@/lib/academy/template-href";
 import type { AppLocale } from "@/i18n/routing";
 import { articleAbstract, articleTitle, formatDate, formatNumber, pick } from "@/lib/l10n";
 import type { ArticleCard, LatestSort } from "@/lib/queries/articles";
@@ -269,7 +270,7 @@ function lessonSummary(body: string) {
 }
 
 export async function Academy({ lessons }: { lessons: LessonItem[] }) {
-  const t = await getTranslations("home");
+  const [t, locale] = await Promise.all([getTranslations("home"), getLocale()]);
 
   return (
     <section className="section hidden border-y border-border bg-blue-50 md:block">
@@ -282,7 +283,7 @@ export async function Academy({ lessons }: { lessons: LessonItem[] }) {
             <Link href="/akademiya" className={buttonClass("primary", "md")}>
               {t("startLessons")}
             </Link>
-            <a href="/shablon/maqola-shabloni.docx" className={buttonClass("outline", "md")}>
+            <a href={templateHref(locale)} className={buttonClass("outline", "md")}>
               {t("template")}
             </a>
           </div>

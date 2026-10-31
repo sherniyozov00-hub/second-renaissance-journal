@@ -4,7 +4,7 @@ import { getOwnDraft } from "@/lib/ai/drafts";
 import { runFactCheck, type FactCheckContext } from "@/lib/ai/factcheck";
 import { markFeature } from "@/lib/ai/features";
 import { aiLimits, type AiActor, consumeCheck } from "@/lib/ai/quota";
-import type { AiErrorCode, FactEvent } from "@/lib/ai/schemas";
+import { type AiErrorCode, type FactEvent, parseLang } from "@/lib/ai/schemas";
 import { guestKey } from "@/lib/ai/text";
 import { clientIp, isSameOriginJson } from "@/lib/security/request";
 import { currentUser } from "@/lib/auth/session";
@@ -42,7 +42,7 @@ async function articleText(articleId: string) {
 export async function POST(req: Request) {
   // The check spends the user's AI quota, so cross-site requests are refused (CSRF).
   if (!isSameOriginJson(req)) return fail("forbidden", 403);
-  let body: { text?: unknown; draftId?: unknown; articleId?: unknown };
+  let body: { text?: unknown; draftId?: unknown; articleId?: unknown; lang?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -60,6 +60,7 @@ export async function POST(req: Request) {
     articleType: "RESEARCH",
     categoryId: null,
     maxClaims: limits.maxClaims,
+    lang: parseLang(body.lang),
   };
 
   if (user && typeof body.draftId === "string") {

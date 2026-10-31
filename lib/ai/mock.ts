@@ -1,5 +1,6 @@
 import { uzTypography } from "@/lib/text/uz";
 import type {
+  AiLang,
   Assist,
   EditSuggestion,
   FactSource,
@@ -78,25 +79,36 @@ export function mockClaims(paragraph: string): { text: string }[] {
   return out.slice(0, 6);
 }
 
-export function mockVerdict(id: string, claim: string): ModelVerdict {
+const NEEDS_SOURCE = {
+  number: {
+    uz: "Raqam uchun havola yo‘q. Rasmiy statistika yoki ilmiy maqoladan manba ko‘rsating.",
+    ru: "Для числа нет ссылки. Укажите официальную статистику или научную статью.",
+    en: "The number has no reference. Cite official statistics or a scholarly article.",
+  },
+  claim: {
+    uz: "Da’voni tasdiqlovchi manba ko‘rsating.",
+    ru: "Укажите источник, подтверждающий утверждение.",
+    en: "Cite a source that supports the claim.",
+  },
+} satisfies Record<string, L10n>;
+
+export function mockVerdict(id: string, claim: string, lang: AiLang = "uz"): ModelVerdict {
   const typed = uzTypography(claim);
   const fact = DEMO_FACTS.find((f) => f.match.test(typed));
   if (fact) {
     return {
       id,
       verdict: fact.verdict,
-      explanation_uz: fact.explanation,
-      correction_uz: fact.correction ?? null,
+      explanation: fact.explanation,
+      correction: fact.correction ?? null,
       sources: fact.sources,
     };
   }
   return {
     id,
     verdict: "needs_source",
-    explanation_uz: /\d/.test(claim)
-      ? "Raqam uchun havola yo‘q. Rasmiy statistika yoki ilmiy maqoladan manba ko‘rsating."
-      : "Da’voni tasdiqlovchi manba ko‘rsating.",
-    correction_uz: null,
+    explanation: NEEDS_SOURCE[/\d/.test(claim) ? "number" : "claim"][lang],
+    correction: null,
     sources: [],
   };
 }
@@ -104,21 +116,88 @@ export function mockVerdict(id: string, claim: string): ModelVerdict {
 /** URLs the mock "retrieved", so the demo sources pass the source rule like real search results. */
 export const MOCK_RETRIEVED = DEMO_FACTS.flatMap((f) => f.sources.map((s) => s.url));
 
-const WORDY: [RegExp, string, string][] = [
-  [/\s*\bbiz shuni ko‘rib chiqamizki\b/i, "", "Ortiqcha kirish so‘zi; jumla mazmuni o‘zgarmaydi."],
-  [/\bshuni aytish kerakki,?\s*/i, "", "Ortiqcha kirish ibora; ilmiy matnda fikrni darhol ayting."],
-  [/\bjuda ham\b/i, "", "Baholovchi so‘z ilmiy uslubga mos emas; raqam bilan ko‘rsating."],
-  [/\beng zo‘r\b/i, "eng samarali", "So‘zlashuv iborasi; ilmiy atama ishlating."],
+type L10n = Record<AiLang, string>;
+
+const REASONS = {
+  mixed: {
+    uz: "Ortiqcha kirish so‘zi va ikki xil gap qurilishi aralashgan («ko‘rib chiqamizki … baholanadi») — ma’no chalkashadi. Quyidagi variantlardan birini tanlang.",
+    ru: "Лишняя вводная фраза и смешаны две конструкции («рассмотрим, что … оценивается») — смысл путается. Выберите один из вариантов.",
+    en: "A redundant lead-in mixes two constructions (“we consider that … is assessed”), so the meaning blurs. Pick one of the variants.",
+  },
+  wordy: {
+    uz: "Ortiqcha kirish ibora; ilmiy matnda fikrni darhol ayting.",
+    ru: "Лишняя вводная фраза: в научном тексте мысль формулируют сразу.",
+    en: "Redundant lead-in: state the point directly in academic writing.",
+  },
+  vague: {
+    uz: "Baholovchi so‘z ilmiy uslubga mos emas; raqam bilan ko‘rsating.",
+    ru: "Оценочное слово не подходит научному стилю; укажите число.",
+    en: "An evaluative word does not suit academic style; give a number instead.",
+  },
+  colloquial: {
+    uz: "So‘zlashuv iborasi; ilmiy atama ishlating.",
+    ru: "Разговорное выражение; используйте научный термин.",
+    en: "Colloquial phrase; use a technical term.",
+  },
+  apostrophe: {
+    uz: "o‘ va g‘ harflari ‘ (U+2018) belgisi bilan yoziladi.",
+    ru: "Узбекские буквы o‘ и g‘ пишутся со знаком ‘ (U+2018).",
+    en: "The Uzbek letters o‘ and g‘ are written with ‘ (U+2018).",
+  },
+  spaceBefore: {
+    uz: "Tinish belgisidan oldin bo‘sh joy qo‘yilmaydi.",
+    ru: "Перед знаком препинания пробел не ставится.",
+    en: "No space before a punctuation mark.",
+  },
+  doubleSpace: { uz: "Ortiqcha bo‘sh joy.", ru: "Лишний пробел.", en: "Extra space." },
+} satisfies Record<string, L10n>;
+
+/** Sentence-level demo of a "meaning" finding with variants (Ekran 3 sample sentence). */
+const MIXED =
+  /ushbu maqolada biz shuni ko‘rib chiqamizki (.+?) (qanchalik o‘zini oqlashi) baholanadi/i;
+
+const WORDY: [RegExp, string, keyof typeof REASONS][] = [
+  [/\bshuni aytish kerakki,?\s*/i, "", "wordy"],
+  [/\bjuda ham\b/i, "", "vague"],
+  [/\beng zo‘r\b/i, "eng samarali", "colloquial"],
 ];
 
-export function mockEdits(paragraphs: string[]): Omit<EditSuggestion, "id">[] {
+export function mockEdits(paragraphs: string[], lang: AiLang = "uz"): Omit<EditSuggestion, "id">[] {
   const edits: Omit<EditSuggestion, "id">[] = [];
   paragraphs.forEach((p, paragraph) => {
-    for (const [re, replacement, reason] of WORDY) {
-      const m = uzTypography(p).match(re);
+    const typed = uzTypography(p);
+    const mixed = typed.match(MIXED);
+    const sentence = mixed ? locateInParagraph(p, mixed[0]) : null;
+    if (mixed && sentence) {
+      const subject = mixed[1]!;
+      edits.push({
+        paragraph,
+        original: sentence,
+        replacement: `Ushbu maqolada ${subject} ${mixed[2]} baholanadi`,
+        alternatives: [
+          `Ushbu maqolada ${subject} iqtisodiy jihatdan ${mixed[2]} baholanadi`,
+          `Maqolada ${subject.replace(/ning\b/, "")} samaradorligi baholanadi`,
+        ],
+        kind: "meaning",
+        reason: REASONS.mixed[lang],
+      });
+    }
+    // Without the full sentence pattern, the lead-in alone is still a style fix.
+    const rules: typeof WORDY = sentence
+      ? WORDY
+      : [[/\s*\bbiz shuni ko‘rib chiqamizki\b/i, "", "wordy"], ...WORDY];
+    for (const [re, replacement, reason] of rules) {
+      const m = typed.match(re);
       const original = m ? locateInParagraph(p, m[0]) : null;
       if (original)
-        edits.push({ paragraph, original, replacement, kind: "style", reason_uz: reason });
+        edits.push({
+          paragraph,
+          original,
+          replacement,
+          alternatives: [],
+          kind: "style",
+          reason: REASONS[reason][lang],
+        });
     }
     for (const m of p.matchAll(/[A-Za-z]*[oOgG]['`ʻʼ’][\p{L}]+/gu)) {
       const fixed = uzTypography(m[0]);
@@ -127,8 +206,9 @@ export function mockEdits(paragraphs: string[]): Omit<EditSuggestion, "id">[] {
           paragraph,
           original: m[0],
           replacement: fixed,
+          alternatives: [],
           kind: "spelling",
-          reason_uz: "o‘ va g‘ harflari ‘ (U+2018) belgisi bilan yoziladi.",
+          reason: REASONS.apostrophe[lang],
         });
     }
     for (const m of p.matchAll(/ {2,}|\s+([,.;:])/g)) {
@@ -136,8 +216,9 @@ export function mockEdits(paragraphs: string[]): Omit<EditSuggestion, "id">[] {
         paragraph,
         original: m[0],
         replacement: m[1] ?? " ",
+        alternatives: [],
         kind: "punctuation",
-        reason_uz: m[1] ? "Tinish belgisidan oldin bo‘sh joy qo‘yilmaydi." : "Ortiqcha bo‘sh joy.",
+        reason: m[1] ? REASONS.spaceBefore[lang] : REASONS.doubleSpace[lang],
       });
     }
   });
@@ -212,16 +293,26 @@ export function mockAssist(): Assist {
   };
 }
 
-export function mockTranslation(title: string, abstract: string): Translation {
+export function mockTranslation(title: string, abstract: string, lang: AiLang = "uz"): Translation {
+  const note = {
+    uz: "Sinov rejimi: haqiqiy tarjima AI kaliti ulanganda ishlaydi.",
+    ru: "Тестовый режим: настоящий перевод работает при подключённом ключе ИИ.",
+    en: "Test mode: real translation works once the AI key is connected.",
+  }[lang];
   return {
     title_en: `[EN] ${title}`,
     abstract_en: `[EN] ${abstract}`,
     title_ru: `[RU] ${title}`,
     abstract_ru: `[RU] ${abstract}`,
-    notes_uz: ["Sinov rejimi: haqiqiy tarjima AI kaliti ulanganda ishlaydi."],
+    notes: [note],
   };
 }
 
-export function mockChat(question: string): string {
-  return `Sinov rejimi: Xorazmiy AI hozir oflayn ishlayapti, shuning uchun “${question.slice(0, 80)}” savoliga to‘liq javob bera olmaydi. Asboblar paneli (reja, tahrir, manbalar, originallik, iqtiboslar) ishlaydi.`;
+export function mockChat(question: string, lang: AiLang = "uz"): string {
+  const q = question.slice(0, 80);
+  return {
+    uz: `Sinov rejimi: Xorazmiy AI hozir oflayn ishlayapti, shuning uchun “${q}” savoliga to‘liq javob bera olmaydi. Asboblar paneli (reja, tahrir, manbalar, originallik, iqtiboslar) ishlaydi.`,
+    ru: `Тестовый режим: Xorazmiy AI сейчас работает офлайн и не может полностью ответить на вопрос «${q}». Панель инструментов (план, правки, источники, оригинальность, цитаты) работает.`,
+    en: `Test mode: Xorazmiy AI is offline, so it cannot fully answer “${q}”. The tools (outline, edits, sources, originality, citations) still work.`,
+  }[lang];
 }

@@ -1,3 +1,5 @@
+import { getLocale, getTranslations } from "next-intl/server";
+import type { AppLocale } from "@/i18n/routing";
 import { saveCategoryAction } from "@/app/admin/actions";
 import { PageTitle, input, panel } from "@/components/admin/ui";
 import { buttonClass } from "@/components/ui/styles";
@@ -6,7 +8,9 @@ import { db } from "@/lib/db";
 import { pick } from "@/lib/l10n";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Kategoriyalar" };
+export async function generateMetadata() {
+  return { title: (await getTranslations("admin.categories"))("title") };
+}
 
 type Cat = {
   id?: string;
@@ -17,7 +21,11 @@ type Cat = {
   isActive?: boolean;
 };
 
-function CategoryForm({ c }: { c: Cat }) {
+async function CategoryForm({ c }: { c: Cat }) {
+  const [t, tc] = await Promise.all([
+    getTranslations("admin.categories"),
+    getTranslations("admin.common"),
+  ]);
   const l = (v: unknown, k: "uz" | "ru" | "en") =>
     v && typeof v === "object" ? String((v as Record<string, string>)[k] ?? "") : "";
   return (
@@ -31,16 +39,16 @@ function CategoryForm({ c }: { c: Cat }) {
           <input
             name={`name${k}`}
             defaultValue={l(c.name, k.toLowerCase() as "uz")}
-            placeholder={`Nomi (${k})`}
-            aria-label={`Nomi ${k}`}
+            placeholder={t("name", { lang: k })}
+            aria-label={t("name", { lang: k })}
             required={k === "Uz"}
             className={cn(input, "h-10 w-full")}
           />
           <input
             name={`desc${k}`}
             defaultValue={l(c.description, k.toLowerCase() as "uz")}
-            placeholder={`Tavsif (${k})`}
-            aria-label={`Tavsif ${k}`}
+            placeholder={t("description", { lang: k })}
+            aria-label={t("description", { lang: k })}
             className={cn(input, "h-10 w-full text-sm")}
           />
         </div>
@@ -50,11 +58,12 @@ function CategoryForm({ c }: { c: Cat }) {
           name="order"
           type="number"
           defaultValue={c.order ?? 0}
-          aria-label="Tartib"
+          aria-label={t("order")}
           className={cn(input, "h-10 w-full")}
         />
         <label className="flex items-center gap-1 text-xs">
-          <input type="checkbox" name="isActive" defaultChecked={c.isActive ?? true} /> faol
+          <input type="checkbox" name="isActive" defaultChecked={c.isActive ?? true} />{" "}
+          {t("active")}
         </label>
       </div>
       <div className="flex flex-col gap-1">
@@ -71,7 +80,7 @@ function CategoryForm({ c }: { c: Cat }) {
         <button
           className={buttonClass(c.id ? "secondary" : "primary", "sm", c.id ? "text-ink" : "")}
         >
-          {c.id ? "Saqlash" : "Qo‘shish"}
+          {c.id ? tc("save") : tc("add")}
         </button>
       </div>
     </form>
@@ -81,20 +90,22 @@ function CategoryForm({ c }: { c: Cat }) {
 export default async function CategoriesAdminPage() {
   await requireAdmin("/admin/kategoriyalar");
   const cats = await db.category.findMany({ orderBy: { order: "asc" } });
+  const [t, locale] = await Promise.all([
+    getTranslations("admin.categories"),
+    getLocale() as Promise<AppLocale>,
+  ]);
   return (
     <>
-      <PageTitle title="Kategoriyalar" />
-      <p className="mt-2 text-sm text-text-2">
-        {cats.length} ta yo‘nalish · nom va tavsif 3 tilda.
-      </p>
+      <PageTitle title={t("title")} />
+      <p className="mt-2 text-sm text-text-2">{t("count", { count: cats.length })}</p>
       <div className="mt-5 space-y-3">
         {cats.map((c) => (
           <div key={c.id}>
-            <p className="mb-1 text-sm font-semibold">{pick(c.name, "uz")}</p>
+            <p className="mb-1 text-sm font-semibold">{pick(c.name, locale)}</p>
             <CategoryForm c={c} />
           </div>
         ))}
-        <p className="pt-4 text-sm font-semibold">Yangi yo‘nalish</p>
+        <p className="pt-4 text-sm font-semibold">{t("new")}</p>
         <CategoryForm c={{}} />
       </div>
     </>

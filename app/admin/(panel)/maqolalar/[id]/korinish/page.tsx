@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { requireEditor } from "@/lib/admin/auth";
 import { prepareArticleHtml } from "@/lib/article-html";
@@ -15,10 +16,11 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
     },
   });
   if (!a) notFound();
+  const t = await getTranslations("admin.pages");
   const { html } = prepareArticleHtml(a.versions[0]?.htmlBody ?? "");
   return (
     <article className="mx-auto max-w-[820px] rounded-card bg-white p-8">
-      <p className="text-sm text-muted">Ko‘rinish (nashr qilinmagan)</p>
+      <p className="text-sm text-muted">{t("preview")}</p>
       <h1 className="mt-2 font-serif text-3xl font-bold text-ink">{a.titleUz}</h1>
       <p className="mt-2 font-semibold text-blue-800">
         {a.authors.map((x) => x.authorProfile?.fullName ?? x.name).join(", ")}

@@ -24,7 +24,7 @@ export default async function MyLessonsPage({ params }: { params: Promise<{ loca
   setRequestLocale(locale);
   const user = await requireCabinetUser(locale, "/kabinet/darslar");
   const t = await getTranslations();
-  const [lessons, progress] = await Promise.all([getLessons(), lessonProgress(user.id)]);
+  const [lessons, progress] = await Promise.all([getLessons(locale), lessonProgress(user.id)]);
   return (
     <>
       <h1 className="text-[28px] leading-tight md:text-section">{t("cabinet.lessons")}</h1>

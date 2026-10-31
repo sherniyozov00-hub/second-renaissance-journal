@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { buttonClass } from "@/components/ui/styles";
 import { Link } from "@/i18n/navigation";
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { AiErrorNote, Disclaimer, MockNote, streamFactCheck, SummaryTiles } from "./ui";
 
 function useFactCheck() {
+  const locale = useLocale();
   const [results, setResults] = useState<FactResult[]>([]);
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -19,7 +20,7 @@ function useFactCheck() {
     setError(null);
     setFinished(false);
     setRunning(true);
-    await streamFactCheck(body, (e) => {
+    await streamFactCheck({ ...body, lang: locale }, (e) => {
       if (e.type === "start") setMock(e.mock);
       else if (e.type === "result") setResults((r) => [...r, e.result]);
       else if (e.type === "error") setError(e.code);

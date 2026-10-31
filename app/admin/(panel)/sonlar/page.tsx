@@ -1,3 +1,5 @@
+import { getLocale, getTranslations } from "next-intl/server";
+import type { AppLocale } from "@/i18n/routing";
 import { createIssueAction, publishIssueAction } from "@/app/admin/actions";
 import { Field, PageTitle, input, panel, td, th } from "@/components/admin/ui";
 import { buttonClass } from "@/components/ui/styles";
@@ -6,7 +8,9 @@ import { db } from "@/lib/db";
 import { formatDate } from "@/lib/l10n";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Jurnal sonlari" };
+export async function generateMetadata() {
+  return { title: (await getTranslations("admin.issues"))("title") };
+}
 
 export default async function IssuesAdminPage() {
   await requireEditor("/admin/sonlar");
@@ -15,15 +19,19 @@ export default async function IssuesAdminPage() {
     include: { _count: { select: { articles: true } } },
   });
   const year = new Date().getFullYear();
+  const [t, locale] = await Promise.all([
+    getTranslations("admin.issues"),
+    getLocale() as Promise<AppLocale>,
+  ]);
   return (
     <>
-      <PageTitle title="Jurnal sonlari" />
+      <PageTitle title={t("title")} />
       <div className="mt-6 grid items-start gap-5 lg:grid-cols-[1fr_320px]">
         <section className={cn(panel, "overflow-x-auto")}>
           <table className="w-full">
             <thead className="border-b border-border bg-blue-50/40">
               <tr>
-                {["Son", "Maqolalar", "Holat", "Nashr sanasi", ""].map((h) => (
+                {[t("colIssue"), t("colArticles"), t("colStatus"), t("colDate"), ""].map((h) => (
                   <th key={h} className={th}>
                     {h}
                   </th>
@@ -34,17 +42,17 @@ export default async function IssuesAdminPage() {
               {issues.map((i) => (
                 <tr key={i.id} className="border-b border-border last:border-0">
                   <td className={cn(td, "font-semibold")}>
-                    {i.year} · {i.number}-son
+                    {t("label", { year: i.year, number: i.number })}
                   </td>
                   <td className={td}>{i._count.articles}</td>
-                  <td className={td}>{i.status === "PUBLISHED" ? "Nashr qilingan" : "Qoralama"}</td>
-                  <td className={td}>{formatDate(i.publishedAt, "uz")}</td>
+                  <td className={td}>{i.status === "PUBLISHED" ? t("published") : t("draft")}</td>
+                  <td className={td}>{formatDate(i.publishedAt, locale)}</td>
                   <td className={td}>
                     {i.status === "DRAFT" ? (
                       <form action={publishIssueAction}>
                         <input type="hidden" name="issueId" value={i.id} />
                         <button className="font-semibold text-blue-800 hover:underline">
-                          Nashr qilish
+                          {t("publish")}
                         </button>
                       </form>
                     ) : null}
@@ -55,9 +63,9 @@ export default async function IssuesAdminPage() {
           </table>
         </section>
         <form action={createIssueAction} className={cn(panel, "space-y-3 p-5")}>
-          <h2 className="font-sans text-lg font-semibold">Yangi son</h2>
+          <h2 className="font-sans text-lg font-semibold">{t("new")}</h2>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Yil">
+            <Field label={t("year")}>
               <input
                 name="year"
                 type="number"
@@ -65,14 +73,14 @@ export default async function IssuesAdminPage() {
                 className={cn(input, "w-full")}
               />
             </Field>
-            <Field label="Raqam">
+            <Field label={t("number")}>
               <input name="number" type="number" min={1} required className={cn(input, "w-full")} />
             </Field>
           </div>
-          <Field label="Sarlavha (ixtiyoriy)">
+          <Field label={t("issueTitle")}>
             <input name="title" className={cn(input, "w-full")} />
           </Field>
-          <button className={buttonClass("primary", "md", "w-full")}>Yaratish</button>
+          <button className={buttonClass("primary", "md", "w-full")}>{t("create")}</button>
         </form>
       </div>
     </>

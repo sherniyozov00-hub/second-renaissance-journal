@@ -33,8 +33,8 @@ describe("source rules (TZ 10.2)", () => {
     const r = enforceVerdict(
       {
         verdict: "incorrect",
-        explanation_uz: "…",
-        correction_uz: "1960-yillarda",
+        explanation: "…",
+        correction: "1960-yillarda",
         sources: [src("http://fao.org/aquastat/uz/")],
       },
       retrieved,
@@ -46,7 +46,7 @@ describe("source rules (TZ 10.2)", () => {
 
   it("turns an incorrect verdict without a source into needs_source", () => {
     const r = enforceVerdict(
-      { verdict: "incorrect", explanation_uz: "…", correction_uz: "x", sources: [] },
+      { verdict: "incorrect", explanation: "…", correction: "x", sources: [] },
       retrieved,
     );
     expect(r).toMatchObject({ verdict: "needs_source", correction: null, downgraded: "no_source" });
@@ -56,8 +56,8 @@ describe("source rules (TZ 10.2)", () => {
     const r = enforceVerdict(
       {
         verdict: "correct",
-        explanation_uz: "…",
-        correction_uz: null,
+        explanation: "…",
+        correction: null,
         sources: [src("https://invented.example/paper")],
       },
       retrieved,
@@ -72,8 +72,8 @@ describe("source rules (TZ 10.2)", () => {
     const r = enforceVerdict(
       {
         verdict: "correct",
-        explanation_uz: "…",
-        correction_uz: "ignored",
+        explanation: "…",
+        correction: "ignored",
         sources: [src("https://fao.org/aquastat/uz"), src("https://www.fao.org/aquastat/uz#x")],
       },
       retrieved,
@@ -88,7 +88,16 @@ describe("source rules (TZ 10.2)", () => {
     );
     expect(
       EditsSchema.safeParse({
-        edits: [{ paragraph: 0, original: "a", replacement: "b", kind: "style", reason_uz: "r" }],
+        edits: [
+          {
+            paragraph: 0,
+            original: "a",
+            replacement: "b",
+            alternatives: ["c"],
+            kind: "meaning",
+            reason: "r",
+          },
+        ],
       }).success,
     ).toBe(true);
   });
@@ -350,6 +359,18 @@ describe("offline mock (no API key)", () => {
       const v = mockVerdict("x", c);
       if (v.verdict !== "needs_source") expect(v.sources.length).toBeGreaterThan(0);
     }
+  });
+
+  it("finds a meaning problem and offers variants in the user's language", () => {
+    const para =
+      "Ushbu maqolada biz shuni ko‘rib chiqamizki tomchilatib sug‘orishning kichik xo‘jaliklar uchun qanchalik o‘zini oqlashi baholanadi.";
+    const [uz] = mockEdits([para], "uz");
+    expect(uz).toMatchObject({ kind: "meaning" });
+    expect(uz!.alternatives).toHaveLength(2);
+    expect(uz!.replacement).not.toContain("biz shuni");
+    expect(new Set([uz!.replacement, ...uz!.alternatives]).size).toBe(3);
+    expect(mockEdits([para], "ru")[0]!.reason).toMatch(/смысл/);
+    expect(mockEdits([para], "en")[0]!.reason).toMatch(/meaning/);
   });
 
   it("suggests edits that quote the paragraph exactly", () => {

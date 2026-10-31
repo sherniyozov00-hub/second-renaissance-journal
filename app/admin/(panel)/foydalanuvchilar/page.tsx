@@ -1,3 +1,5 @@
+import { getLocale, getTranslations } from "next-intl/server";
+import type { AppLocale } from "@/i18n/routing";
 import { saveUserRolesAction } from "@/app/admin/actions";
 import { PageTitle, panel, td, th } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin/auth";
@@ -5,14 +7,11 @@ import { db } from "@/lib/db";
 import { formatDate } from "@/lib/l10n";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Foydalanuvchilar va rollar" };
+export async function generateMetadata() {
+  return { title: (await getTranslations("admin.pages"))("users") };
+}
 
-const ROLES = [
-  ["AUTHOR", "Muallif"],
-  ["REVIEWER", "Taqrizchi"],
-  ["EDITOR", "Muharrir"],
-  ["ADMIN", "Admin"],
-] as const;
+const ROLES = ["AUTHOR", "REVIEWER", "EDITOR", "ADMIN"] as const;
 
 export default async function UsersAdminPage({
   searchParams,
@@ -34,25 +33,30 @@ export default async function UsersAdminPage({
     orderBy: { createdAt: "desc" },
     take: 200,
   });
+  const [t, tc, locale] = await Promise.all([
+    getTranslations("admin.pages"),
+    getTranslations("admin.common"),
+    getLocale() as Promise<AppLocale>,
+  ]);
   return (
     <>
-      <PageTitle title="Foydalanuvchilar va rollar" />
+      <PageTitle title={t("users")} />
       {natija === "saqlandi" ? (
         <p className="mt-4 rounded-control bg-success-bg px-4 py-3 text-sm font-semibold text-success">
-          Saqlandi va AuditLog’ga yozildi.
+          {t("savedAudit")}
         </p>
       ) : null}
       {natija === "xato-self" ? (
         <p className="mt-4 rounded-control bg-danger-bg px-4 py-3 text-sm font-semibold text-danger">
-          O‘zingizdan admin rolini olib yoki o‘zingizni bloklay olmaysiz.
+          {t("selfError")}
         </p>
       ) : null}
       <form className="mt-5">
         <input
           name="q"
           defaultValue={q}
-          placeholder="Ism, telefon yoki email"
-          aria-label="Qidirish"
+          placeholder={t("searchUsers")}
+          aria-label={t("searchUsers")}
           className="h-11 w-full max-w-md rounded-control border border-border-strong px-3"
         />
       </form>
@@ -60,7 +64,7 @@ export default async function UsersAdminPage({
         <table className="w-full min-w-[860px]">
           <thead className="border-b border-border bg-blue-50/40">
             <tr>
-              {["Foydalanuvchi", "Ro‘yxatdan o‘tgan", "Rollar va bloklash"].map((h) => (
+              {[t("colUser"), t("colRegistered"), t("colRoles")].map((h) => (
                 <th key={h} className={th}>
                   {h}
                 </th>
@@ -80,11 +84,11 @@ export default async function UsersAdminPage({
                   <p className="font-semibold">{u.name ?? "—"}</p>
                   <p className="text-text-2">{[u.phone, u.email].filter(Boolean).join(" · ")}</p>
                 </td>
-                <td className={td}>{formatDate(u.createdAt, "uz")}</td>
+                <td className={td}>{formatDate(u.createdAt, locale)}</td>
                 <td className={td}>
                   <form action={saveUserRolesAction} className="flex flex-wrap items-center gap-3">
                     <input type="hidden" name="userId" value={u.id} />
-                    {ROLES.map(([r, label]) => (
+                    {ROLES.map((r) => (
                       <label key={r} className="flex items-center gap-1.5">
                         <input
                           type="checkbox"
@@ -92,14 +96,16 @@ export default async function UsersAdminPage({
                           defaultChecked={u.roles.includes(r)}
                           className="accent-blue-800"
                         />{" "}
-                        {label}
+                        {t(`role_${r}`)}
                       </label>
                     ))}
                     <label className="flex items-center gap-1.5 text-danger">
                       <input type="checkbox" name="isBlocked" defaultChecked={u.isBlocked} />{" "}
-                      bloklangan
+                      {t("blocked")}
                     </label>
-                    <button className="font-semibold text-blue-800 hover:underline">Saqlash</button>
+                    <button className="font-semibold text-blue-800 hover:underline">
+                      {tc("save")}
+                    </button>
                   </form>
                 </td>
               </tr>

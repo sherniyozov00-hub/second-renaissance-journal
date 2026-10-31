@@ -1,11 +1,15 @@
 import Link from "next/link";
-import { PageTitle, StatCard, STATUS_LABEL, panel } from "@/components/admin/ui";
+import { getLocale, getTranslations } from "next-intl/server";
+import { PageTitle, StatCard, STATUSES, panel } from "@/components/admin/ui";
+import type { AppLocale } from "@/i18n/routing";
 import { requireEditor } from "@/lib/admin/auth";
 import { db } from "@/lib/db";
 import { formatNumber } from "@/lib/l10n";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Boshqaruv paneli" };
+export async function generateMetadata() {
+  return { title: (await getTranslations("admin.dashboard"))("title") };
+}
 
 /** TZ 13: articles by status, monthly revenue, new users, AI cost, most read. */
 export default async function AdminDashboard() {
@@ -32,25 +36,30 @@ export default async function AdminDashboard() {
       select: { id: true, titleUz: true, views: true, downloads: true },
     }),
   ]);
+  const [t, tc, locale] = await Promise.all([
+    getTranslations("admin.dashboard"),
+    getTranslations("admin.common"),
+    getLocale() as Promise<AppLocale>,
+  ]);
   const count = Object.fromEntries(byStatus.map((s) => [s.status, s._count]));
 
   return (
     <>
-      <PageTitle title="Boshqaruv paneli" />
+      <PageTitle title={t("title")} />
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
-          label="Shu oy tushum"
-          value={`${formatNumber(revenue._sum.amount ?? 0, "uz")} so‘m`}
+          label={t("revenue")}
+          value={`${formatNumber(revenue._sum.amount ?? 0, locale)} ${tc("som")}`}
         />
-        <StatCard label="Yangi foydalanuvchilar (oy)" value={users} />
-        <StatCard label="AI tekshiruvlar (oy)" value={ai._count} />
-        <StatCard label="AI xarajati (oy)" value={`$${Number(ai._sum.cost ?? 0).toFixed(2)}`} />
+        <StatCard label={t("newUsers")} value={users} />
+        <StatCard label={t("aiChecks")} value={ai._count} />
+        <StatCard label={t("aiCost")} value={`$${Number(ai._sum.cost ?? 0).toFixed(2)}`} />
       </div>
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         <section className={cn(panel, "p-5")}>
-          <h2 className="font-sans text-lg font-semibold">Maqolalar holati</h2>
+          <h2 className="font-sans text-lg font-semibold">{t("statuses")}</h2>
           <ul className="mt-3 space-y-2 text-sm">
-            {Object.entries(STATUS_LABEL).map(([k, v]) => (
+            {STATUSES.map((k) => (
               <li
                 key={k}
                 className="flex justify-between border-b border-border pb-2 last:border-0"
@@ -59,7 +68,7 @@ export default async function AdminDashboard() {
                   href={`/admin/maqolalar?holat=${k}`}
                   className="text-blue-800 hover:underline"
                 >
-                  {v}
+                  {tc(`status_${k}`)}
                 </Link>
                 <span className="font-semibold">{count[k] ?? 0}</span>
               </li>
@@ -67,7 +76,7 @@ export default async function AdminDashboard() {
           </ul>
         </section>
         <section className={cn(panel, "p-5")}>
-          <h2 className="font-sans text-lg font-semibold">Eng ko‘p o‘qilgan</h2>
+          <h2 className="font-sans text-lg font-semibold">{t("mostRead")}</h2>
           <ol className="mt-3 space-y-2 text-sm">
             {top.map((a) => (
               <li

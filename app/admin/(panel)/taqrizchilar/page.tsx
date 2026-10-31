@@ -1,3 +1,5 @@
+import { getLocale, getTranslations } from "next-intl/server";
+import type { AppLocale } from "@/i18n/routing";
 import Link from "next/link";
 import { PageTitle, panel, td, th } from "@/components/admin/ui";
 import { requireEditor } from "@/lib/admin/auth";
@@ -5,7 +7,9 @@ import { db } from "@/lib/db";
 import { formatDate } from "@/lib/l10n";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Taqrizchilar" };
+export async function generateMetadata() {
+  return { title: (await getTranslations("admin.people"))("reviewersTitle") };
+}
 
 /** TZ 13: reviewers with their load and overdue reviews. */
 export default async function ReviewersAdminPage() {
@@ -25,24 +29,23 @@ export default async function ReviewersAdminPage() {
       },
     },
   });
+  const [t, locale] = await Promise.all([
+    getTranslations("admin.people"),
+    getLocale() as Promise<AppLocale>,
+  ]);
   return (
     <>
-      <PageTitle title="Taqrizchilar" />
-      <p className="mt-2 text-sm text-text-2">
-        Taqrizchi rolini “Foydalanuvchilar va rollar” bo‘limida berasiz; maqolaga biriktirish maqola
-        sahifasida.
-      </p>
+      <PageTitle title={t("reviewersTitle")} />
+      <p className="mt-2 text-sm text-text-2">{t("reviewersHint")}</p>
       <section className={cn(panel, "mt-5 overflow-x-auto")}>
         <table className="w-full min-w-[720px]">
           <thead className="border-b border-border bg-blue-50/40">
             <tr>
-              {["Taqrizchi", "Ochiq", "Muddati o‘tgan", "Bajarilgan", "Joriy maqolalar"].map(
-                (h) => (
-                  <th key={h} className={th}>
-                    {h}
-                  </th>
-                ),
-              )}
+              {[t("reviewer"), t("open"), t("overdue"), t("done"), t("current")].map((h) => (
+                <th key={h} className={th}>
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -67,7 +70,7 @@ export default async function ReviewersAdminPage() {
                           >
                             #{String(x.article.number).padStart(4, "0")}
                           </Link>{" "}
-                          {x.article.titleUz.slice(0, 60)} · {formatDate(x.dueAt, "uz")}
+                          {x.article.titleUz.slice(0, 60)} · {formatDate(x.dueAt, locale)}
                         </li>
                       ))}
                     </ul>
