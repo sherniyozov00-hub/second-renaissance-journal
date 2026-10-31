@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Logo } from "@/components/brand/logo";
 import { buttonClass } from "@/components/ui/styles";
 import { Link } from "@/i18n/navigation";
+import { currentUser } from "@/lib/auth/session";
 import { getSetting } from "@/lib/settings/get";
 import { cn } from "@/lib/utils";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -18,12 +19,13 @@ export async function SiteHeader({
   variant = "compact",
   narrow = false,
 }: {
-  /** "minimal" — logo and submit button only (Ekran 5). */
-  variant?: "home" | "compact" | "minimal";
+  /** "minimal" — logo and submit button only (Ekran 5); "cabinet" — Ekran 7. */
+  variant?: "home" | "compact" | "minimal" | "cabinet";
   narrow?: boolean;
 }) {
   const t = await getTranslations();
-  const issn = String(await getSetting("journal.issn"));
+  const [issnValue, user] = await Promise.all([getSetting("journal.issn"), currentUser()]);
+  const issn = String(issnValue);
   const items = variant === "home" ? NAV_ITEMS : COMPACT_NAV_ITEMS;
 
   return (
@@ -36,8 +38,11 @@ export async function SiteHeader({
               <Suspense>
                 <LocaleSwitcher />
               </Suspense>
-              <Link href="/kirish" className="font-semibold text-white hover:underline">
-                {t("common.login")}
+              <Link
+                href={user ? "/kabinet" : "/kirish"}
+                className="font-semibold text-white hover:underline"
+              >
+                {user ? t("nav.cabinet") : t("common.login")}
               </Link>
             </div>
           </div>
@@ -56,7 +61,7 @@ export async function SiteHeader({
           </Link>
 
           <nav
-            hidden={variant === "minimal"}
+            hidden={variant === "minimal" || variant === "cabinet"}
             aria-label={t("nav.home")}
             className="hidden items-center gap-[26px] text-[15px] text-ink md:flex lg:mr-16 lg:ml-auto"
           >
@@ -77,9 +82,20 @@ export async function SiteHeader({
                 <Search className="size-4" strokeWidth={2} />
               </Link>
             ) : null}
-            <Link href="/kabinet/yuborish" className={buttonClass("primary", "md")}>
-              {t("common.submit")}
-            </Link>
+            {variant === "cabinet" ? (
+              <>
+                <Link href="/xorazmiy-ai" className={buttonClass("secondary", "md")}>
+                  {t("nav.ai")}
+                </Link>
+                <Link href="/kabinet/yuborish" className={buttonClass("primary", "md")}>
+                  {t("cabinet.newArticle")}
+                </Link>
+              </>
+            ) : (
+              <Link href="/kabinet/yuborish" className={buttonClass("primary", "md")}>
+                {t("common.submit")}
+              </Link>
+            )}
           </div>
 
           <MobileMenu />

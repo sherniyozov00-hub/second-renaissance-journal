@@ -8,7 +8,7 @@ export function PageShell({
   narrow = false,
 }: {
   children: React.ReactNode;
-  header?: "home" | "compact" | "minimal";
+  header?: "home" | "compact" | "minimal" | "cabinet";
   footer?: "full" | "compact";
   /** 1200px content column (article page, Ekran 4) instead of 1240px. */
   narrow?: boolean;

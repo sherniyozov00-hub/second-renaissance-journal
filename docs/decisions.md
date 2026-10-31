@@ -86,3 +86,29 @@ muassasa, saralash, tab, page`. Filtrlangan natija sahifalari `noindex`, kanonik
 8. **PDF’lar robots.txt’da ochiq** — Scholar `citation_pdf_url` ni o‘qiydi.
 9. **Rich Results testi** tashqi xizmat; lokalda JSON-LD tuzilishi unit testlar bilan
    tekshiriladi, domen ulangach README’dagi qadamlar bo‘yicha Google testidan o‘tkaziladi.
+
+## 3-bosqich — Kirish va kabinet
+
+1. **Auth.js v5 (`5.0.0-beta.32`, aniq versiya qotirilgan).** Next 16 ni qo‘llaydigan yagona
+   yo‘nalish; v4 App Router uchun mos emas. Sessiya — JWT; rollar va bloklash har so‘rovda
+   bazadan qayta o‘qiladi (`currentUser()`), shuning uchun rol o‘zgarishi darhol kuchga kiradi.
+2. **Telefon va email bir xil oqim: 6 xonali kod.** Email uchun “sehrli havola” o‘rniga kod
+   tanlandi — foydalanuvchi uchun bir xil tajriba va Auth.js adapter jadvallari kerak emas
+   (oldingi rejadagi Account/Session/VerificationToken jadvallari qo‘shilmadi).
+3. **Kod xavfsizligi:** HMAC-SHA256 hash (AUTH_SECRET bilan), 5 daqiqa, 5 urinish, bir marta
+   ishlatiladi (atomik), raqam bo‘yicha 1/daqiqa va 5/soat, IP bo‘yicha 20/soat.
+4. **Rozilik (TZ 17)** kirish formasida majburiy belgi; vaqti `User.consentAt` ga yoziladi.
+   Google orqali kirganlar rozilikni profil sahifasida beradi.
+5. **SMS/Email adapterlari:** mock (log), Eskiz.uz, SMTP, Resend. Kalit kiritilishi bilan
+   haqiqiy rejimga o‘tadi.
+6. **nodemailer 10.3.1** — 8-versiyadagi zaifliklar (npm audit: 3 high) tufayli; Auth.js’ning
+   ixtiyoriy peer bog‘liqligi `overrides` bilan shu versiyaga yo‘naltirildi. `npm audit`: 0.
+7. **Har bir kabinet sahifasi foydalanuvchini o‘zi tekshiradi** — Next.js’da layout va sahifa
+   parallel render qilinadi, layout’dagi redirect sahifani to‘xtatmaydi.
+8. **Sertifikat** hozircha `/sertifikat/[id]` tasdiq sahifasi (QR bilan, chop etish/PDF sifatida
+   saqlash mumkin). Server tomonda PDF fayl — 5-bosqichda.
+9. **Telegram** — kabinetdagi tugma bir martalik token bilan `t.me/<bot>?start=<token>` ni
+   ochadi; botning o‘zi (tokenni qabul qilish, xabarlar) 5-bosqichda. Bot nomi `[BOT_NOMI]`
+   bo‘lib turganida tugma faol emas.
+10. **“AI bilan tuzatish”, “Yangi versiyani yuklash”, “To‘lovni amalga oshirish”** tugmalari
+    4- va 6-bosqich sahifalariga olib boradi (hozircha ular hali yo‘q).
