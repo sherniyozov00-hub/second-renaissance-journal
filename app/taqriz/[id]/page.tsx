@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { aiFeatureList } from "@/lib/ai/labels";
 import { notFound } from "next/navigation";
 import { submitReviewAction } from "@/app/taqriz/actions";
 import { Field, input, panel, select } from "@/components/admin/ui";
@@ -70,7 +71,7 @@ export default async function ReviewPage({
               </span>
             ) : null}
             {a.aiFeaturesUsed.length ? (
-              <span>AI ishlatilgan: {a.aiFeaturesUsed.join(", ")}</span>
+              <span>AI ishlatilgan: {aiFeatureList(a.aiFeaturesUsed)}</span>
             ) : null}
           </p>
           <div className="article-body mt-6" dangerouslySetInnerHTML={{ __html: html }} />

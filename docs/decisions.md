@@ -158,3 +158,35 @@ muassasa, saralash, tab, page`. Filtrlangan natija sahifalari `noindex`, kanonik
 7. **Telegram** — webhook `secret_token` bilan himoyalangan; token bo‘lmasa xabarlar logga
    yoziladi (mock).
 8. **Akademiya darslarini tahrirlash** — 7-bosqichda; hozircha admin’da ro‘yxat.
+
+## 6-bosqich — Xorazmiy AI
+
+1. **Model — `claude-opus-5-5`** (Admin → Sozlamalar → `ai.model` dan o‘zgaradi). Barcha
+   funksiyalar bitta modelda, vazifaga qarab `effort` (da’vo ajratish va chat — `low`, qolgani —
+   `medium`): bir model — bitta prompt kesh. Avvalgi `ai.modelMain/ai.modelFast` o‘rniga.
+   Siyosat sababli rad etilsa server avtomatik zaxira modelga o‘tkazadi (`fallbacks: "default"`).
+2. **Akademik halollik (TZ 10.2) saqlandi:** AI bo‘limni muallif o‘rniga noldan yozmaydi — reja,
+   savollar, maslahat, tahrir, tekshiruv va bitta namuna jumla beradi. Buyurtmachi boshqacha
+   qaror qilsa, bilim bazasidagi “Akademik halollik” yozuvi va `features.ts` vazifalari o‘zgaradi.
+3. **Manba qoidasi kodda majburiy:** model ko‘rsatgan URL shu so‘rovdagi web search
+   natijalarida bo‘lmasa olib tashlanadi; manbasiz “Noto‘g‘ri” **va “To‘g‘ri”** ham “Manba kerak”
+   bo‘ladi (TZ faqat “Noto‘g‘ri” uchun talab qiladi; tasdiqsiz “to‘g‘ri” ham ishonchsiz).
+4. **Strukturali javob** — xulosalar `submit_verdicts` strict vositasi (web search bilan bir
+   so‘rovda), qolganlari structured outputs; hammasi qo‘shimcha zod bilan tekshiriladi.
+5. **Bir tekshiruvda ko‘pi bilan N ta da’vo** (`ai.maxClaimsPerCheck`, 20) — xarajat nazorati;
+   kesilgan xatboshi keshlanmaydi va keyingi safar to‘liq tekshiriladi.
+6. **Nima “tekshiruv” hisoblanadi:** fakt tekshiruvi, tahrir, reja, yozishga yordam, tarjima —
+   limitdan; chat va manba qidiruvi — faqat daqiqalik rate limit; originallik va iqtiboslar —
+   AI’siz, bepul. Xato bo‘lsa tekshiruv qaytariladi.
+7. **Mehmon kaliti** — IP + `srj_device` cookie xeshi (xom IP saqlanmaydi). Rate limit xotirada
+   (bitta ilova nusxasi uchun); bir nechta nusxada Redis’ga ko‘chiriladi.
+8. **Muharrir — TipTap (ProseMirror)**; qoralama TipTap JSON + oddiy matn sifatida saqlanadi.
+   Kutilayotgan takliflar (insertion) qabul qilinmaguncha AI va eksport muallif matnini ko‘radi.
+9. **Iqtibos uslubi — APA 7** (TZ 16); yili yo‘q manba “n.d.”. Matndagi havola tekshiruvi APA va
+   raqamli [1] uslubni tushunadi.
+10. **AI paketi** (“Limitni oshirish”) — `Payment.purpose = AI_PACKAGE`, to‘langanda
+    `User.aiCredits` ga `ai.packageChecks` qo‘shiladi; narx `pricing.aiPackage` (sandbox’da demo).
+11. **“O‘qitish”** — bilim bazasi + jurnal namunalari + fikr-mulohaza + eval (README). Model
+    fine-tuning qilinmaydi.
+12. **Ekran 1 hero kartasi** dizayndagidek namunaviy qoldi; “Matnimni tekshirish” tugmasi
+    `/xorazmiy-ai#sinov` dagi haqiqiy bepul sinovga olib boradi.

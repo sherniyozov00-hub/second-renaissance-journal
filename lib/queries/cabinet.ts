@@ -54,7 +54,7 @@ export function getMyPayments(userId: string) {
 }
 
 /** Monthly Xorazmiy AI quota (TZ 10.4): per-user override or the Settings default. */
-export async function getAiQuota(user: { id: string; aiQuota: number | null }) {
+export async function getAiQuota(user: { id: string; aiQuota: number | null; aiCredits?: number }) {
   const settings = await getSettings();
   const limit = user.aiQuota ?? (Number(settings["ai.authorMonthlyChecks"]) || 0);
   const period = new Date().toISOString().slice(0, 7);
@@ -62,5 +62,7 @@ export async function getAiQuota(user: { id: string; aiQuota: number | null }) {
     where: { userId_period: { userId: user.id, period } },
   });
   const used = usage?.checksUsed ?? 0;
-  return { limit, used, left: Math.max(0, limit - used) };
+  // Purchased checks (TZ 10.4) are spent after the monthly free ones.
+  const credits = user.aiCredits ?? 0;
+  return { limit: limit + credits, used, left: Math.max(0, limit - used) + credits, credits };
 }

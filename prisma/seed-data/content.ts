@@ -87,4 +87,39 @@ const PAGE_TITLES: { slug: string; title: L10n }[] = [
   },
 ];
 
-export const pages = PAGE_TITLES.map((p) => ({ ...p, body: PLACEHOLDER }));
+/** TZ 10.2: the publication policy states the rule on AI use. */
+const AI_POLICY: L10n = {
+  uz: `## Sun’iy intellektdan foydalanish
+
+- Mualliflar Xorazmiy AI va boshqa AI vositalaridan reja tuzish, tahrir, manba qidirish va faktlarni tekshirish uchun foydalanishi mumkin.
+- Maqola matni, ma’lumotlar, natijalar va xulosalar uchun to‘liq javobgarlik muallifda. AI muallif yoki hammuallif bo‘la olmaydi.
+- AI yozib bergan bo‘limni o‘z ishi sifatida taqdim etish, AI o‘ylab topgan manba yoki ma’lumotni keltirish taqiqlanadi.
+- Platformada qaysi AI funksiyalaridan foydalanilgani maqola ma’lumotlarida saqlanadi va taqrizchiga ko‘rinadi. Boshqa AI vositalaridan foydalanilgan bo‘lsa, muallif buni “Materiallar va usullar” bo‘limida ko‘rsatadi.
+- Taqrizchilar maqola matnini tashqi AI xizmatlariga yuklamaydi.`,
+  ru: `## Использование искусственного интеллекта
+
+- Авторы могут использовать Xorazmiy AI и другие инструменты ИИ для составления плана, редактуры, поиска источников и проверки фактов.
+- Полную ответственность за текст, данные, результаты и выводы несёт автор. ИИ не может быть автором или соавтором.
+- Запрещено выдавать раздел, написанный ИИ, за свою работу и приводить источники или данные, выдуманные ИИ.
+- Какие функции ИИ платформы использовались, сохраняется в данных статьи и видно рецензенту. Об использовании других инструментов ИИ автор сообщает в разделе «Материалы и методы».
+- Рецензенты не загружают текст статьи во внешние сервисы ИИ.`,
+  en: `## Use of artificial intelligence
+
+- Authors may use Xorazmiy AI and other AI tools to outline, edit, find sources and check facts.
+- The author is fully responsible for the text, data, results and conclusions. AI cannot be an author or co-author.
+- Presenting a section written by AI as one’s own work, or citing sources or data invented by AI, is not allowed.
+- Which platform AI features were used is stored with the article and shown to the reviewer. Use of other AI tools is disclosed by the author in “Materials and methods”.
+- Reviewers do not upload the manuscript to external AI services.`,
+};
+
+export const pages = PAGE_TITLES.map((p) => ({
+  ...p,
+  body:
+    p.slug === "nashr-siyosati"
+      ? {
+          uz: `${PLACEHOLDER.uz}\n\n${AI_POLICY.uz}`,
+          ru: `${PLACEHOLDER.ru}\n\n${AI_POLICY.ru}`,
+          en: `${PLACEHOLDER.en}\n\n${AI_POLICY.en}`,
+        }
+      : PLACEHOLDER,
+}));

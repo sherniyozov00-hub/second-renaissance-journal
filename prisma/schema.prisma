@@ -80,6 +80,23 @@ enum AiCheckType {
   SOURCES
   EDIT
   ORIGINALITY
+  PLAN
+  ASSIST
+  CITATIONS
+  TRANSLATE
+  CHAT
+}
+
+/// What a knowledge entry teaches Xorazmiy AI (stage 6 "training").
+enum AiKnowledgeKind {
+  /// Structure and purpose of each section for an article type.
+  GUIDE
+  /// Points the AI checks a text against.
+  CHECKLIST
+  /// Academic Uzbek style, terminology, citation rules.
+  STYLE
+  /// A worked example (good answer) the AI imitates.
+  EXAMPLE
 }
 
 // ─── Users ──────────────────────────────────────────────────────────────────
@@ -94,6 +111,8 @@ model User {
   telegramChatId    String?   @unique
   /// Per-user override of the monthly AI check quota; null = use Settings.
   aiQuota           Int?
+  /// Purchased Xorazmiy AI checks (TZ 10.4 "Limitni oshirish"); used after the monthly free ones.
+  aiCredits         Int       @default(0)
   isBlocked         Boolean   @default(false)
   /// When the user accepted the privacy policy and personal-data processing (TZ 17).
   consentAt         DateTime?
@@ -111,6 +130,7 @@ model User {
   drafts            Draft[]
   aiChecks          AiCheck[]
   aiUsage           AiUsage[]
+  aiFeedback        AiFeedback[]
   auditLogs         AuditLog[]
 }
 
@@ -169,7 +189,9 @@ model Category {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  articles Article[]
+  articles    Article[]
+  drafts      Draft[]
+  aiKnowledge AiKnowledge[]
 }
 
 model Issue {
@@ -407,20 +429,30 @@ model Certificate {
 
 /// AI workspace draft (Ekran 3).
 model Draft {
-  id        String   @id @default(cuid())
-  userId    String
-  articleId String?
-  title     String
-  /// Rich-text document JSON.
-  body      Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String      @id @default(cuid())
+  userId         String
+  articleId      String?
+  title          String
+  articleType    ArticleType @default(RESEARCH)
+  categoryId     String?
+  /// Rich-text document (TipTap JSON).
+  body           Json
+  /// Plain text of the body, kept in sync on save; what the AI reads.
+  text           String      @default("")
+  wordCount      Int         @default(0)
+  /// Bibliography the author built in the workspace: [{ title, authors, year, journal, doi, url, verified }].
+  references     Json        @default("[]")
+  /// Xorazmiy AI features used on this draft (TZ 10.2); copied to the article on submission.
+  aiFeaturesUsed String[]    @default([])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   article  Article?  @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   aiChecks AiCheck[]
 
-  @@index([userId])
+  @@index([userId, updatedAt])
 }
 
 model AiCheck {
@@ -439,12 +471,60 @@ model AiCheck {
   cost      Decimal     @default(0) @db.Decimal(12, 6)
   createdAt DateTime    @default(now())
 
-  draft   Draft?   @relation(fields: [draftId], references: [id], onDelete: SetNull)
-  article Article? @relation(fields: [articleId], references: [id], onDelete: SetNull)
-  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  draft    Draft?       @relation(fields: [draftId], references: [id], onDelete: SetNull)
+  article  Article?     @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  user     User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  feedback AiFeedback[]
 
   @@index([type, inputHash])
   @@index([createdAt])
+  @@index([draftId, type])
+}
+
+/// Knowledge base that "trains" Xorazmiy AI per article type and field (stage 6).
+/// Edited in Admin → Xorazmiy AI; active entries are added to the model's instructions.
+model AiKnowledge {
+  id          String          @id @default(cuid())
+  /// Stable key for seeded entries, e.g. "type.RESEARCH.guide".
+  key         String          @unique
+  kind        AiKnowledgeKind
+  /// null = applies to every article type.
+  articleType ArticleType?
+  /// null = applies to every field.
+  categoryId  String?
+  title       String
+  /// Markdown.
+  body        String
+  active      Boolean         @default(true)
+  version     Int             @default(1)
+  updatedById String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([active, articleType])
+}
+
+/// Author and editor feedback on AI answers: accepted/rejected edits, thumbs up/down.
+/// Good answers can be promoted to EXAMPLE knowledge.
+model AiFeedback {
+  id        String   @id @default(cuid())
+  aiCheckId String?
+  userId    String?
+  feature   String
+  /// up | down | accepted | rejected
+  verdict   String
+  note      String?
+  /// The answer (or edit) the feedback is about.
+  payload   Json?
+  promoted  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  aiCheck AiCheck? @relation(fields: [aiCheckId], references: [id], onDelete: SetNull)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([feature, createdAt])
 }
 
 /// Quota accounting. Authors are keyed by `userId`; guests by `guestKey`

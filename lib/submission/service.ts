@@ -17,7 +17,7 @@ import { originality, type OriginalityReport } from "./originality";
 import { computePrice, parsePrice, SANDBOX_DEMO_PRICE, type PriceBreakdown } from "./pricing";
 import { paymentsMode } from "@/lib/payments/service";
 
-type User = {
+export type SubmitUser = {
   id: string;
   profile: {
     id: string;
@@ -30,7 +30,7 @@ type User = {
 /** Statuses in which the author may still edit the submission. */
 const EDITABLE = ["DRAFT", "AWAITING_PAYMENT", "REVISION_REQUESTED"] as const;
 
-export function loadSubmission(user: User, articleId?: string | null) {
+export function loadSubmission(user: SubmitUser, articleId?: string | null) {
   return db.article.findFirst({
     where: {
       submitterId: user.id,
@@ -118,7 +118,7 @@ export function parseDraftForm(form: FormData): DraftInput {
 
 /** Creates or updates the draft; returns its id. */
 export async function saveDraft(
-  user: User,
+  user: SubmitUser,
   articleId: string | null,
   input: DraftInput,
 ): Promise<string> {
@@ -199,7 +199,7 @@ export type UploadResult = { ok: true; report: TemplateReport } | { ok: false; e
 
 /** Stores the manuscript as a new version; a revision goes back to review (TZ 7). */
 export async function uploadManuscript(
-  user: User,
+  user: SubmitUser,
   articleId: string,
   file: { name: string; size: number; buffer: Buffer },
 ): Promise<UploadResult> {
@@ -381,7 +381,7 @@ export async function getPricing(opts: { fastTrack: boolean; promoCode: string |
   return { pricing: { ...breakdown, fastTrackPrice, demo } satisfies Pricing, promo, promoError };
 }
 
-const PROVIDERS: PaymentProvider[] = ["CLICK", "PAYME", "UZUM", "CARD"];
+export const PROVIDERS: PaymentProvider[] = ["CLICK", "PAYME", "UZUM", "CARD"];
 
 export function parseProvider(v: unknown): PaymentProvider {
   return PROVIDERS.includes(v as PaymentProvider) ? (v as PaymentProvider) : "CLICK";
@@ -389,7 +389,7 @@ export function parseProvider(v: unknown): PaymentProvider {
 
 /** Creates the pending payment and moves the article to AWAITING_PAYMENT. */
 export async function startPayment(
-  user: User,
+  user: SubmitUser,
   article: Submission,
   opts: { provider: PaymentProvider; fastTrack: boolean; promoCode: string | null },
 ) {

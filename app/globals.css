@@ -137,3 +137,60 @@
     @apply border border-border px-3 py-2 text-left;
   }
 }
+
+/* Xorazmiy AI workspace editor (Ekran 3): Lora, fact marks and tracked changes. */
+@layer components {
+  .ai-editor {
+    @apply min-h-[420px] font-serif text-[17px] leading-[1.85] text-ink outline-none;
+  }
+  .ai-editor h2 {
+    @apply mt-8 mb-4 font-serif text-[26px] leading-tight font-bold text-ink first:mt-0;
+  }
+  .ai-editor h3 {
+    @apply mt-6 mb-3 font-serif text-xl font-bold;
+  }
+  .ai-editor p {
+    @apply mb-5;
+  }
+  .ai-editor ul {
+    @apply mb-5 list-disc pl-6;
+  }
+  .ai-editor ol {
+    @apply mb-5 list-decimal pl-6;
+  }
+  .ai-editor table {
+    @apply my-5 w-full border-collapse font-sans text-sm;
+  }
+  .ai-editor th,
+  .ai-editor td {
+    @apply min-w-16 border border-border px-3 py-2 align-top;
+  }
+  .ai-editor th {
+    @apply bg-blue-50 font-semibold;
+  }
+  .ai-editor img {
+    @apply my-4 max-w-full rounded-card;
+  }
+  .ai-editor p.is-editor-empty:first-child::before {
+    @apply pointer-events-none float-left h-0 text-text-2/60 content-[attr(data-placeholder)];
+  }
+  .fact-mark {
+    @apply border-b-2 pb-px;
+  }
+  .fact-correct {
+    @apply border-success bg-success-bg;
+  }
+  .fact-incorrect {
+    @apply border-danger bg-danger-bg;
+  }
+  .fact-needs_source {
+    @apply border-[#d97706] bg-warning-bg;
+  }
+  .tc-ins {
+    @apply bg-info-bg text-blue-800 no-underline decoration-blue-800;
+    box-shadow: inset 0 -1px 0 var(--color-blue-800);
+  }
+  .tc-del {
+    @apply text-danger line-through decoration-danger;
+  }
+}

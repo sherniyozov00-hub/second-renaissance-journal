@@ -62,8 +62,10 @@ jobs:
         run: npx prisma db seed
       - name: Seed is idempotent
         run: npx prisma db seed
-      - name: Search integration tests (TZ 8 acceptance)
+      - name: Integration tests (search, auth, payments, workflow, AI)
         run: npm run test:integration
+      - name: Xorazmiy AI eval (offline mock — platform rules)
+        run: npm run ai:eval
 
   docker:
     name: docker compose up

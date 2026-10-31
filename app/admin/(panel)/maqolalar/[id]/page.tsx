@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { aiFeatureList } from "@/lib/ai/labels";
 import { notFound } from "next/navigation";
 import {
   acceptAction,
@@ -199,7 +200,7 @@ export default async function AdminArticlePage({
             ) : null}
             {article.aiFeaturesUsed.length ? (
               <p className="mt-2 text-sm text-text-2">
-                Xorazmiy AI ishlatilgan: {article.aiFeaturesUsed.join(", ")}
+                Xorazmiy AI ishlatilgan: {aiFeatureList(article.aiFeaturesUsed)}
               </p>
             ) : null}
           </section>

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { AiTrial } from "@/components/ai/fact-check-box";
 import { AiDemoCard } from "@/components/home/ai-demo-card";
 import { AiFeatures } from "@/components/home/sections";
 import { PageShell } from "@/components/layout/page-shell";
+import { aiLimits } from "@/lib/ai/quota";
+import { currentUser } from "@/lib/auth/session";
 import { pageMetadata } from "@/lib/seo";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -19,11 +22,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-// Landing for Xorazmiy AI. The guest trial and the workspace arrive in stage 6.
+// Landing for Xorazmiy AI with the free guest trial (TZ 10.4).
 export default async function AiLandingPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("aiLanding");
+  const [limits, user] = await Promise.all([aiLimits(), currentUser()]);
 
   return (
     <PageShell>
@@ -33,9 +37,13 @@ export default async function AiLandingPage({ params }: Props) {
             <p className="eyebrow">Xorazmiy AI</p>
             <h1 className="mt-3 text-hero-mobile md:text-[44px] md:leading-tight">{t("title")}</h1>
             <p className="mt-5 max-w-[600px] text-lg leading-relaxed text-text-2">{t("lead")}</p>
-            <p className="mt-6 rounded-card border border-border bg-white p-4 text-sm text-text-2">
-              {t("soon")}
-            </p>
+            <div className="mt-8">
+              <AiTrial
+                maxChars={limits.guestMaxChars}
+                perDay={limits.guestDaily}
+                signedIn={Boolean(user)}
+              />
+            </div>
           </div>
           <AiDemoCard />
         </div>
