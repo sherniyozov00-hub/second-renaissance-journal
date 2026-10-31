@@ -30,7 +30,7 @@ test.describe("Xorazmiy AI (Ekran 3)", () => {
       await editor.click();
       await page.keyboard.press("Control+End");
       await page.keyboard.type(
-        "Tomchilatib sug‘orish 2010-yilda ixtiro qilingan va bugun keng qo‘llaniladi. Ushbu maqolada biz shuni ko‘rib chiqamizki usul baholanadi.",
+        "Tomchilatib sug‘orish 2010-yilda ixtiro qilingan va bugun keng qo‘llaniladi. Ushbu maqolada biz shuni ko‘rib chiqamizki tomchilatib sug‘orishning kichik xo‘jaliklar uchun qanchalik o‘zini oqlashi baholanadi.",
       );
       await page.getByRole("button", { name: "Fakt tekshiruvi" }).click();
       await page.getByRole("button", { name: "Faktlarni tekshirish" }).click();
@@ -45,6 +45,12 @@ test.describe("Xorazmiy AI (Ekran 3)", () => {
       const edit = page.locator("article").filter({ hasText: "Ortiqcha kirish" }).first();
       await expect(edit).toBeVisible();
       await expect(editor.locator("del")).not.toHaveCount(0);
+      // A meaning problem comes with variants; picking one swaps the tracked change.
+      const variants = edit.getByRole("radio");
+      await expect(variants).toHaveCount(3);
+      const second = (await variants.nth(1).innerText()).replace(/^2\.\s*/, "");
+      await variants.nth(1).click();
+      await expect(editor.locator("ins")).toContainText(second);
       await edit.getByRole("button", { name: "Qabul qilish" }).click();
       await expect(editor).not.toContainText("biz shuni ko‘rib chiqamizki");
     });

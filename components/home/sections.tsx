@@ -270,7 +270,7 @@ function lessonSummary(body: string) {
 }
 
 export async function Academy({ lessons }: { lessons: LessonItem[] }) {
-  const t = await getTranslations("home");
+  const [t, locale] = await Promise.all([getTranslations("home"), getLocale()]);
 
   return (
     <section className="section hidden border-y border-border bg-blue-50 md:block">
@@ -283,7 +283,7 @@ export async function Academy({ lessons }: { lessons: LessonItem[] }) {
             <Link href="/akademiya" className={buttonClass("primary", "md")}>
               {t("startLessons")}
             </Link>
-            <a href={templateHref(await getLocale())} className={buttonClass("outline", "md")}>
+            <a href={templateHref(locale)} className={buttonClass("outline", "md")}>
               {t("template")}
             </a>
           </div>

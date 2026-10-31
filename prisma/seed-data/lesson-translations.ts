@@ -2,7 +2,13 @@
  * Russian and English versions of the Akademiya lessons (TZ: the site works
  * in uz / ru / en). Keyed by lesson slug; same fields as the Uzbek lesson.
  */
-type LessonText = { title: string; summary: string; body: string; example: string; exercise: string };
+type LessonText = {
+  title: string;
+  summary: string;
+  body: string;
+  example: string;
+  exercise: string;
+};
 
 export const lessonTranslations: Record<string, { ru: LessonText; en: LessonText }> = {
   "maqola-tuzilmasi-imrad": {
@@ -177,7 +183,8 @@ In the list: Karimov, B., Aliyeva, D., & Smith, J. (2021). Drip irrigation and c
 - И общие (орошение), и точные (капельное орошение) термины.`,
       example: `Первое предложение аннотации: «В исследовании оценено влияние капельного орошения на урожайность хлопка и расход воды в Сырдарьинской области.»
 Ключевые слова: экономия воды, способы орошения, хлопководство, малые фермерские хозяйства, экономическая эффективность.`,
-      exercise: "Выберите 5 ключевых слов для своей статьи и напишите первое предложение аннотации.",
+      exercise:
+        "Выберите 5 ключевых слов для своей статьи и напишите первое предложение аннотации.",
     },
     en: {
       title: "Abstract and keywords",

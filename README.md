@@ -274,3 +274,10 @@ npm run build && npm run start                       # 1-terminal
 npm run test:e2e                                     # yoki E2E_BASE_URL=http://localhost:3000
 LH_BASE_URL=http://localhost:3000 npm run lighthouse  # 2-terminal
 ```
+
+## Uch til (9-bosqich)
+
+- **Ommaviy sayt va kabinet:** uz (prefikssiz), `/ru`, `/en`. Matnlar `messages/{uz,ru,en}.json` da. Maqola, yo‘nalish, sahifa va darslar ma’lumotlari uch tilda.
+- **Admin va taqrizchi panellari:** “O‘zb / Рус / Eng” tugmalari bilan til tanlanadi (`staff_locale` cookie), matnlar `admin.*` kalitlarida.
+- **Xorazmiy AI:** izoh va maslahatlarni foydalanuvchi tilida beradi, tuzatishlarni matnning o‘z tilida qoldiradi. Ma’no va mantiq xatolarida tanlash uchun variantlar beradi.
+- **Telegram-bot, shablon, SMS/email kodlari:** uch tilda.

@@ -182,7 +182,11 @@ export function mockEdits(paragraphs: string[], lang: AiLang = "uz"): Omit<EditS
         reason: REASONS.mixed[lang],
       });
     }
-    for (const [re, replacement, reason] of WORDY) {
+    // Without the full sentence pattern, the lead-in alone is still a style fix.
+    const rules: typeof WORDY = sentence
+      ? WORDY
+      : [[/\s*\bbiz shuni ko‘rib chiqamizki\b/i, "", "wordy"], ...WORDY];
+    for (const [re, replacement, reason] of rules) {
       const m = typed.match(re);
       const original = m ? locateInParagraph(p, m[0]) : null;
       if (original)

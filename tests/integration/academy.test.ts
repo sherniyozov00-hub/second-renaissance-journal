@@ -57,7 +57,9 @@ describe("Akademiya (TZ 15)", () => {
     const draft = await db.draft.findUniqueOrThrow({ where: { id: id! } });
     expect(draft.title).toBe(`Mashq: ${lesson.title}`);
     const ru = await createPracticeDraft(userId, lesson.slug, "ru");
-    expect((await db.draft.findUniqueOrThrow({ where: { id: ru! } })).title).toMatch(/^Упражнение: /);
+    expect((await db.draft.findUniqueOrThrow({ where: { id: ru! } })).title).toMatch(
+      /^Упражнение: /,
+    );
     expect(JSON.stringify(draft.body)).toContain(lesson.exercise!);
   });
 

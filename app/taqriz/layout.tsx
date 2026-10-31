@@ -13,9 +13,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Reviewer panel: admin style, simplified (TZ 5). Uzbek, Russian or English. */
 export default async function ReviewerLayout({ children }: { children: React.ReactNode }) {
-  const t = await getTranslations("admin.common");
+  const [t, locale] = await Promise.all([getTranslations("admin.common"), getLocale()]);
   return (
-    <html lang={await getLocale()} className={fontVariables}>
+    <html lang={locale} className={fontVariables}>
       <body className="bg-blue-50">
         <header className="bg-blue-900">
           <div className="mx-auto flex h-16 max-w-[1100px] items-center gap-3 px-5 text-white">

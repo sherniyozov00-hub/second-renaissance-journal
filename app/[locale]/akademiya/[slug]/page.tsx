@@ -34,7 +34,11 @@ export default async function LessonPage({ params }: Props) {
   setRequestLocale(locale);
   const lesson = await getLesson(slug, locale);
   if (!lesson) notFound();
-  const [t, lessons, user] = await Promise.all([getTranslations(), getLessons(locale), currentUser()]);
+  const [t, lessons, user] = await Promise.all([
+    getTranslations(),
+    getLessons(locale),
+    currentUser(),
+  ]);
   const index = lessons.findIndex((l) => l.slug === slug);
   const prev = lessons[index - 1];
   const next = lessons[index + 1];

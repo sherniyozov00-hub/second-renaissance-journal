@@ -126,7 +126,8 @@ const T = {
     noIssue: "No published issues yet.",
     issue: (y: number, n: number, c: number) => `${y}, issue ${n} — ${c} articles.`,
     lessons: "Academy lessons (free):",
-    notLinked: "Your account is not linked. The cabinet on the website → “Connect the Telegram bot”.",
+    notLinked:
+      "Your account is not linked. The cabinet on the website → “Connect the Telegram bot”.",
     noneSubmitted: "You have not submitted an article yet. Submit:",
     mine: "Your articles:",
   },
@@ -195,7 +196,10 @@ async function issue(lang: BotLang) {
 }
 
 async function lessons(lang: BotLang) {
-  const list = await db.lesson.findMany({ where: { isPublished: true }, orderBy: { order: "asc" } });
+  const list = await db.lesson.findMany({
+    where: { isPublished: true },
+    orderBy: { order: "asc" },
+  });
   return [
     T[lang].lessons,
     ...list.map(
@@ -215,7 +219,9 @@ async function status(lang: BotLang, userId: string | null) {
   if (!articles.length) return `${T[lang].noneSubmitted} ${url(lang, "/kabinet/yuborish")}`;
   return [
     T[lang].mine,
-    ...articles.map((a) => `${num(a.number)} «${articleTitle(a, lang)}» — ${STATUS[lang][a.status]}`),
+    ...articles.map(
+      (a) => `${num(a.number)} «${articleTitle(a, lang)}» — ${STATUS[lang][a.status]}`,
+    ),
   ].join("\n");
 }
 
@@ -223,7 +229,11 @@ async function status(lang: BotLang, userId: string | null) {
  * The reply to one incoming message. `telegramLang` is the sender's Telegram
  * app language (message.from.language_code); a linked user's own choice wins.
  */
-export async function botReply(chatId: string, text: string, telegramLang?: string | null): Promise<string> {
+export async function botReply(
+  chatId: string,
+  text: string,
+  telegramLang?: string | null,
+): Promise<string> {
   const user = await db.user.findFirst({
     where: { telegramChatId: chatId },
     select: { id: true, locale: true },

@@ -237,3 +237,26 @@ muassasa, saralash, tab, page`. Filtrlangan natija sahifalari `noindex`, kanonik
 7. **Zaxira nusxa:** `pg_dump` (custom format) va MinIO fayllari har kuni cron orqali olinadi,
    14 kun saqlanadi. Tiklash — `pg_restore --clean`. Lokal sinovda dump → yangi bazaga tiklash
    xatosiz o‘tdi (qidiruv indeksi va triggerlar bilan).
+
+## 9-bosqich — AI variantlari va to‘liq uch tillilik (buyurtmachi talabi)
+
+Buyurtmachi qarori: “AI yozmaydi, u yordam beradi. Kelishmay qolgan, ma’nosi to‘g‘ri kelmagan
+joylarini aniqlab, shu yerlarini to‘g‘rilasa zo‘r chiqadi deb variantlar berishi kerak. Sayt 3 tilda
+ish yuritishi kerak.”
+
+1. **Tahrir = topish + variantlar.** AI ikki darajada tekshiradi:
+   - til: imlo, punktuatsiya, uslub, atama;
+   - ma’no va mantiq: `meaning` (ma’nosi noto‘g‘ri chiqqan yoki kontekstga zid jumla) va `logic` (zid da’volar, dalildan kelib chiqmaydigan xulosa, uzilgan bog‘lanish).
+
+   Ma’no va mantiq xatolarida 2–3 ta variant beriladi. Muallif variantni tanlaydi, u matnda tracked change bo‘lib turadi, keyin qabul yoki rad etiladi. Variantlar yangi ma’lumot, raqam yoki manba qo‘shmaydi (eval buni tekshiradi). Bo‘limni noldan yozish taqiqlanganicha qoladi (TZ 10.2).
+
+2. **AI javob tili — interfeys tili** (uz/ru/en). Muallif matnidan ko‘chirmalar va tuzatishlar esa matnning o‘z tilida qoladi. Til qatori user xabarida turadi — tizim prompti (va prompt kesh) uchala til uchun bitta. Fakt tekshiruvi keshi kalitiga til qo‘shildi.
+3. **Model javobidagi maydonlar tildan mustaqil nomlandi** (`explanation`, `reason`, `notes`; avval `_uz`).
+4. **Akademiya darslari uch tilda.** `Lesson.translations` (ru/en); bo‘sh maydonda o‘zbekcha ko‘rsatiladi. Seed 6 ta darsning ruscha va inglizcha matnini qo‘shadi. Admin’da har til uchun alohida maydonlar bor.
+5. **Shablon** `?til=ru|en` bilan, **Telegram-bot** esa foydalanuvchining sayt tilida yoki Telegram ilovasi tilida javob beradi. Kirish kodi (SMS/email) sahifa tilida yuboriladi.
+6. **Admin va taqrizchi panellari uch tilda** (`messages/*.json` → `admin.*`).
+   - Panellar `[locale]` yo‘lidan tashqarida, shuning uchun til `staff_locale` cookie’da saqlanadi va paneldagi “O‘zb / Рус / Eng” tugmalari bilan o‘zgaradi.
+   - Maqola sarlavhasi va annotatsiyasi panel tilida ko‘rsatiladi (tarjimasi bo‘lsa).
+   - CSV eksport ham panel tilida.
+   - 5-bosqichdagi “panellar faqat o‘zbekcha” qarori bekor qilindi.
+7. **Topilgan xato tuzatildi:** qo‘lyozma tekshiruvi ruscha “Введение” sarlavhasini tanimas edi (JavaScript’dagi `\b` kirill harflarida ishlamaydi).

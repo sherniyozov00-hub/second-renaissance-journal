@@ -11,8 +11,9 @@ export const metadata: Metadata = {
 
 /** Root layout of the admin panel (not indexed — TZ 5). Language: the staff_locale cookie. */
 export default async function AdminRootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
   return (
-    <html lang={await getLocale()} className={fontVariables}>
+    <html lang={locale} className={fontVariables}>
       <body className="bg-blue-50">{children}</body>
     </html>
   );

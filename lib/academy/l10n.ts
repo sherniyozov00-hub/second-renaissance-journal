@@ -17,7 +17,9 @@ export function localizeLesson<T extends LessonFields>(lesson: T, locale: string
   if (locale !== "ru" && locale !== "en") return lesson;
   const all = lesson.translations;
   const tr =
-    all && typeof all === "object" ? ((all as Record<string, unknown>)[locale] as Record<string, unknown>) : null;
+    all && typeof all === "object"
+      ? ((all as Record<string, unknown>)[locale] as Record<string, unknown>)
+      : null;
   if (!tr || typeof tr !== "object") return lesson;
   const out = { ...lesson };
   for (const f of FIELDS) {
