@@ -60,6 +60,8 @@ const listSelect = {
   id: true,
   number: true,
   titleUz: true,
+  titleRu: true,
+  titleEn: true,
   status: true,
   submittedAt: true,
   updatedAt: true,

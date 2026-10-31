@@ -4,26 +4,27 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
+/** Sidebar items; `key` is admin.common.nav_<key>. */
 export const ADMIN_NAV = [
-  { href: "/admin", label: "Boshqaruv paneli", adminOnly: false },
-  { href: "/admin/maqolalar", label: "Maqolalar", adminOnly: false },
-  { href: "/admin/sonlar", label: "Jurnal sonlari", adminOnly: false },
-  { href: "/admin/kategoriyalar", label: "Kategoriyalar", adminOnly: true },
-  { href: "/admin/mualliflar", label: "Mualliflar", adminOnly: false },
-  { href: "/admin/taqrizchilar", label: "Taqrizchilar", adminOnly: false },
-  { href: "/admin/tolovlar", label: "To‘lovlar", adminOnly: true },
-  { href: "/admin/xorazmiy-ai", label: "Xorazmiy AI", adminOnly: false },
-  { href: "/admin/akademiya", label: "Akademiya darslari", adminOnly: true },
-  { href: "/admin/sahifalar", label: "Sahifalar va SEO", adminOnly: true },
-  { href: "/admin/foydalanuvchilar", label: "Foydalanuvchilar va rollar", adminOnly: true },
-  { href: "/admin/sozlamalar", label: "Sozlamalar", adminOnly: true },
+  { href: "/admin", key: "dashboard", adminOnly: false },
+  { href: "/admin/maqolalar", key: "articles", adminOnly: false },
+  { href: "/admin/sonlar", key: "issues", adminOnly: false },
+  { href: "/admin/kategoriyalar", key: "categories", adminOnly: true },
+  { href: "/admin/mualliflar", key: "authors", adminOnly: false },
+  { href: "/admin/taqrizchilar", key: "reviewers", adminOnly: false },
+  { href: "/admin/tolovlar", key: "payments", adminOnly: true },
+  { href: "/admin/xorazmiy-ai", key: "ai", adminOnly: false },
+  { href: "/admin/akademiya", key: "academy", adminOnly: true },
+  { href: "/admin/sahifalar", key: "pages", adminOnly: true },
+  { href: "/admin/foydalanuvchilar", key: "users", adminOnly: true },
+  { href: "/admin/sozlamalar", key: "settings", adminOnly: true },
 ] as const;
 
-export function AdminNav({ isAdmin }: { isAdmin: boolean }) {
+export function AdminNav({ items }: { items: { href: string; label: string }[] }) {
   const pathname = usePathname();
   return (
     <ul className="space-y-1">
-      {ADMIN_NAV.filter((i) => isAdmin || !i.adminOnly).map((item) => {
+      {items.map((item) => {
         const active =
           item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
         return (

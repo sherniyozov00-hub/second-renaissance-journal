@@ -1,27 +1,33 @@
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { StaffLocaleSwitcher } from "@/components/admin/locale-switcher";
 import { LogoMark } from "@/components/brand/logo";
 import { fontVariables } from "@/lib/fonts";
 import "../globals.css";
 
-export const metadata: Metadata = {
-  title: "Taqrizchi paneli",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("admin.common");
+  return { title: t("reviewerPanel"), robots: { index: false, follow: false } };
+}
 
-/** Reviewer panel: admin style, simplified (TZ 5). */
-export default function ReviewerLayout({ children }: { children: React.ReactNode }) {
+/** Reviewer panel: admin style, simplified (TZ 5). Uzbek, Russian or English. */
+export default async function ReviewerLayout({ children }: { children: React.ReactNode }) {
+  const t = await getTranslations("admin.common");
   return (
-    <html lang="uz" className={fontVariables}>
+    <html lang={await getLocale()} className={fontVariables}>
       <body className="bg-blue-50">
         <header className="bg-blue-900">
           <div className="mx-auto flex h-16 max-w-[1100px] items-center gap-3 px-5 text-white">
             <LogoMark variant="footer" className="size-6" />
             <Link href="/taqriz" className="font-sans text-lg font-bold">
-              Taqrizchi paneli
+              {t("reviewerPanel")}
             </Link>
-            <Link href="/" className="ml-auto text-sm text-blue-50/80 hover:underline">
-              Sayt
+            <div className="ml-auto">
+              <StaffLocaleSwitcher />
+            </div>
+            <Link href="/" className="text-sm text-blue-50/80 hover:underline">
+              {t("siteTitle")}
             </Link>
           </div>
         </header>

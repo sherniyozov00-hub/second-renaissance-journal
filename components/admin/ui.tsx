@@ -1,16 +1,17 @@
 import type { ArticleStatus, PaymentStatus } from "@/generated/prisma/client";
+import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 
-/** Admin labels are Uzbek only (staff interface; see docs/decisions.md). */
-export const STATUS_LABEL: Record<ArticleStatus, string> = {
-  DRAFT: "Qoralama",
-  AWAITING_PAYMENT: "To‘lov kutilmoqda",
-  UNDER_REVIEW: "Taqrizda",
-  REVISION_REQUESTED: "Tuzatishga qaytarildi",
-  ACCEPTED: "Qabul qilindi",
-  PUBLISHED: "Nashr qilindi",
-  REJECTED: "Rad etildi",
-};
+/** Article statuses in the order the panels list them; labels: admin.common.status_*. */
+export const STATUSES: ArticleStatus[] = [
+  "DRAFT",
+  "AWAITING_PAYMENT",
+  "UNDER_REVIEW",
+  "REVISION_REQUESTED",
+  "ACCEPTED",
+  "PUBLISHED",
+  "REJECTED",
+];
 
 const STATUS_CLASS: Record<ArticleStatus, string> = {
   DRAFT: "bg-border text-text-2",
@@ -22,13 +23,6 @@ const STATUS_CLASS: Record<ArticleStatus, string> = {
   REJECTED: "bg-danger-bg text-danger",
 };
 
-export const PAYMENT_LABEL: Record<PaymentStatus, string> = {
-  PENDING: "Kutilmoqda",
-  PAID: "To‘langan",
-  CANCELLED: "Bekor qilingan",
-  REFUNDED: "Qaytarildi",
-};
-
 const PAYMENT_CLASS: Record<PaymentStatus, string> = {
   PENDING: "text-warning",
   PAID: "text-success",
@@ -36,7 +30,8 @@ const PAYMENT_CLASS: Record<PaymentStatus, string> = {
   REFUNDED: "text-success",
 };
 
-export function StatusBadge({ status }: { status: ArticleStatus }) {
+export async function StatusBadge({ status }: { status: ArticleStatus }) {
+  const t = await getTranslations("admin.common");
   return (
     <span
       className={cn(
@@ -44,16 +39,15 @@ export function StatusBadge({ status }: { status: ArticleStatus }) {
         STATUS_CLASS[status],
       )}
     >
-      {STATUS_LABEL[status]}
+      {t(`status_${status}`)}
     </span>
   );
 }
 
-export function PaymentText({ status }: { status: PaymentStatus | null }) {
+export async function PaymentText({ status }: { status: PaymentStatus | null }) {
   if (!status) return <span className="text-muted">—</span>;
-  return (
-    <span className={cn("font-semibold", PAYMENT_CLASS[status])}>{PAYMENT_LABEL[status]}</span>
-  );
+  const t = await getTranslations("admin.common");
+  return <span className={cn("font-semibold", PAYMENT_CLASS[status])}>{t(`payment_${status}`)}</span>;
 }
 
 export function PageTitle({ title, children }: { title: string; children?: React.ReactNode }) {
