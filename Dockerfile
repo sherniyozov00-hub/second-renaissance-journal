@@ -22,18 +22,16 @@ FROM builder AS migrator
 CMD ["sh", "-c", "npx prisma migrate deploy && if [ \"$SEED_ON_START\" = \"true\" ]; then npx prisma db seed; fi"]
 
 # ── Worker: PDF generation (Chromium) and notifications ────────────────────
-# Official Playwright image: browsers preinstalled, version = playwright-core.
-FROM mcr.microsoft.com/playwright:v1.63.0-noble AS worker
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/generated ./generated
-COPY --from=builder /app/package.json /app/tsconfig.json ./
-COPY --from=builder /app/lib ./lib
-COPY --from=builder /app/workers ./workers
-COPY --from=builder /app/i18n ./i18n
-COPY --from=builder /app/components ./components
-USER pwuser
+# Built on top of the builder stage so it shares its layers (and the migrator's)
+# instead of shipping a second copy of node_modules on a separate browser
+# image: on a small server's disk that difference is several gigabytes.
+# Only the headless Chromium shell and its system libraries are added.
+FROM builder AS worker
+ENV NODE_ENV=production \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN npx playwright-core install --with-deps --only-shell chromium \
+ && rm -rf /var/lib/apt/lists/* /root/.npm
+USER node
 CMD ["npm", "run", "worker"]
 
 # ── Runtime: minimal standalone Next.js server ──────────────────────────────
