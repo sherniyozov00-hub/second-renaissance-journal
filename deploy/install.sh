@@ -16,6 +16,8 @@ DIR=/opt/journal
 
 say() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 die() { printf '\n\033[1;31mXato: %s\033[0m\n' "$*" >&2; exit 1; }
+# On any failure show free disk and memory: the usual causes on a small server.
+trap 'rc=$?; [ $rc = 0 ] || { echo; df -h / | tail -1; free -h | sed -n 2,3p; }' EXIT
 
 [ "$(id -u)" = 0 ] || die "root sifatida ishga tushiring: sudo bash install.sh ..."
 [ -n "$DOMAIN" ] || die "domen ko‘rsatilmagan. Misol: sudo bash install.sh journal.uz +998901234567"
@@ -48,9 +50,21 @@ fi
 systemctl enable --now docker >/dev/null 2>&1 || true
 docker compose version >/dev/null || die "docker compose topilmadi"
 
-# Keep container logs from filling the small disk.
-if [ ! -f /etc/docker/daemon.json ]; then
-  echo '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"3"}}' >/etc/docker/daemon.json
+# Small disk: classic overlay2 storage (the containerd image store keeps every
+# layer twice: compressed and unpacked) and capped container logs. Switching
+# stores hides old images without deleting them, so clean up first.
+if ! grep -q containerd-snapshotter /etc/docker/daemon.json 2>/dev/null; then
+  say "Docker kichik disk uchun sozlanmoqda"
+  docker compose -f "$DIR/docker-compose.yml" down >/dev/null 2>&1 || true
+  docker system prune -af >/dev/null 2>&1 || true
+  docker builder prune -af >/dev/null 2>&1 || true
+  cat >/etc/docker/daemon.json <<'JSON'
+{
+  "features": { "containerd-snapshotter": false },
+  "log-driver": "json-file",
+  "log-opts": { "max-size": "10m", "max-file": "3" }
+}
+JSON
   systemctl restart docker
 fi
 
@@ -102,7 +116,8 @@ fi
 
 # ── 6. Build and start ──────────────────────────────────────────────────────
 DC="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
-say "Sayt yig‘ilmoqda (kichik serverda 10–25 daqiqa ketadi)"
+docker image prune -f >/dev/null 2>&1 || true
+say "Sayt yig‘ilmoqda (kichik serverda 20–40 daqiqa ketadi). Bo‘sh joy: $(df -h / | awk 'NR==2{print $4}')"
 $DC build
 say "Sayt ishga tushirilmoqda"
 $DC up -d --remove-orphans
