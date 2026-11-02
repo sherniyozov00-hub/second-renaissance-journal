@@ -4,6 +4,24 @@ Bu qo‘llanma bo‘yicha saytni istalgan Linux serverga Docker bilan qo‘yish 
 O‘zbekiston hududidagi serverga (TZ 17: shaxsiy ma’lumotlar mahalliy serverda saqlanishi
 talab qilinishi mumkin).
 
+## 0. Tez o‘rnatish (bitta buyruq)
+
+Kichik server uchun ham ishlaydi (1 vCPU, 2 GB RAM, 20 GB disk): skript 3 GB swap qo‘shadi,
+Docker’ni o‘rnatadi, firewall’ni yoqadi (22, 80, 443), maxfiy kalitlarni o‘zi yaratib `.env`
+ga yozadi, saytni yig‘adi va ishga tushiradi. Oldin domen uchun DNS’da A yozuv (`@` va `www`)
+server IP manziliga qaratilgan bo‘lsin.
+
+```bash
+# repozitoriy yopiq bo‘lsa: export GITHUB_TOKEN=<faqat o‘qish huquqli token>
+curl -fsSL -o install.sh https://raw.githubusercontent.com/sherniyozov00-hub/second-renaissance-journal/main/deploy/install.sh
+sudo -E bash install.sh journal.uz +998901234567
+```
+
+Qayta ishga tushirish xavfsiz: kod yangilanadi, `.env` va ma’lumotlar saqlanadi. SMS xizmati
+(Eskiz) ulanmaguncha kirish kodlari server jurnalida chiqadi:
+`docker compose -f docker-compose.yml -f docker-compose.prod.yml logs app | grep sms:mock`.
+Quyidagi bo‘limlar xuddi shu ishni qo‘lda qilishni tushuntiradi.
+
 ## 1. Server
 
 | Talab | Minimal                                                             | Tavsiya                           |
