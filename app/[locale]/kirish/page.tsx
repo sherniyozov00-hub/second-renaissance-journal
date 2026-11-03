@@ -7,6 +7,7 @@ import { getPathname, redirect } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { safeNext } from "@/lib/auth/identifiers";
 import { currentUser } from "@/lib/auth/session";
+import { phoneLoginEnabled } from "@/lib/notify/sms";
 import { pageMetadata } from "@/lib/seo";
 
 type Props = {
@@ -35,6 +36,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
   // `next` is already a full (locale-prefixed) path.
   if (await currentUser()) redirect({ href: next, locale: "uz" as AppLocale });
   const t = await getTranslations("auth");
+  const phoneEnabled = phoneLoginEnabled();
 
   return (
     <PageShell>
@@ -42,8 +44,8 @@ export default async function LoginPage({ params, searchParams }: Props) {
         <div className="container-site flex justify-center py-10 md:py-16">
           <div className="w-full max-w-[440px] rounded-card border border-border bg-white p-6 md:p-8">
             <h1 className="text-[28px] leading-tight">{t("title")}</h1>
-            <p className="mt-2 text-[15px] text-text-2">{t("lead")}</p>
-            <LoginForm next={next} googleEnabled={googleEnabled} />
+            <p className="mt-2 text-[15px] text-text-2">{t(phoneEnabled ? "lead" : "leadEmail")}</p>
+            <LoginForm next={next} googleEnabled={googleEnabled} phoneEnabled={phoneEnabled} />
           </div>
         </div>
       </div>

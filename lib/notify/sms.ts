@@ -67,3 +67,11 @@ export function getSmsProvider(): SmsProvider {
       : new MockSmsProvider();
   return provider;
 }
+
+/**
+ * Phone sign-in is offered only when SMS can really be delivered (or a fixed
+ * demo/test code is configured). Otherwise people sign in with email or Google.
+ */
+export function phoneLoginEnabled(): boolean {
+  return getSmsProvider().name !== "mock" || /^\d{6}$/.test(process.env.OTP_MOCK_CODE ?? "");
+}

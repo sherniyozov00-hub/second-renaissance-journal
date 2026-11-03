@@ -57,14 +57,35 @@ async function upsertUser(data: { email: string; phone: string; name: string; ro
   });
 }
 
+/**
+ * The administrator from SEED_ADMIN_EMAIL / SEED_ADMIN_PHONE. Matched by email
+ * first, then by phone, so changing one of them in .env updates the same
+ * account instead of failing on the other's unique constraint.
+ */
+async function upsertAdmin(email: string, phone: string | null) {
+  const roles: Role[] = ["ADMIN", "EDITOR"];
+  const byEmail = await db.user.findUnique({ where: { email } });
+  const byPhone = phone ? await db.user.findUnique({ where: { phone } }) : null;
+  const existing = byEmail ?? byPhone;
+  if (!existing) return db.user.create({ data: { email, phone, name: "Administrator", roles } });
+  return db.user.update({
+    where: { id: existing.id },
+    data: {
+      roles: [...new Set([...existing.roles, ...roles])],
+      ...(byEmail ? {} : { email }),
+      ...(phone && (!byPhone || byPhone.id === existing.id) ? { phone } : {}),
+    },
+  });
+}
+
 async function main() {
   // ── Users ────────────────────────────────────────────────────────────────
-  const admin = await upsertUser({
-    email: process.env.SEED_ADMIN_EMAIL ?? "admin@example.com",
-    phone: process.env.SEED_ADMIN_PHONE ?? "+998900000001",
-    name: "Administrator",
-    roles: ["ADMIN", "EDITOR"],
-  });
+  const admin = await upsertAdmin(
+    (process.env.SEED_ADMIN_EMAIL || "admin@example.com").trim().toLowerCase(),
+    process.env.SEED_ADMIN_PHONE === undefined
+      ? "+998900000001"
+      : process.env.SEED_ADMIN_PHONE.trim() || null,
+  );
   // ── Categories ───────────────────────────────────────────────────────────
   const categoryIds = new Map<string, string>();
   for (const [order, c] of categories.entries()) {
