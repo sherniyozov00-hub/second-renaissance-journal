@@ -7,6 +7,9 @@ export default defineConfig([
   ...nextTs,
   globalIgnores([
     ".tmp/**",
+    // Bundled server scripts (npm run build:tools), generated.
+    ".docker/**",
+    ".preview/**",
     ".next/**",
     "out/**",
     "build/**",
