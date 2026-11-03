@@ -48,10 +48,10 @@ export const SETTINGS: readonly SettingDefinition[] = [
     description: "Fast-track review surcharge",
   },
   {
-    key: "pricing.aiPackage",
+    key: "pricing.premium",
     group: "pricing",
-    defaultValue: "[NARX]",
-    description: "Price of an extra Xorazmiy AI package (TZ 10.4 “Limitni oshirish”)",
+    defaultValue: 39990,
+    description: "Xorazmiy AI Premium for one month (UZS): writing help and fact checks",
   },
   {
     key: "pricing.refundTerms",
@@ -126,16 +126,22 @@ export const SETTINGS: readonly SettingDefinition[] = [
     description: "Max characters per guest check",
   },
   {
-    key: "ai.authorMonthlyChecks",
+    key: "ai.freeMonthlyChecks",
     group: "ai",
-    defaultValue: 10,
-    description: "Free checks per author per month",
+    defaultValue: 2,
+    description: "Free trial: AI checks per signed-in author per month without Premium",
   },
   {
-    key: "ai.packageChecks",
+    key: "ai.premiumArticles",
     group: "ai",
-    defaultValue: 20,
-    description: "Checks in one purchased AI package",
+    defaultValue: 4,
+    description: "Premium: articles (drafts) an author can work on with AI in 30 days",
+  },
+  {
+    key: "ai.premiumDays",
+    group: "ai",
+    defaultValue: 30,
+    description: "Premium: days one payment lasts",
   },
   {
     key: "ai.authorMaxChars",

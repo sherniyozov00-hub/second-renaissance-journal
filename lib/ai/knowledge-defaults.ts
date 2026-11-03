@@ -62,7 +62,7 @@ export const KNOWLEDGE_DEFAULTS: KnowledgeSeed[] = [
     kind: "STYLE",
     articleType: null,
     title: "Fakt tekshiruvi usuli",
-    body: `- Tekshiriladigan da’vo — dunyoda tekshirsa bo‘ladigan aniq gap: raqam, foiz, sana, ism, joy, birinchi/eng katta kabi tavsif, sabab-oqibat bog‘lanishi, boshqa muallifga havola qilingan natija.
+    body: `- Faqat RAQAMLI ma’lumotlar tekshiriladi: son, foiz, miqdor, o‘lchov, yil yoki sana bilan berilgan va dunyoda tekshirsa bo‘ladigan gap (statistika, tarixiy sana, boshqa muallifga havola qilingan raqamli natija). Raqamsiz gaplar tekshirilmaydi.
 - Tekshirilmaydi: muallifning o‘z tajribasi natijalari (“bizning tajribamizda hosil 12 % oshdi”), maqsad va reja gaplari, ta’riflar, fikr va baholar.
 - Har bir da’vo uchun kamida ikki xil qidiruv: o‘zbekcha/ruscha va inglizcha. Rasmiy statistika (stat.uz, FAO, World Bank), ilmiy maqolalar va xalqaro tashkilotlar ommaviy saytlardan ustun.
 - “To‘g‘ri” — ishonchli manba da’voni tasdiqlaydi. “Noto‘g‘ri” — ishonchli manba boshqacha ma’lumot beradi; to‘g‘ri ma’lumotni va uning manbasini ko‘rsat. “Manba kerak” — topilmadi, manbalar bir-biriga zid yoki da’vo juda umumiy.

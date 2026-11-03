@@ -67,7 +67,14 @@ export type FactEvent =
   | { type: "error"; code: AiErrorCode };
 
 export type AiErrorCode =
-  "quota" | "too_long" | "empty" | "rate_limit" | "unavailable" | "refused" | "forbidden";
+  | "quota"
+  | "premium_limit"
+  | "too_long"
+  | "empty"
+  | "rate_limit"
+  | "unavailable"
+  | "refused"
+  | "forbidden";
 
 export const EditsSchema = z.object({
   edits: z

@@ -81,7 +81,7 @@ async function extractClaims(
       effort: "low",
       maxTokens: 4000,
       schema: ClaimsSchema,
-      prompt: `Vazifa: quyidagi xatboshilardan internet orqali tekshirsa bo‘ladigan da’volarni ajrat (bilim bazasidagi “Fakt tekshiruvi usuli”ga qara).
+      prompt: `Vazifa: quyidagi xatboshilardan RAQAMLI da’volarni ajrat — son, foiz, miqdor, yil yoki sana bilan berilgan va internet orqali tekshirsa bo‘ladigan ma’lumotlar (bilim bazasidagi “Fakt tekshiruvi usuli”ga qara). Raqamsiz da’volarni ajratma.
 Har da’vo uchun "text" — xatboshidan AYNAN ko‘chirilgan qism (so‘zma-so‘z, 3–25 so‘z), boshida xatboshi raqamini [n] qo‘sh: "[2] Tomchilatib sug‘orish 2010-yilda ixtiro qilingan".
 Muallifning o‘z tajribasi natijalari, maqsad, ta’rif va fikrlarni ajratma. Da’vo bo‘lmasa — bo‘sh ro‘yxat.
 
@@ -94,7 +94,13 @@ ${wrapText(chunk.map((c) => `[${c.index}] ${c.text}`).join("\n"))}`,
       const index = m ? Number(m[1]) : chunk.length === 1 ? chunk[0]!.index : NaN;
       const item = items.find((x) => x.index === index);
       const located = item ? locateInParagraph(item.text, m ? m[2]! : c.text) : null;
-      if (item && located && !claims.some((x) => x.paragraph === index && x.text === located)) {
+      // Only numeric data is checked (amounts, percentages, years, dates).
+      if (
+        item &&
+        located &&
+        /\d/.test(located) &&
+        !claims.some((x) => x.paragraph === index && x.text === located)
+      ) {
         claims.push({ id: `p${index}c${claims.length}`, paragraph: index, text: located });
       }
     }

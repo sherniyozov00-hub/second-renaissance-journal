@@ -179,7 +179,11 @@ export async function runToolAction(draftId: string, req: ToolRequest): Promise<
 
   let refund: (() => Promise<void>) | null = null;
   if (COUNTED.has(req.tool)) {
-    const taken = await consumeCheck(actor, { chars: size, paidArticleId: draft.articleId });
+    const taken = await consumeCheck(actor, {
+      chars: size,
+      paidArticleId: draft.articleId,
+      workKey: draft.articleId ? `article:${draft.articleId}` : `draft:${draft.id}`,
+    });
     if (!taken.ok) return { tool: req.tool, error: taken.code };
     refund = taken.refund;
   } else {

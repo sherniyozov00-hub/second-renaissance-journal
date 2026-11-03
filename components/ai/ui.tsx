@@ -4,6 +4,7 @@ import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { AiErrorCode, FactEvent, FactSummary } from "@/lib/ai/schemas";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 /** TZ 10.2: under every AI answer. */
@@ -23,9 +24,18 @@ export function MockNote() {
 
 export function AiErrorNote({ code }: { code: AiErrorCode }) {
   const t = useTranslations("ai");
+  const premium = code === "quota" || code === "premium_limit";
   return (
     <p role="alert" className="rounded-control bg-danger-bg px-3 py-2 text-sm text-danger">
       {t(`error_${code}`)}
+      {premium ? (
+        <>
+          {" "}
+          <Link href="/kabinet/ai-paket" className="font-semibold underline">
+            {t("premiumLink")}
+          </Link>
+        </>
+      ) : null}
     </p>
   );
 }

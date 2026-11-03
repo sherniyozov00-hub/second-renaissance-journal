@@ -13,7 +13,7 @@ import { analyzeManuscript, countWords, extractDocx } from "@/lib/submission/doc
 import { originality, type OriginalityReport } from "@/lib/submission/originality";
 
 /**
- * Muharrir yordamchisi (editor's assistant): when a manuscript reaches review
+ * Xorazmiy AI for the editor (one AI for the whole journal): when a manuscript reaches review
  * (paid, or resubmitted after a revision), it checks it against the journal's
  * requirements, compares it with published articles, ranks reviewers and —
  * when the Claude API is connected — writes a short assessment. The result is
@@ -301,7 +301,7 @@ export async function editorBriefJob(articleId: string) {
   });
   const url = `${siteConfig.url.replace(/\/$/, "")}/admin/maqolalar/${article.id}`;
   const no = `#${String(article.number).padStart(4, "0")}`;
-  const subject = `Muharrir yordamchisi: ${no} — ${brief.warnings ? `${brief.warnings} ta ogohlantirish` : "talablarga mos"}`;
+  const subject = `Xorazmiy AI: ${no} — ${brief.warnings ? `${brief.warnings} ta ogohlantirish` : "talablarga mos"}`;
   const lines = [
     `«${article.titleUz}» (v${brief.version}, ${brief.words} so‘z) taqrizga tushdi.`,
     `Originallik: ${brief.originality.originality}%.`,

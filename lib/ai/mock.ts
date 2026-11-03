@@ -28,14 +28,13 @@ type DemoFact = {
 
 const DEMO_FACTS: DemoFact[] = [
   {
-    match: /paxta o‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri/i,
+    match: /o‘zbekiston 1991-yilda mustaqillikka erishgan/i,
     verdict: "correct",
-    explanation:
-      "Paxta O‘zbekistonning asosiy eksport ekinlaridan biri sifatida keng qayd etilgan.",
+    explanation: "O‘zbekiston 1991-yil 31-avgustda mustaqilligini e’lon qilgan.",
     sources: [
       {
-        title: "Agriculture in Uzbekistan",
-        url: "https://en.wikipedia.org/wiki/Agriculture_in_Uzbekistan",
+        title: "Uzbekistan",
+        url: "https://en.wikipedia.org/wiki/Uzbekistan",
         publisher: "Wikipedia",
         year: null,
       },
@@ -58,7 +57,8 @@ const DEMO_FACTS: DemoFact[] = [
   },
 ];
 
-const CHECKABLE = /\d|birinchi|eng katta|eng ko‘p|asosiy|ixtiro|kashf|sababli|tufayli/i;
+/** Only statements with numbers are checked: amounts, percentages, years, dates. */
+const CHECKABLE = /\d/;
 
 export function mockClaims(paragraph: string): { text: string }[] {
   const out: { text: string }[] = [];

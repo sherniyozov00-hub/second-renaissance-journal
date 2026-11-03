@@ -144,8 +144,8 @@
     "name": "Xorazmiy AI",
     "subtitle": "ilmiy yordamchi",
     "badge": "Fakt tekshiruvi",
-    "sampleCorrect": "Paxta O‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri.",
-    "sampleCorrectShort": "Paxta asosiy ekinlardan biri.",
+    "sampleCorrect": "O‘zbekiston 1991-yilda mustaqillikka erishgan.",
+    "sampleCorrectShort": "1991-yilda mustaqil bo‘lgan.",
     "sampleWrong": "Tomchilatib sug‘orish 2010-yilda ixtiro qilingan.",
     "sampleNeedsSource": "Bu usul suvni 70% tejaydi.",
     "correct": "To‘g‘ri.",
@@ -374,7 +374,7 @@
     "lessons": "Akademiya: mening darslarim",
     "profile": "Profil sozlamalari",
     "publicProfile": "Ommaviy profil:",
-    "aiLimit": "Xorazmiy AI limiti",
+    "aiLimit": "Xorazmiy AI — bepul sinov",
     "aiLeft": "{count} ta tekshiruv qoldi",
     "aiRaise": "Limitni oshirish",
     "noArticles": "Hali maqolangiz yo‘q. Birinchi maqolangizni yuboring yoki Akademiyadan boshlang.",
@@ -440,14 +440,21 @@
       "orcid": "ORCID noto‘g‘ri formatda."
     },
     "writing": "Xorazmiy AI bilan yozish",
-    "aiPackageTitle": "Xorazmiy AI limitini oshirish",
-    "aiPackageLead": "Har oy {monthly} ta tekshiruv bepul. Qo‘shimcha paket muddatsiz amal qiladi va bepul tekshiruvlar tugagach ishlatiladi. Nashr uchun to‘langan maqolaning AI tekshiruvlari limitdan hisoblanmaydi.",
-    "aiPackageLeft": "Shu oy qolgan bepul tekshiruvlar: {count}",
-    "aiCredits": "Sotib olingan tekshiruvlar: {count}",
-    "aiPackageOffer": "{checks} ta tekshiruv",
-    "aiPackageBuy": "To‘lash",
-    "aiPackagePaid": "To‘lov qabul qilindi — tekshiruvlar qo‘shildi.",
-    "aiPackageNoPrice": "Paket narxi hali belgilanmagan. Tahririyat bilan bog‘laning."
+    "aiPackageTitle": "Xorazmiy AI Premium",
+    "aiPackageLead": "Tayyor maqolani topshirish bepul. Xorazmiy AI bilan yozish, tahrir va raqamli ma’lumotlarni tekshirish — Premium bilan: oyiga {articles} ta maqola uchun. Bepul sinov: oyiga {monthly} ta tekshiruv.",
+    "aiPackageLeft": "Bepul sinov: shu oy {count} ta tekshiruv qoldi",
+    "aiCredits": "Avval sotib olingan tekshiruvlar: {count}",
+    "aiPackageOffer": "Premium — 1 oy",
+    "aiPackageBuy": "Premium olish",
+    "aiPackagePaid": "To‘lov qabul qilindi — Premium faollashdi.",
+    "aiPackageNoPrice": "Premium narxi belgilanmagan. Tahririyat bilan bog‘laning.",
+    "premiumActive": "Premium {date} gacha",
+    "premiumWorksLeft": "yana {count} ta maqola",
+    "premiumGet": "Premium olish",
+    "premiumManage": "Premium",
+    "aiPackageFeatures": "Yozishga yordam, reja va tahrir variantlari|Raqamli ma’lumotlarni internetdan tekshirish va manba|Xalqaro manbalar, iqtiboslar, tarjima|Oyiga {articles} ta maqola",
+    "premiumStatus": "Premium faol: {date} gacha. 30 kun ichida {used} / {limit} ta maqola ishlatildi.",
+    "premiumExtend": "Yana 1 oyga uzaytirish"
   },
   "certificate": {
     "title": "Sertifikat {id}",
@@ -584,7 +591,7 @@
     "sandboxCancel": "Bekor qilish",
     "paidBanner": "To‘lov qabul qilindi. Maqolangiz taqrizga yuborildi.",
     "articleLabel": "Maqola",
-    "aiPackageLabel": "Xorazmiy AI paketi"
+    "aiPackageLabel": "Xorazmiy AI Premium (1 oy)"
   },
   "ai": {
     "name": "Xorazmiy AI",
@@ -723,7 +730,7 @@
     "helpful": "Foydali",
     "notHelpful": "Foydasiz",
     "thanks": "Rahmat!",
-    "error_quota": "AI limiti tugadi. Kabinetdan limitni oshiring.",
+    "error_quota": "Bepul sinov tugadi. Xorazmiy AI bilan ishlash uchun Premium oling.",
     "error_too_long": "Matn juda uzun.",
     "error_empty": "Avval matn yozing.",
     "error_rate_limit": "Juda ko‘p so‘rov — bir daqiqadan keyin urinib ko‘ring.",
@@ -732,7 +739,7 @@
     "error_forbidden": "Ruxsat yo‘q.",
     "trialTitle": "Bepul sinab ko‘ring",
     "trialLead": "Matningizdan bir xatboshini qo‘ying (1 500 belgigacha) — Xorazmiy AI undagi faktlarni internetdan tekshiradi. Kuniga {count} ta bepul sinov.",
-    "trialPlaceholder": "Masalan: Paxta O‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri hisoblanadi. Tomchilatib sug‘orish 2010-yilda ixtiro qilingan.",
+    "trialPlaceholder": "Masalan: O‘zbekiston 1991-yilda mustaqillikka erishgan. Tomchilatib sug‘orish 2010-yilda ixtiro qilingan.",
     "trialRun": "Faktlarni tekshirish",
     "trialMore": "To‘liq ish maydoni — ro‘yxatdan o‘ting",
     "chars": "{count} / {max} belgi",
@@ -753,7 +760,9 @@
     "variants": "Variantlar — birini tanlang",
     "variantDelete": "(olib tashlash)",
     "kind_meaning": "ma’no",
-    "kind_logic": "mantiq"
+    "kind_logic": "mantiq",
+    "error_premium_limit": "Premium’dagi oylik maqolalar soni to‘ldi. Yangi maqola uchun keyingi oyni kuting yoki Premium’ni uzaytiring.",
+    "premiumLink": "Premium →"
   },
   "ranking": {
     "title": "OTMlar reytingi",
@@ -920,7 +929,7 @@
       "reject": "Rad etish",
       "rejectReason": "Sabab (muallifga yuboriladi)",
       "rejectButton": "Rad etish",
-      "res_tahlil": "Muharrir yordamchisi tahlilni yangiladi."
+      "res_tahlil": "Xorazmiy AI tahlilni yangiladi."
     },
     "issues": {
       "title": "Jurnal sonlari",
@@ -966,7 +975,6 @@
       "contacts_telegramChannel": "Telegram kanal",
       "pricing_publication": "Nashr narxi: taqriz, AI tekshiruvi, PDF va sertifikat",
       "pricing_fastTrack": "Tezlashtirilgan taqriz qo‘shimcha narxi",
-      "pricing_aiPackage": "Qo‘shimcha Xorazmiy AI paketi narxi",
       "pricing_refundTerms": "Rad etilganda va ofertada ko‘rsatiladigan qaytarish shartlari",
       "payments_mode": "Rejim: sandbox | live",
       "payments_mxikCode": "Fiskal chek uchun MXIK (IKPU) kodi",
@@ -978,15 +986,17 @@
       "requirements_minOriginalityPercent": "Minimal originallik, %",
       "ai_guestDailyChecks": "Mehmon uchun kunlik bepul tekshiruvlar (IP + qurilma)",
       "ai_guestMaxChars": "Mehmon tekshiruvidagi belgilar chegarasi",
-      "ai_authorMonthlyChecks": "Muallif uchun oylik bepul tekshiruvlar",
-      "ai_packageChecks": "Sotib olinadigan paketdagi tekshiruvlar soni",
       "ai_authorMaxChars": "Muallif bitta AI so‘rovida yuboradigan belgilar chegarasi",
       "ai_maxClaimsPerCheck": "Bitta fakt tekshiruvida internetda tekshiriladigan da’volar chegarasi (xarajat nazorati)",
       "ai_requestsPerMinute": "Rate limit: foydalanuvchi (yoki mehmon) uchun daqiqasiga AI so‘rovlari",
       "ai_model": "Barcha Xorazmiy AI funksiyalari uchun Claude modeli",
       "telegram_botName": "Telegram-bot nomi (username)",
       "seo_googleVerification": "Google Search Console tasdiqlash kodi",
-      "seo_bingVerification": "Bing Webmaster tasdiqlash kodi"
+      "seo_bingVerification": "Bing Webmaster tasdiqlash kodi",
+      "pricing_premium": "Xorazmiy AI Premium narxi (1 oy), so‘m",
+      "ai_freeMonthlyChecks": "Bepul sinov: Premium’siz muallifga oyiga AI tekshiruvlari",
+      "ai_premiumArticles": "Premium: 30 kunda AI bilan ishlanadigan maqolalar soni",
+      "ai_premiumDays": "Premium: bir to‘lov necha kun amal qiladi"
     },
     "people": {
       "authorsTitle": "Mualliflar",
@@ -1021,7 +1031,7 @@
       "colAmount": "Summa",
       "colStatus": "Holat",
       "colRefund": "Qaytarish",
-      "aiPackage": "AI paketi",
+      "aiPackage": "Premium",
       "reason": "Sabab",
       "refundReason": "Qaytarish sababi",
       "refund": "Qaytarish",
@@ -1218,7 +1228,7 @@
       "ph_ANTHROPIC_API_KEY": "sk-ant-…"
     },
     "brief": {
-      "title": "Muharrir yordamchisi",
+      "title": "Xorazmiy AI — muharrir uchun xulosa",
       "run": "Tahlil qilish",
       "rerun": "Qayta tahlil",
       "empty": "Hali tahlil qilinmagan. Maqola taqrizga tushganda yordamchi o‘zi ko‘rib chiqadi; hozir boshlash uchun “Tahlil qilish”ni bosing.",
@@ -1253,7 +1263,7 @@
       "reviewerStats": "shu yo‘nalishda {inCategory} ta taqriz, hozir {open} ta ochiq",
       "conflict": "manfaatlar to‘qnashuvi ehtimoli (bir muassasa)",
       "noReviewers": "Taqrizchi yo‘q: foydalanuvchilarga REVIEWER rolini bering.",
-      "disclaimer": "Yordamchi faqat maslahat beradi; qarorni muharrir qabul qiladi.",
+      "disclaimer": "Xorazmiy AI faqat maslahat beradi; qarorni muharrir qabul qiladi.",
       "sec_introduction": "Kirish",
       "sec_discussion": "Muhokama",
       "sec_references": "Adabiyotlar"

@@ -144,8 +144,8 @@
     "name": "Xorazmiy AI",
     "subtitle": "научный помощник",
     "badge": "Проверка фактов",
-    "sampleCorrect": "Paxta O‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri.",
-    "sampleCorrectShort": "Paxta asosiy ekinlardan biri.",
+    "sampleCorrect": "O‘zbekiston 1991-yilda mustaqillikka erishgan.",
+    "sampleCorrectShort": "1991-yilda mustaqil bo‘lgan.",
     "sampleWrong": "Tomchilatib sug‘orish 2010-yilda ixtiro qilingan.",
     "sampleNeedsSource": "Bu usul suvni 70% tejaydi.",
     "correct": "Верно.",
@@ -374,8 +374,8 @@
     "lessons": "Академия: мои уроки",
     "profile": "Настройки профиля",
     "publicProfile": "Публичный профиль:",
-    "aiLimit": "Лимит Xorazmiy AI",
-    "aiLeft": "Осталось проверок: {count}",
+    "aiLimit": "Xorazmiy AI — бесплатная проба",
+    "aiLeft": "осталось проверок: {count}",
     "aiRaise": "Увеличить лимит",
     "noArticles": "У вас пока нет статей. Отправьте первую или начните с Академии.",
     "steps": {
@@ -440,14 +440,21 @@
       "orcid": "Неверный формат ORCID."
     },
     "writing": "Писать с Xorazmiy AI",
-    "aiPackageTitle": "Увеличить лимит Xorazmiy AI",
-    "aiPackageLead": "Каждый месяц {monthly} проверок бесплатно. Дополнительный пакет бессрочный и используется после бесплатных проверок. Проверки ИИ для статьи с оплаченной публикацией не расходуют лимит.",
-    "aiPackageLeft": "Осталось бесплатных проверок в этом месяце: {count}",
-    "aiCredits": "Купленные проверки: {count}",
-    "aiPackageOffer": "{checks} проверок",
-    "aiPackageBuy": "Оплатить",
-    "aiPackagePaid": "Оплата получена — проверки добавлены.",
-    "aiPackageNoPrice": "Цена пакета ещё не установлена. Свяжитесь с редакцией."
+    "aiPackageTitle": "Xorazmiy AI Premium",
+    "aiPackageLead": "Подать готовую статью — бесплатно. Писать, редактировать и проверять числовые данные с Xorazmiy AI — с Premium: {articles} статьи в месяц. Бесплатная проба: {monthly} проверки в месяц.",
+    "aiPackageLeft": "Бесплатная проба: в этом месяце осталось {count}",
+    "aiCredits": "Ранее купленные проверки: {count}",
+    "aiPackageOffer": "Premium — 1 месяц",
+    "aiPackageBuy": "Получить Premium",
+    "aiPackagePaid": "Оплата получена — Premium активирован.",
+    "aiPackageNoPrice": "Цена Premium не задана. Свяжитесь с редакцией.",
+    "premiumActive": "Premium до {date}",
+    "premiumWorksLeft": "ещё статей: {count}",
+    "premiumGet": "Получить Premium",
+    "premiumManage": "Premium",
+    "aiPackageFeatures": "Помощь в написании, план и варианты правок|Проверка числовых данных в интернете с источниками|Международные источники, цитирование, перевод|{articles} статьи в месяц",
+    "premiumStatus": "Premium активен до {date}. За 30 дней использовано статей: {used} / {limit}.",
+    "premiumExtend": "Продлить ещё на 1 месяц"
   },
   "certificate": {
     "title": "Сертификат {id}",
@@ -584,7 +591,7 @@
     "sandboxCancel": "Отменить",
     "paidBanner": "Оплата получена. Статья отправлена на рецензию.",
     "articleLabel": "Статья",
-    "aiPackageLabel": "Пакет Xorazmiy AI"
+    "aiPackageLabel": "Xorazmiy AI Premium (1 месяц)"
   },
   "ai": {
     "name": "Xorazmiy AI",
@@ -723,7 +730,7 @@
     "helpful": "Полезно",
     "notHelpful": "Бесполезно",
     "thanks": "Спасибо!",
-    "error_quota": "Лимит ИИ исчерпан. Увеличьте его в кабинете.",
+    "error_quota": "Бесплатная проба закончилась. Чтобы работать с Xorazmiy AI, оформите Premium.",
     "error_too_long": "Текст слишком длинный.",
     "error_empty": "Сначала напишите текст.",
     "error_rate_limit": "Слишком много запросов — попробуйте через минуту.",
@@ -732,7 +739,7 @@
     "error_forbidden": "Нет доступа.",
     "trialTitle": "Попробуйте бесплатно",
     "trialLead": "Вставьте один абзац текста (до 1 500 символов) — Xorazmiy AI проверит факты в интернете. Бесплатных проверок в день: {count}.",
-    "trialPlaceholder": "Например: Хлопок — одна из основных сельскохозяйственных культур Узбекистана. Капельное орошение изобрели в 2010 году.",
+    "trialPlaceholder": "Например: Узбекистан обрёл независимость в 1991 году. Капельное орошение изобрели в 2010 году.",
     "trialRun": "Проверить факты",
     "trialMore": "Полное рабочее пространство — зарегистрируйтесь",
     "chars": "{count} / {max} символов",
@@ -753,7 +760,9 @@
     "variants": "Варианты — выберите один",
     "variantDelete": "(удалить)",
     "kind_meaning": "смысл",
-    "kind_logic": "логика"
+    "kind_logic": "логика",
+    "error_premium_limit": "Лимит статей Premium на месяц исчерпан. Дождитесь следующего месяца или продлите Premium.",
+    "premiumLink": "Premium →"
   },
   "ranking": {
     "title": "Рейтинг вузов",
@@ -920,7 +929,7 @@
       "reject": "Отклонение",
       "rejectReason": "Причина (будет отправлена автору)",
       "rejectButton": "Отклонить",
-      "res_tahlil": "Помощник редактора обновил анализ."
+      "res_tahlil": "Xorazmiy AI обновил анализ."
     },
     "issues": {
       "title": "Выпуски журнала",
@@ -966,7 +975,6 @@
       "contacts_telegramChannel": "Telegram-канал",
       "pricing_publication": "Стоимость публикации: рецензия, проверка ИИ, PDF и сертификат",
       "pricing_fastTrack": "Доплата за ускоренную рецензию",
-      "pricing_aiPackage": "Цена дополнительного пакета Xorazmiy AI",
       "pricing_refundTerms": "Условия возврата (при отклонении и в оферте)",
       "payments_mode": "Режим: sandbox | live",
       "payments_mxikCode": "Код MXIK (ИКПУ) для фискального чека",
@@ -978,15 +986,17 @@
       "requirements_minOriginalityPercent": "Минимальная оригинальность, %",
       "ai_guestDailyChecks": "Бесплатные проверки для гостя в день (IP + устройство)",
       "ai_guestMaxChars": "Лимит символов в проверке гостя",
-      "ai_authorMonthlyChecks": "Бесплатные проверки автора в месяц",
-      "ai_packageChecks": "Число проверок в покупаемом пакете",
       "ai_authorMaxChars": "Лимит символов в одном запросе автора к ИИ",
       "ai_maxClaimsPerCheck": "Лимит утверждений, проверяемых в интернете за одну проверку (контроль расходов)",
       "ai_requestsPerMinute": "Rate limit: запросов к ИИ в минуту на пользователя (или гостя)",
       "ai_model": "Модель Claude для всех функций Xorazmiy AI",
       "telegram_botName": "Имя Telegram-бота (username)",
       "seo_googleVerification": "Код подтверждения Google Search Console",
-      "seo_bingVerification": "Код подтверждения Bing Webmaster"
+      "seo_bingVerification": "Код подтверждения Bing Webmaster",
+      "pricing_premium": "Цена Xorazmiy AI Premium (1 месяц), сум",
+      "ai_freeMonthlyChecks": "Бесплатная проба: проверок ИИ в месяц без Premium",
+      "ai_premiumArticles": "Premium: статей с ИИ за 30 дней",
+      "ai_premiumDays": "Premium: сколько дней действует одна оплата"
     },
     "people": {
       "authorsTitle": "Авторы",
@@ -1021,7 +1031,7 @@
       "colAmount": "Сумма",
       "colStatus": "Статус",
       "colRefund": "Возврат",
-      "aiPackage": "Пакет ИИ",
+      "aiPackage": "Premium",
       "reason": "Причина",
       "refundReason": "Причина возврата",
       "refund": "Вернуть",
@@ -1218,7 +1228,7 @@
       "ph_ANTHROPIC_API_KEY": "sk-ant-…"
     },
     "brief": {
-      "title": "Помощник редактора",
+      "title": "Xorazmiy AI — заключение для редактора",
       "run": "Проанализировать",
       "rerun": "Повторить анализ",
       "empty": "Анализа ещё нет. Когда статья попадёт на рецензию, помощник проверит её сам; чтобы начать сейчас, нажмите «Проанализировать».",
@@ -1253,7 +1263,7 @@
       "reviewerStats": "рецензий в этом направлении: {inCategory}, открытых: {open}",
       "conflict": "возможен конфликт интересов (одна организация)",
       "noReviewers": "Рецензентов нет: назначьте пользователям роль REVIEWER.",
-      "disclaimer": "Помощник только советует; решение принимает редактор.",
+      "disclaimer": "Xorazmiy AI только советует; решение принимает редактор.",
       "sec_introduction": "Введение",
       "sec_discussion": "Обсуждение",
       "sec_references": "Литература"

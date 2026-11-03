@@ -20,7 +20,7 @@ export async function generateMetadata({
   return { title: t("aiPackageTitle"), robots: { index: false, follow: false } };
 }
 
-/** Extra Xorazmiy AI checks (TZ 10.4, Ekran 7 “Limitni oshirish”). */
+/** Xorazmiy AI Premium: one month of writing help and fact checks (4 articles). */
 export default async function AiPackagePage({
   params,
   searchParams,
@@ -39,26 +39,38 @@ export default async function AiPackagePage({
     aiPackagePrice(),
     getSettings(),
   ]);
-  const monthly = user.aiQuota ?? (Number(settings["ai.authorMonthlyChecks"]) || 0);
-  const checks = Number(settings["ai.packageChecks"]) || 20;
+  const monthly = user.aiQuota ?? (Number(settings["ai.freeMonthlyChecks"]) || 0);
+  const articles = quota.premiumArticles;
 
   return (
     <>
       <h1 className="text-[28px] leading-tight md:text-section">{t("aiPackageTitle")}</h1>
-      <p className="mt-2 max-w-[640px] text-text-2">{t("aiPackageLead", { monthly })}</p>
+      <p className="mt-2 max-w-[640px] text-text-2">{t("aiPackageLead", { monthly, articles })}</p>
       {tolandi ? (
         <p role="status" className="mt-4 rounded-card bg-success-bg px-4 py-3 text-success">
           {t("aiPackagePaid")}
         </p>
       ) : null}
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <p className="rounded-card border border-border bg-white p-4">
-          {t("aiPackageLeft", { count: quota.left - quota.credits })}
+      {quota.premiumUntil ? (
+        <p className="mt-5 rounded-card border border-gold bg-white p-4 font-semibold text-ink">
+          {t("premiumStatus", {
+            date: quota.premiumUntil.slice(0, 10),
+            used: quota.premiumWorks,
+            limit: articles,
+          })}
         </p>
-        <p className="rounded-card border border-border bg-white p-4">
-          {t("aiCredits", { count: quota.credits })}
-        </p>
-      </div>
+      ) : (
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <p className="rounded-card border border-border bg-white p-4">
+            {t("aiPackageLeft", { count: Math.max(0, quota.left - quota.credits) })}
+          </p>
+          {quota.credits ? (
+            <p className="rounded-card border border-border bg-white p-4">
+              {t("aiCredits", { count: quota.credits })}
+            </p>
+          ) : null}
+        </div>
+      )}
       {price === null ? (
         <p className="mt-5 rounded-card border border-border bg-white p-5 text-text-2">
           {t("aiPackageNoPrice")}
@@ -68,12 +80,17 @@ export default async function AiPackagePage({
           action={buyAiPackageAction}
           className="mt-5 max-w-[520px] rounded-card border border-border bg-white p-5"
         >
-          <p className="font-serif text-2xl font-bold text-ink">
-            {t("aiPackageOffer", { checks })}
-          </p>
+          <p className="font-serif text-2xl font-bold text-ink">{t("aiPackageOffer")}</p>
           <p className="mt-1 text-lg text-blue-800">
             {formatNumber(price, locale as AppLocale)} so‘m
           </p>
+          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-text-2">
+            {t("aiPackageFeatures", { articles })
+              .split("|")
+              .map((f) => (
+                <li key={f}>{f}</li>
+              ))}
+          </ul>
           <fieldset className="mt-4">
             <legend className="text-sm font-semibold">{t("method")}</legend>
             <div className="mt-2 grid grid-cols-2 gap-2">
@@ -89,7 +106,7 @@ export default async function AiPackagePage({
             </div>
           </fieldset>
           <button type="submit" className={buttonClass("primary", "lg", "mt-5 w-full")}>
-            {t("aiPackageBuy")}
+            {quota.premiumUntil ? t("premiumExtend") : t("aiPackageBuy")}
           </button>
         </form>
       )}

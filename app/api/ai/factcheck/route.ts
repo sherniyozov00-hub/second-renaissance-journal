@@ -105,7 +105,12 @@ export async function POST(req: Request) {
 
   text = text.trim();
   if (!text) return fail("empty", 400);
-  const taken = await consumeCheck(actor, { chars: text.length, paidArticleId });
+  const workKey = paidArticleId
+    ? `article:${paidArticleId}`
+    : ctx.draftId
+      ? `draft:${ctx.draftId}`
+      : null;
+  const taken = await consumeCheck(actor, { chars: text.length, paidArticleId, workKey });
   if (!taken.ok) return fail(taken.code, taken.code === "rate_limit" ? 429 : 403);
 
   const encoder = new TextEncoder();

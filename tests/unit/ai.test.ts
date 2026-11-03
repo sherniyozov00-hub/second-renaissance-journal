@@ -346,10 +346,10 @@ describe("workspace document", () => {
 describe("offline mock (no API key)", () => {
   it("finds the claims of Ekran 3 and never invents an incorrect verdict without a source", () => {
     const para =
-      "Paxta O‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri hisoblanadi. Tomchilatib sug‘orish 2010-yilda ixtiro qilingan va bugun ko‘plab mamlakatlarda qo‘llaniladi. Tadqiqotlarga ko‘ra, bu usul suvni 70% gacha tejaydi.";
+      "O‘zbekiston 1991-yilda mustaqillikka erishgan. Tomchilatib sug‘orish 2010-yilda ixtiro qilingan va bugun ko‘plab mamlakatlarda qo‘llaniladi. Tadqiqotlarga ko‘ra, bu usul suvni 70% gacha tejaydi.";
     const claims = mockClaims(para).map((c) => c.text);
     expect(claims).toEqual([
-      "Paxta O‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri",
+      "O‘zbekiston 1991-yilda mustaqillikka erishgan",
       "Tomchilatib sug‘orish 2010-yilda ixtiro qilingan",
       "bu usul suvni 70% gacha tejaydi",
     ]);
