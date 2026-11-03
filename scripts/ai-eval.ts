@@ -16,13 +16,14 @@ import type { FactResult } from "@/lib/ai/schemas";
 import { db } from "@/lib/db";
 import { EDIT_CASES, FACT_CASES, PLAN_CASES } from "../tests/ai-eval/cases";
 
-const live = aiMode() === "live";
+let live = false;
 const rows: { suite: string; name: string; score: number; total: number; notes: string[] }[] = [];
 let spend = NO_SPEND;
 
 const digits = (s: string) => (s.match(/\d+/g) ?? []).join(",");
 
 async function main() {
+  live = (await aiMode()) === "live";
   console.log(`Xorazmiy AI eval — ${live ? "live (Claude API)" : "mock"}\n`);
 
   for (const c of FACT_CASES.filter((x) => live || !x.liveOnly)) {

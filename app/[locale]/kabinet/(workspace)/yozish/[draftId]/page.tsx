@@ -35,7 +35,7 @@ export default async function WorkspacePage({ params }: Props) {
       }}
       initialFacts={last.facts}
       initialEdits={last.edits}
-      mock={aiMode() === "mock"}
+      mock={(await aiMode()) === "mock"}
     />
   );
 }
