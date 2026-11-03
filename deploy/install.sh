@@ -143,31 +143,8 @@ JSON
   fi
   docker image prune -f >/dev/null 2>&1 || true
 
-  # ── 7. Auto-deploy: every 5 minutes, take the version CI has published ────
-  cat >/etc/systemd/system/journal-update.service <<UNIT
-[Unit]
-Description=Journal auto-deploy (new image from GitHub Actions)
-After=docker.service network-online.target
-Requires=docker.service
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/bash $DIR/deploy/auto-update.sh
-UNIT
-  cat >/etc/systemd/system/journal-update.timer <<'UNIT'
-[Unit]
-Description=Check for a new journal version every 5 minutes
-
-[Timer]
-OnBootSec=2min
-OnUnitActiveSec=5min
-RandomizedDelaySec=30s
-
-[Install]
-WantedBy=timers.target
-UNIT
-  systemctl daemon-reload
-  systemctl enable --now journal-update.timer >/dev/null 2>&1
+  # ── 7. Timers: auto-deploy every 5 minutes, backup every night ──────────
+  bash "$DIR/deploy/ensure-units.sh" "$DIR"
 
   cat <<EOF
 
@@ -183,6 +160,8 @@ Email xizmati ulanmaguncha kirish kodini serverda shu buyruq ko‘rsatadi:
 Disk: $(df -h / | awk 'NR==2{print $3" band, "$4" bo‘sh"}')
 Avtodeploy yoqilgan: GitHub’dagi har bir yangi versiya 5 daqiqa ichida o‘zi o‘rnatiladi.
   Jurnal: journalctl -u journal-update -n 30
+Zaxira nusxa: har kecha 03:17 da (/var/backups/journal, 7 kun; baza adminga emailda ham).
+  Hozir olish: bash $DIR/scripts/backup.sh
 EOF
 }
 

@@ -27,7 +27,7 @@
     "ai:eval": "tsx --conditions=react-server scripts/ai-eval.ts",
     "test:e2e": "playwright test",
     "lighthouse": "node scripts/lighthouse.mjs",
-    "build:tools": "esbuild scripts/db-migrate.ts --bundle --platform=node --target=node22 --format=esm --external:pg-native --conditions=react-server --alias:@=. --log-level=warning \"--banner:js=import{createRequire}from'module';const require=createRequire(import.meta.url);\" --outfile=.docker/migrate.mjs && esbuild prisma/seed.ts --bundle --platform=node --target=node22 --format=esm --external:pg-native --conditions=react-server --alias:@=. --log-level=warning \"--banner:js=import{createRequire}from'module';const require=createRequire(import.meta.url);\" --outfile=.docker/seed.mjs"
+    "build:tools": "esbuild scripts/db-migrate.ts --bundle --platform=node --target=node22 --format=esm --external:pg-native --conditions=react-server --alias:@=. --log-level=warning \"--banner:js=import{createRequire}from'module';const require=createRequire(import.meta.url);\" --outfile=.docker/migrate.mjs && esbuild prisma/seed.ts --bundle --platform=node --target=node22 --format=esm --external:pg-native --conditions=react-server --alias:@=. --log-level=warning \"--banner:js=import{createRequire}from'module';const require=createRequire(import.meta.url);\" --outfile=.docker/seed.mjs && esbuild scripts/mail-backup.ts --bundle --platform=node --target=node22 --format=esm --external:pg-native --conditions=react-server --alias:@=. --log-level=warning \"--banner:js=import{createRequire}from'module';const require=createRequire(import.meta.url);\" --outfile=.docker/mail-backup.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",
