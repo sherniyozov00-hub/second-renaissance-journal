@@ -806,7 +806,8 @@
       "som": "UZS",
       "yes": "Yes",
       "no": "No",
-      "none": "—"
+      "none": "—",
+      "nav_integrations": "Integrations"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -1165,6 +1166,45 @@
       "comment": "Comment (for the editor and the author)",
       "submittedOn": "Submitted: {date}",
       "send": "Submit the review"
+    },
+    "integrations": {
+      "title": "Integrations",
+      "lead": "Keys for sending email and signing in with Google. Paste a key here — no need to log in to the server. Keys are stored encrypted and never shown again.",
+      "g_email": "Email (Resend) — sign-in codes and notifications",
+      "g_google": "Sign in with Google",
+      "steps_email": [
+        "Sign up at resend.com (free: 3,000 emails a month).",
+        "Domains → Add Domain → add {domain}. Add the DNS records it shows (MX, TXT) in your domain panel and press “Verify”.",
+        "API Keys → Create API Key (Sending access) → paste the key below.",
+        "Set “From”, e.g.: Journal <no-reply@{domain}>."
+      ],
+      "steps_google": [
+        "console.cloud.google.com → create a project.",
+        "APIs & Services → OAuth consent screen: External, app name and your email, “Publish app”.",
+        "Credentials → Create credentials → OAuth client ID → Web application.",
+        "Authorized redirect URIs: {callback}",
+        "Paste the Client ID and Client secret below."
+      ],
+      "k_RESEND_API_KEY": "Resend API key",
+      "k_EMAIL_FROM": "From",
+      "k_AUTH_GOOGLE_ID": "Google Client ID",
+      "k_AUTH_GOOGLE_SECRET": "Google Client secret",
+      "ph_RESEND_API_KEY": "re_…",
+      "ph_EMAIL_FROM": "Journal <no-reply@domain.uz>",
+      "ph_AUTH_GOOGLE_ID": "…apps.googleusercontent.com",
+      "ph_AUTH_GOOGLE_SECRET": "GOCSPX-…",
+      "ph_keep": "leave empty to keep",
+      "state_env": "set in the server .env",
+      "state_set": "saved ({hint})",
+      "state_none": "not set",
+      "clear": "Remove",
+      "test_title": "Test email",
+      "test_lead": "A test message is sent to your email.",
+      "test_button": "Send a test email",
+      "notice_yuborildi": "Test email sent — check your inbox (and Spam).",
+      "notice_ulanmagan": "Email is not connected yet: enter the Resend key first.",
+      "notice_xato": "Not sent: check the key and that the domain is verified (Resend → Domains → Verified).",
+      "notice_email_yoq": "Your account has no email."
     }
   }
 }

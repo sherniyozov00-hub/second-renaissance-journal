@@ -95,7 +95,8 @@ async function notify({ userId, event }: JobData["notify"]) {
   if (!user || user.isBlocked) return;
   const { subject, text } = renderNotification(event, user.locale);
   const tasks: Promise<unknown>[] = [];
-  if (user.email) tasks.push(getEmailProvider().send({ to: user.email, subject, text }));
+  if (user.email)
+    tasks.push(getEmailProvider().then((e) => e.send({ to: user.email!, subject, text })));
   if (user.telegramChatId) tasks.push(sendTelegram(user.telegramChatId, `${subject}\n\n${text}`));
   const results = await Promise.allSettled(tasks);
   for (const r of results) if (r.status === "rejected") console.error("[notify]", r.reason);
