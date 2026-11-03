@@ -3,12 +3,10 @@ import { cn } from "@/lib/utils";
 
 type Variant = "header" | "footer";
 
-const COLORS: Record<Variant, { star: string; centre: string; radius: number }> = {
-  header: { star: "#1E3A8A", centre: "#C99A2E", radius: 7.5 },
-  footer: { star: "#C99A2E", centre: "#0B1F4D", radius: 5.5 },
-};
+/** On dark backgrounds the square is a shade lighter so it stands out. */
+const BG: Record<Variant, string> = { header: "#0B1F4D", footer: "#13295E" };
 
-/** Eight-pointed star: two squares, the second rotated 45°, with a centre circle. */
+/** Kufic-style geometric “3R” monogram: gold 3, white R, gold inner frame. */
 export function LogoMark({
   variant = "header",
   className,
@@ -16,14 +14,32 @@ export function LogoMark({
   variant?: Variant;
   className?: string;
 }) {
-  const c = COLORS[variant];
   return (
-    <svg viewBox="0 0 40 40" aria-hidden="true" className={cn("size-8 shrink-0", className)}>
-      <g fill={c.star}>
-        <rect x="7" y="7" width="26" height="26" />
-        <rect x="7" y="7" width="26" height="26" transform="rotate(45 20 20)" />
+    <svg viewBox="0 0 100 100" aria-hidden="true" className={cn("size-8 shrink-0", className)}>
+      <rect x="6" y="6" width="88" height="88" rx="6" fill={BG[variant]} />
+      <rect
+        x="11"
+        y="11"
+        width="78"
+        height="78"
+        rx="3"
+        fill="none"
+        stroke="#C9A227"
+        strokeWidth="2"
+      />
+      <g fill="#C9A227">
+        <rect x="20" y="24" width="26" height="7" />
+        <rect x="39" y="24" width="7" height="52" />
+        <rect x="26" y="46.5" width="20" height="7" />
+        <rect x="20" y="69" width="26" height="7" />
       </g>
-      <circle cx="20" cy="20" r={c.radius} fill={c.centre} />
+      <g fill="#FFFFFF">
+        <rect x="54" y="24" width="7" height="52" />
+        <rect x="54" y="24" width="26" height="7" />
+        <rect x="73" y="24" width="7" height="29" />
+        <rect x="54" y="46" width="26" height="7" />
+        <path d="M63 53h8l11 23h-8z" />
+      </g>
     </svg>
   );
 }
@@ -44,7 +60,7 @@ export function Logo({
   const onDark = variant === "footer";
   return (
     <span className={cn("inline-flex items-center gap-3", className)}>
-      <LogoMark variant={variant} />
+      <LogoMark variant={variant} className="size-10" />
       <span className="flex flex-col leading-none">
         <span
           className={cn(

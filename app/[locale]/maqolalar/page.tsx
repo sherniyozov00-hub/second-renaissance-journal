@@ -95,7 +95,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
   const pages = f.tab === "articles" ? articles.pages : 1;
 
   return (
-    <PageShell header="minimal" narrow>
+    <PageShell narrow>
       <AutoSubmit formId={SEARCH_FORM_ID} />
 
       <section className="border-b border-border bg-blue-50">
