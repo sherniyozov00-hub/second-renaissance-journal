@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { signIn, signOut } from "@/auth";
 import { normalizeEmail, normalizePhone, safeNext } from "@/lib/auth/identifiers";
 import { requestOtp } from "@/lib/auth/otp";
+import { phoneLoginEnabled } from "@/lib/notify/sms";
 
 export type LoginState =
   | { step: "identify"; error?: string; retryAfterSec?: number }
@@ -26,7 +27,7 @@ export async function loginAction(prev: LoginState, form: FormData): Promise<Log
 
 /** Step 1: validate the phone/email and send a one-time code. */
 async function requestCode(form: FormData): Promise<LoginState> {
-  const channel = form.get("channel") === "EMAIL" ? "EMAIL" : "PHONE";
+  const channel = form.get("channel") === "PHONE" && phoneLoginEnabled() ? "PHONE" : "EMAIL";
   const raw = String(form.get("target") ?? "");
   const target = channel === "PHONE" ? normalizePhone(raw) : normalizeEmail(raw);
   if (!target)

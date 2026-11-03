@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # One-command install on a fresh Ubuntu 22.04/24.04 server (docs/deploy.md, "Tez o‘rnatish").
 #
-#   sudo bash install.sh <domain> <admin-phone>
-#   e.g. sudo bash install.sh journal.uz +998901234567
+#   sudo bash install.sh <domain> <admin-email>
+#   e.g. sudo bash install.sh journal.uz admin@gmail.com
+# The administrator signs in with this email (a code is sent to it, or with
+# Google). Passing a new email later moves the admin role to it.
 #
 # Nothing is built on the server: it downloads the ready image that GitHub
 # Actions publishes to ghcr.io (~1 GB on disk with the database and Caddy).
@@ -20,12 +22,16 @@ trap 'rc=$?; [ $rc = 0 ] || { echo; df -h / | tail -1; free -h | sed -n 2,3p; }'
 # Everything runs inside main(): bash reads the whole function before running
 # it, so updating this very file (git reset below) cannot confuse it.
 main() {
-  local DOMAIN="${1:-}" ADMIN_PHONE="${2:-}"
+  local DOMAIN="${1:-}" ADMIN="${2:-}"
   [ "$(id -u)" = 0 ] || die "root sifatida ishga tushiring: sudo bash install.sh ..."
   [ -n "$DOMAIN" ] || die "domen ko‘rsatilmagan. Misol: bash install.sh journal.uz +998901234567"
   DOMAIN="${DOMAIN#http://}"; DOMAIN="${DOMAIN#https://}"; DOMAIN="${DOMAIN#www.}"; DOMAIN="${DOMAIN%/}"
-  if [ ! -f "$DIR/.env" ]; then
-    [[ "$ADMIN_PHONE" =~ ^\+998[0-9]{9}$ ]] || die "admin telefoni +998XXXXXXXXX ko‘rinishida bo‘lsin"
+  ADMIN="${ADMIN,,}"
+  if [ -n "$ADMIN" ] && ! [[ "$ADMIN" =~ ^[^@[:space:]]+@[^@[:space:]]+\.[a-z]{2,}$ ]]; then
+    die "admin emaili noto‘g‘ri: $ADMIN (misol: admin@gmail.com)"
+  fi
+  if [ ! -f "$DIR/.env" ] && [ -z "$ADMIN" ]; then
+    die "admin emailini yozing. Misol: bash install.sh $DOMAIN admin@gmail.com"
   fi
 
   # ── 1. Swap: a safety net for 2 GB of RAM (nothing is compiled here) ──────
@@ -89,6 +95,9 @@ JSON
     git clone -q --depth 1 "$REPO" "$DIR" || die "kodni yuklab bo‘lmadi"
   fi
   cd "$DIR"
+  # Do not let the auto-deploy timer run while we install.
+  exec 9>/run/journal-update.lock
+  flock 9
 
   # ── 5. .env (created once; secrets are generated here and never leave it) ──
   if [ ! -f .env ]; then
@@ -99,13 +108,13 @@ JSON
     set_env AUTH_SECRET "$(openssl rand -base64 48 | tr -d '\n')"
     set_env POSTGRES_PASSWORD "$(openssl rand -hex 24)"
     set_env SEED_DEMO false
-    set_env SEED_ADMIN_PHONE "$ADMIN_PHONE"
-    set_env SEED_ADMIN_EMAIL "admin@$DOMAIN"
+    set_env SEED_ADMIN_PHONE ""
     set_env OTP_MOCK_CODE ""
     set_env PAYMENTS_MODE sandbox
     chmod 600 .env
   fi
-  ADMIN_PHONE=$(grep '^SEED_ADMIN_PHONE=' .env | cut -d= -f2-)
+  [ -n "$ADMIN" ] && set_env SEED_ADMIN_EMAIL "$ADMIN"
+  ADMIN=$(grep '^SEED_ADMIN_EMAIL=' .env | cut -d= -f2-)
 
   # ── 6. Download the image and start ────────────────────────────────────────
   local DC="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
@@ -134,6 +143,32 @@ JSON
   fi
   docker image prune -f >/dev/null 2>&1 || true
 
+  # ── 7. Auto-deploy: every 5 minutes, take the version CI has published ────
+  cat >/etc/systemd/system/journal-update.service <<UNIT
+[Unit]
+Description=Journal auto-deploy (new image from GitHub Actions)
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash $DIR/deploy/auto-update.sh
+UNIT
+  cat >/etc/systemd/system/journal-update.timer <<'UNIT'
+[Unit]
+Description=Check for a new journal version every 5 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target
+UNIT
+  systemctl daemon-reload
+  systemctl enable --now journal-update.timer >/dev/null 2>&1
+
   cat <<EOF
 
 $(printf '\033[1;32m')Tayyor!$(printf '\033[0m') Sayt ishlayapti.
@@ -141,12 +176,13 @@ $(printf '\033[1;32m')Tayyor!$(printf '\033[0m') Sayt ishlayapti.
   Manzil:  https://$DOMAIN
   (DNS hali tarqalmagan bo‘lsa, HTTPS bir necha daqiqadan keyin ishlaydi.)
 
-Admin bo‘lib kirish: https://$DOMAIN/kirish — $ADMIN_PHONE raqamini kiriting.
-SMS xizmati hali ulanmagan, kodni serverda shu buyruq ko‘rsatadi:
-  bash $DIR/deploy/sms-code.sh
+Admin bo‘lib kirish: https://$DOMAIN/kirish — $ADMIN emailini kiriting.
+Email xizmati ulanmaguncha kirish kodini serverda shu buyruq ko‘rsatadi:
+  bash $DIR/deploy/login-code.sh
 
 Disk: $(df -h / | awk 'NR==2{print $3" band, "$4" bo‘sh"}')
-Yangilash: bash $DIR/deploy/install.sh $DOMAIN
+Avtodeploy yoqilgan: GitHub’dagi har bir yangi versiya 5 daqiqa ichida o‘zi o‘rnatiladi.
+  Jurnal: journalctl -u journal-update -n 30
 EOF
 }
 

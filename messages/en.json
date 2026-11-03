@@ -349,7 +349,7 @@
     "resend": "Resend code",
     "resendIn": "Resend in {sec} s",
     "or": "or",
-    "google": "Sign in with Google",
+    "google": "Continue with Google",
     "consent": "I have read the <privacy>privacy policy</privacy> and agree to the processing of my personal data.",
     "errors": {
       "invalid_phone": "Invalid phone number. Example: 90 123 45 67.",
@@ -361,7 +361,9 @@
       "invalid_code": "The code is wrong or has expired.",
       "blocked": "This account is blocked. Contact the editorial office."
     },
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "leadEmail": "Sign in with your email or Google account. If you have no account, one is created automatically.",
+    "orEmail": "or with email"
   },
   "cabinet": {
     "title": "Account",

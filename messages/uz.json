@@ -349,7 +349,7 @@
     "resend": "Kodni qayta yuborish",
     "resendIn": "Qayta yuborish {sec} soniyadan keyin",
     "or": "yoki",
-    "google": "Google orqali kirish",
+    "google": "Google orqali davom etish",
     "consent": "<privacy>Maxfiylik siyosati</privacy> bilan tanishdim va shaxsiy ma’lumotlarimni qayta ishlashga roziman.",
     "errors": {
       "invalid_phone": "Telefon raqami noto‘g‘ri. Masalan: 90 123 45 67.",
@@ -361,7 +361,9 @@
       "invalid_code": "Kod noto‘g‘ri yoki muddati o‘tgan.",
       "blocked": "Hisob bloklangan. Tahririyat bilan bog‘laning."
     },
-    "logout": "Chiqish"
+    "logout": "Chiqish",
+    "leadEmail": "Email yoki Google hisobingiz orqali kiring. Hisob bo‘lmasa, avtomatik yaratiladi.",
+    "orEmail": "yoki email bilan"
   },
   "cabinet": {
     "title": "Kabinet",

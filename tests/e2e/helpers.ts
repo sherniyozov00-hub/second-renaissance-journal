@@ -10,6 +10,8 @@ export const USERS = {
 
 export async function login(page: Page, phone: string, next: string) {
   await page.goto(`/kirish?next=${encodeURIComponent(next)}`);
+  // Phone sign-in is a second tab (email is the default) in the test setup.
+  await page.getByRole("tab", { name: "Telefon" }).click();
   await page.getByLabel("Telefon raqami").fill(phone);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Kod yuborish" }).click();

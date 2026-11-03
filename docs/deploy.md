@@ -17,12 +17,17 @@ domen uchun DNS’da A yozuv (`@` va `www`) server IP manziliga qaratilgan bo‘
 
 ```bash
 git clone https://github.com/sherniyozov00-hub/second-renaissance-journal /opt/journal
-bash /opt/journal/deploy/install.sh journal.uz +998901234567
+bash /opt/journal/deploy/install.sh journal.uz admin@gmail.com
 ```
 
 Qayta ishga tushirish xavfsiz: kod va rasm yangilanadi, `.env` va ma’lumotlar saqlanadi
-(yangilash ham shu buyruq). SMS xizmati (Eskiz) ulanmaguncha kirish kodini
-`bash /opt/journal/deploy/sms-code.sh` ko‘rsatadi. Rasm yuklanmasa: GitHub → Packages →
+(yangilash ham shu buyruq).
+
+**Avtodeploy.** `install.sh` `journal-update.timer` ni yoqadi: server har 5 daqiqada `ghcr.io` dagi
+`latest` ni tekshiradi. GitHub Actions uni faqat `main` dagi barcha tekshiruvlar o‘tgach joylaydi;
+yangi versiya 3 daqiqada sog‘lom bo‘lmasa, oldingisiga qaytadi va o‘sha versiyani qayta urinmaydi.
+Jurnal: `journalctl -u journal-update -n 50`; o‘chirish: `systemctl disable --now journal-update.timer`. SMS xizmati (Eskiz) ulanmaguncha kirish kodini
+`bash /opt/journal/deploy/login-code.sh` ko‘rsatadi. Rasm yuklanmasa: GitHub → Packages →
 `second-renaissance-journal` → Package settings → Change visibility → Public.
 Quyidagi bo‘limlar xuddi shu ishni qo‘lda qilishni tushuntiradi.
 
@@ -93,7 +98,8 @@ Xizmatlar: `app` (sayt + PDF, sertifikat, xabarnomalar; fayllar `files` volume�
 
 ## 5. Birinchi sozlash (sayt ichida)
 
-1. `https://journal.uz/kirish` — `SEED_ADMIN_PHONE` raqami bilan kiring (SMS kodi keladi).
+1. `https://journal.uz/kirish` — `SEED_ADMIN_EMAIL` emaili bilan kiring (kod emailga keladi; email
+   xizmati ulanmaguncha: `bash deploy/login-code.sh`).
 2. **Admin → Sozlamalar**: narxlar, ISSN, kontaktlar, MXIK kodi, AI limitlari va modeli,
    Telegram-bot nomi, Google/Bing tasdiqlash kodlari. `[NARX]`, `[ISSN]`, `[EMAIL]` kabi
    barcha placeholderlarni to‘ldiring.
