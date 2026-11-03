@@ -4,10 +4,14 @@ import { getSettings } from "@/lib/settings/get";
 import type { AiErrorCode } from "./schemas";
 
 /**
- * Limits and cost control (TZ 10.4). A guest gets [N] checks a day keyed by
- * IP + device cookie; an author gets [N] a month, then purchased credits;
- * work on an article the author has paid for is not counted. All numbers
- * come from Admin → Sozlamalar.
+ * Who may use Xorazmiy AI, and how much (cost control). All numbers come from
+ * Admin → Sozlamalar.
+ * - Guest: a small daily trial, keyed by IP + device cookie.
+ * - Author without Premium: a small monthly trial (ai.freeMonthlyChecks), then
+ *   older purchased credits if any; then "quota" → the cabinet offers Premium.
+ * - Premium (39 990 so‘m a month): AI on up to ai.premiumArticles drafts or
+ *   articles in 30 days, not counted per check; a fifth one → "premium_limit".
+ * - An article whose publication is paid: its AI work is always included.
  */
 
 export type AiActor =
@@ -23,7 +27,8 @@ export async function aiLimits() {
   return {
     guestDaily: num(s["ai.guestDailyChecks"], 1),
     guestMaxChars: num(s["ai.guestMaxChars"], 1500),
-    authorMonthly: num(s["ai.authorMonthlyChecks"], 10),
+    authorMonthly: num(s["ai.freeMonthlyChecks"], 2),
+    premiumArticles: num(s["ai.premiumArticles"], 4) || 4,
     authorMaxChars: num(s["ai.authorMaxChars"], 60000),
     maxClaims: num(s["ai.maxClaimsPerCheck"], 20) || 20,
     perMinute: num(s["ai.requestsPerMinute"], 8) || 8,
@@ -66,9 +71,46 @@ type Consumed = { ok: true; refund: () => Promise<void> } | { ok: false; code: A
  * Takes one check. Atomic (conditional UPDATE), so parallel requests cannot
  * go over the limit. `refund` gives it back when the AI call fails.
  */
+/** Premium is active now: its end, else null. */
+export async function premiumUntil(userId: string): Promise<Date | null> {
+  const u = await db.user.findUnique({ where: { id: userId }, select: { premiumUntil: true } });
+  return u?.premiumUntil && u.premiumUntil > new Date() ? u.premiumUntil : null;
+}
+
+/** Drafts/articles a Premium user has started with AI in the last 30 days. */
+export async function premiumWorksUsed(userId: string): Promise<number> {
+  return db.premiumWork.count({
+    where: { userId, firstUsedAt: { gt: new Date(Date.now() - 30 * 864e5) } },
+  });
+}
+
+/**
+ * Lets a Premium user work on `workKey`: always if it is already one of the
+ * last 30 days' works, otherwise only while fewer than `limit` are in use.
+ */
+async function claimPremiumWork(userId: string, workKey: string, limit: number) {
+  const since = new Date(Date.now() - 30 * 864e5);
+  const existing = await db.premiumWork.findUnique({
+    where: { userId_key: { userId, key: workKey } },
+  });
+  if (existing && existing.firstUsedAt > since) return true;
+  return db.$transaction(async (tx) => {
+    // Serialise per user so two new drafts at once cannot both take the last slot.
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId}))`;
+    const used = await tx.premiumWork.count({ where: { userId, firstUsedAt: { gt: since } } });
+    if (used >= limit) return false;
+    await tx.premiumWork.upsert({
+      where: { userId_key: { userId, key: workKey } },
+      update: { firstUsedAt: new Date() },
+      create: { userId, key: workKey },
+    });
+    return true;
+  });
+}
+
 export async function consumeCheck(
   actor: AiActor,
-  opts: { chars: number; paidArticleId?: string | null },
+  opts: { chars: number; paidArticleId?: string | null; workKey?: string | null },
 ): Promise<Consumed> {
   const limits = await aiLimits();
   if (rateLimited(actorKey(actor), limits.perMinute)) return { ok: false, code: "rate_limit" };
@@ -96,6 +138,14 @@ export async function consumeCheck(
 
   if (opts.chars > limits.authorMaxChars) return { ok: false, code: "too_long" };
   if (await articleIsPaid(opts.paidArticleId)) return { ok: true, refund: async () => {} };
+
+  // Premium covers work on drafts/articles; a loose text (the public trial
+  // box) still uses the small free allowance below.
+  if (opts.workKey && (await premiumUntil(actor.id))) {
+    return (await claimPremiumWork(actor.id, opts.workKey, limits.premiumArticles))
+      ? { ok: true, refund: async () => {} }
+      : { ok: false, code: "premium_limit" };
+  }
 
   const limit = actor.aiQuota ?? limits.authorMonthly;
   const period = new Date().toISOString().slice(0, 7);

@@ -14,6 +14,7 @@ import {
   type TemplateReport,
 } from "./docx";
 import { originality, type OriginalityReport } from "./originality";
+import { enqueue } from "@/lib/jobs";
 import { computePrice, parsePrice, SANDBOX_DEMO_PRICE, type PriceBreakdown } from "./pricing";
 import { paymentsMode } from "@/lib/payments/service";
 
@@ -249,6 +250,8 @@ export async function uploadManuscript(
         ]
       : []),
   ]);
+  // A revised manuscript goes back to review: the editor's assistant looks again.
+  if (revision) await enqueue("editor.brief", { articleId: article.id });
   return { ok: true, report: analyzeManuscript(text) };
 }
 

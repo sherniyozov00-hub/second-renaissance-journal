@@ -1,14 +1,10 @@
 import "server-only";
 import { getSettings } from "@/lib/settings/get";
 import { parsePrice } from "@/lib/submission/pricing";
-import { paymentsMode } from "./service";
 
-/** Extra Xorazmiy AI checks sold in the cabinet (TZ 10.4 “Limitni oshirish”). */
-export const AI_PACKAGE_DEMO_PRICE = 20_000;
+/** Xorazmiy AI Premium (one month): the price shown and charged, UZS. */
+export const PREMIUM_DEFAULT_PRICE = 39_990;
 
-/** Price of an extra AI package; in sandbox an unset price uses a demo amount. */
 export async function aiPackagePrice(): Promise<number | null> {
-  const price = parsePrice((await getSettings())["pricing.aiPackage"]);
-  if (price === null && paymentsMode() === "sandbox") return AI_PACKAGE_DEMO_PRICE;
-  return price;
+  return parsePrice((await getSettings())["pricing.premium"]) ?? PREMIUM_DEFAULT_PRICE;
 }

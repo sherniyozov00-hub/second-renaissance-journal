@@ -85,6 +85,8 @@ enum AiCheckType {
   CITATIONS
   TRANSLATE
   CHAT
+  /// Muharrir yordamchisi: pre-review brief for the editor.
+  EDITOR_BRIEF
 }
 
 /// What a knowledge entry teaches Xorazmiy AI (stage 6 "training").
@@ -102,25 +104,28 @@ enum AiKnowledgeKind {
 // ─── Users ──────────────────────────────────────────────────────────────────
 
 model User {
-  id                String    @id @default(cuid())
-  phone             String?   @unique
-  email             String?   @unique
+  id                String        @id @default(cuid())
+  phone             String?       @unique
+  email             String?       @unique
   name              String?
-  locale            Locale    @default(uz)
-  roles             Role[]    @default([AUTHOR])
-  telegramChatId    String?   @unique
+  locale            Locale        @default(uz)
+  roles             Role[]        @default([AUTHOR])
+  telegramChatId    String?       @unique
   /// Per-user override of the monthly AI check quota; null = use Settings.
   aiQuota           Int?
   /// Purchased Xorazmiy AI checks (TZ 10.4 "Limitni oshirish"); used after the monthly free ones.
-  aiCredits         Int       @default(0)
-  isBlocked         Boolean   @default(false)
+  /// Xorazmiy AI Premium is active until this moment (bought for a month at a time).
+  premiumUntil      DateTime?
+  premiumWorks      PremiumWork[]
+  aiCredits         Int           @default(0)
+  isBlocked         Boolean       @default(false)
   /// When the user accepted the privacy policy and personal-data processing (TZ 17).
   consentAt         DateTime?
   /// One-time token for the Telegram deep link (t.me/<bot>?start=<token>).
-  telegramLinkToken String?   @unique
+  telegramLinkToken String?       @unique
   lastLoginAt       DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   profile           AuthorProfile?
   submittedArticles Article[]        @relation("ArticleSubmitter")
@@ -616,4 +621,19 @@ model AuditLog {
 
   @@index([entity, entityId])
   @@index([createdAt])
+}
+
+/// A draft or article a Premium user has worked on with Xorazmiy AI. Premium
+/// covers a limited number of them in any 30 days (ai.premiumArticles).
+model PremiumWork {
+  id          String   @id @default(cuid())
+  userId      String
+  /// "draft:<id>" or "article:<id>".
+  key         String
+  firstUsedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@index([userId, firstUsedAt])
 }

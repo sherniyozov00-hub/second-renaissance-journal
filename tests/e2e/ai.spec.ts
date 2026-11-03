@@ -6,7 +6,7 @@ test.describe("Xorazmiy AI (Ekran 3)", () => {
     await page.goto("/xorazmiy-ai#sinov");
     const box = page.getByRole("textbox", { name: "Bepul sinab ko‘ring" });
     await box.fill(
-      "Paxta O‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri hisoblanadi. Tomchilatib sug‘orish 2010-yilda ixtiro qilingan.",
+      "O‘zbekiston 1991-yilda mustaqillikka erishgan. Tomchilatib sug‘orish 2010-yilda ixtiro qilingan.",
     );
     await page.getByRole("button", { name: "Faktlarni tekshirish" }).click();
     const wrong = page.locator("li").filter({ hasText: "Noto‘g‘ri" }).first();
@@ -15,7 +15,7 @@ test.describe("Xorazmiy AI (Ekran 3)", () => {
     await expect(wrong.locator('a[href^="https://"]')).not.toHaveCount(0);
     await box.fill("Ikkinchi sinov 2020-yilda.");
     await page.getByRole("button", { name: "Faktlarni tekshirish" }).click();
-    await expect(page.getByText("AI limiti tugadi", { exact: false })).toBeVisible();
+    await expect(page.getByText("Bepul sinov tugadi", { exact: false })).toBeVisible();
   });
 
   test.describe("workspace", () => {

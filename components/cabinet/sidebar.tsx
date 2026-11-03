@@ -1,3 +1,4 @@
+import type { AiQuota } from "@/lib/queries/cabinet";
 import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import NextLink from "next/link";
@@ -29,13 +30,18 @@ export async function CabinetSidebar({
   domain,
 }: {
   user: SidebarUser;
-  quota: { limit: number; left: number };
+  quota: AiQuota;
   domain: string;
 }) {
   const t = await getTranslations("cabinet");
   const name = user.profile?.fullName ?? user.name ?? user.phone ?? user.email ?? "";
   const meta = [user.profile?.affiliation, user.profile?.position].filter(Boolean).join(" · ");
-  const percent = quota.limit ? Math.round((quota.left / quota.limit) * 100) : 0;
+  const premium = Boolean(quota.premiumUntil);
+  const percent = premium
+    ? Math.round(((quota.premiumArticles - quota.premiumWorks) / quota.premiumArticles) * 100)
+    : quota.limit
+      ? Math.round((quota.left / quota.limit) * 100)
+      : 0;
 
   return (
     <aside className="space-y-4">
@@ -87,8 +93,16 @@ export async function CabinetSidebar({
       ) : null}
 
       <section className="rounded-card bg-blue-900 p-5 text-white">
-        <p className="text-[13px] text-blue-50/80">{t("aiLimit")}</p>
-        <p className="mt-1 text-[22px] font-bold">{t("aiLeft", { count: quota.left })}</p>
+        <p className="text-[13px] text-blue-50/80">
+          {premium ? t("premiumActive", { date: quota.premiumUntil!.slice(0, 10) }) : t("aiLimit")}
+        </p>
+        <p className="mt-1 text-[22px] font-bold">
+          {premium
+            ? t("premiumWorksLeft", {
+                count: Math.max(0, quota.premiumArticles - quota.premiumWorks),
+              })
+            : t("aiLeft", { count: quota.left })}
+        </p>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15" aria-hidden>
           <div className="h-full rounded-full bg-gold" style={{ width: `${percent}%` }} />
         </div>
@@ -96,7 +110,8 @@ export async function CabinetSidebar({
           href="/kabinet/ai-paket"
           className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-white hover:underline"
         >
-          {t("aiRaise")} <ArrowRight className="size-4" aria-hidden />
+          {premium ? t("premiumManage") : t("premiumGet")}{" "}
+          <ArrowRight className="size-4" aria-hidden />
         </Link>
       </section>
     </aside>

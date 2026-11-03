@@ -21,7 +21,7 @@ const articles: string[] = [];
 
 const PARAGRAPHS = [
   "1. Kirish",
-  "Paxta O‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri hisoblanadi. Tomchilatib sug‘orish 2010-yilda ixtiro qilingan va bugun ko‘plab mamlakatlarda qo‘llaniladi.",
+  "O‘zbekiston 1991-yilda mustaqillikka erishgan. Tomchilatib sug‘orish 2010-yilda ixtiro qilingan va bugun ko‘plab mamlakatlarda qo‘llaniladi.",
   "Tadqiqotlarga ko‘ra, bu usul suvni 70% gacha tejaydi.",
 ];
 
@@ -39,18 +39,26 @@ function doc(paragraphs: string[]) {
 beforeAll(async () => {
   const u = await db.user.upsert({
     where: { phone: PHONE },
-    update: { aiQuota: 2, aiCredits: 0 },
+    update: { aiQuota: 2, aiCredits: 0, premiumUntil: null },
     create: { phone: PHONE, name: "AI test", aiQuota: 2 },
   });
   user = { id: u.id, aiQuota: 2, profile: null };
   categoryId = (await db.category.findFirstOrThrow()).id;
   await db.aiUsage.deleteMany({ where: { userId: u.id } });
+  await db.premiumWork.deleteMany({ where: { userId: u.id } });
+  // Many checks in one test: lift the per-minute rate limit for the run.
+  await db.setting.upsert({
+    where: { key: "ai.requestsPerMinute" },
+    update: { value: 1000 },
+    create: { key: "ai.requestsPerMinute", value: 1000 },
+  });
   await db.aiUsage.deleteMany({ where: { guestKey: "g_test_guest" } });
   // Start with an empty fact-check cache so the first run really checks.
   await db.aiCheck.deleteMany({ where: { type: "FACTCHECK", model: { in: ["mock", "summary"] } } });
 });
 
 afterAll(async () => {
+  await db.setting.update({ where: { key: "ai.requestsPerMinute" }, data: { value: 8 } });
   await db.aiUsage.deleteMany({
     where: { OR: [{ userId: user.id }, { guestKey: "g_test_guest" }] },
   });
@@ -71,25 +79,47 @@ describe("quotas (TZ 10.4)", () => {
     expect((await consumeCheck(guest, { chars: 100 })).ok).toBe(true);
   });
 
-  it("uses the monthly checks, then purchased credits, then refuses", async () => {
+  it("uses the free trial, then Premium covers 4 articles a month", async () => {
     const actor = { kind: "user" as const, id: user.id, aiQuota: 2 };
     expect((await consumeCheck(actor, { chars: 10 })).ok).toBe(true);
     expect((await consumeCheck(actor, { chars: 10 })).ok).toBe(true);
-    expect(await consumeCheck(actor, { chars: 10 })).toEqual({ ok: false, code: "quota" });
+    expect(await consumeCheck(actor, { chars: 10, workKey: "draft:a" })).toEqual({
+      ok: false,
+      code: "quota",
+    });
 
-    // "Limitni oshirish": a paid AI package adds credits.
+    // Premium (one month) is bought like any payment.
     const payment = await db.payment.create({
-      data: { userId: user.id, provider: "CLICK", amount: 20_000, purpose: "AI_PACKAGE" },
+      data: { userId: user.id, provider: "CLICK", amount: 39_990, purpose: "AI_PACKAGE" },
     });
     expect(await markPaid(payment.id, `test-${payment.id}`)).toBe("paid");
     expect(await markPaid(payment.id, `test-${payment.id}`)).toBe("already_paid");
-    const credits = (await db.user.findUniqueOrThrow({ where: { id: user.id } })).aiCredits;
-    expect(credits).toBeGreaterThan(0);
-    expect((await consumeCheck(actor, { chars: 10 })).ok).toBe(true);
-    expect((await db.user.findUniqueOrThrow({ where: { id: user.id } })).aiCredits).toBe(
-      credits - 1,
-    );
-    await db.user.update({ where: { id: user.id }, data: { aiCredits: 0 } });
+    const until = (await db.user.findUniqueOrThrow({ where: { id: user.id } })).premiumUntil;
+    expect(until!.getTime() - Date.now()).toBeGreaterThan(29 * 864e5);
+
+    // Any number of checks on up to 4 drafts; a fifth draft is refused.
+    for (const key of ["draft:a", "draft:b", "draft:c", "article:d"]) {
+      expect((await consumeCheck(actor, { chars: 10, workKey: key })).ok).toBe(true);
+      expect((await consumeCheck(actor, { chars: 10, workKey: key })).ok).toBe(true);
+    }
+    expect(await consumeCheck(actor, { chars: 10, workKey: "draft:e" })).toEqual({
+      ok: false,
+      code: "premium_limit",
+    });
+    expect((await consumeCheck(actor, { chars: 10, workKey: "draft:a" })).ok).toBe(true);
+    // A loose text (the public trial box) still uses the free allowance.
+    expect(await consumeCheck(actor, { chars: 10 })).toEqual({ ok: false, code: "quota" });
+
+    // Paying again extends from the current end, not from today.
+    const again = await db.payment.create({
+      data: { userId: user.id, provider: "CLICK", amount: 39_990, purpose: "AI_PACKAGE" },
+    });
+    await markPaid(again.id, `test-${again.id}`);
+    const extended = (await db.user.findUniqueOrThrow({ where: { id: user.id } })).premiumUntil;
+    expect(extended!.getTime() - until!.getTime()).toBeGreaterThan(29 * 864e5);
+
+    await db.premiumWork.deleteMany({ where: { userId: user.id } });
+    await db.user.update({ where: { id: user.id }, data: { premiumUntil: null } });
   });
 
   it("does not count checks on an article with paid publication", async () => {

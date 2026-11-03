@@ -49,11 +49,12 @@ const REFERENCES = [
   "[Tashkilot. (Yil). Hisobot nomi. URL]",
 ];
 
+/** Demo accounts (SEED_DEMO only) get a large AI allowance so demos and e2e tests never hit it. */
 async function upsertUser(data: { email: string; phone: string; name: string; roles: Role[] }) {
   return db.user.upsert({
     where: { email: data.email },
-    update: { name: data.name, roles: data.roles },
-    create: data,
+    update: { name: data.name, roles: data.roles, aiQuota: 1000 },
+    create: { ...data, aiQuota: 1000 },
   });
 }
 

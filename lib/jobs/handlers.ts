@@ -137,6 +137,10 @@ export async function runJob<Q extends QueueName>(queue: Q, data: JobData[Q]) {
       return certificatePdf(data as JobData["pdf.certificate"]);
     case "notify":
       return notify(data as JobData["notify"]);
+    case "editor.brief": {
+      const { editorBriefJob } = await import("@/lib/editorial/assistant");
+      return editorBriefJob((data as JobData["editor.brief"]).articleId);
+    }
     case "issue.announce":
       return issueAnnounce(data as JobData["issue.announce"]);
   }

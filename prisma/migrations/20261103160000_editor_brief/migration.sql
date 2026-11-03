@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "AiCheckType" ADD VALUE 'EDITOR_BRIEF';

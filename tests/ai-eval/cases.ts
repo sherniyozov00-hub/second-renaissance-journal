@@ -40,9 +40,9 @@ export const FACT_CASES: FactCase[] = [
   {
     name: "Ekran 3 namunasi",
     articleType: "RESEARCH",
-    text: "Paxta O‘zbekistonning asosiy qishloq xo‘jaligi ekinlaridan biri hisoblanadi. Tomchilatib sug‘orish 2010-yilda ixtiro qilingan va bugun ko‘plab mamlakatlarda qo‘llaniladi.\nTadqiqotlarga ko‘ra, bu usul suvni 70% gacha tejaydi.",
+    text: "O‘zbekiston 1991-yilda mustaqillikka erishgan. Tomchilatib sug‘orish 2010-yilda ixtiro qilingan va bugun ko‘plab mamlakatlarda qo‘llaniladi.\nTadqiqotlarga ko‘ra, bu usul suvni 70% gacha tejaydi.",
     expect: [
-      { claim: "Paxta O‘zbekistonning asosiy", verdict: "correct" },
+      { claim: "O‘zbekiston 1991-yilda mustaqillikka", verdict: "correct" },
       { claim: "2010-yilda ixtiro qilingan", verdict: "incorrect" },
       { claim: "70% gacha", verdict: "needs_source" },
     ],

@@ -98,7 +98,8 @@ export async function handlePayme(req: RpcRequest, authHeader: string | null): P
       return result(id, {
         allow: true,
         detail: await receiptDetail(
-          p.article?.titleUz ?? (p.purpose === "AI_PACKAGE" ? "Xorazmiy AI paketi" : "Nashr"),
+          p.article?.titleUz ??
+            (p.purpose === "AI_PACKAGE" ? "Xorazmiy AI Premium (1 oy)" : "Nashr"),
           p.amount * 100,
         ),
       });

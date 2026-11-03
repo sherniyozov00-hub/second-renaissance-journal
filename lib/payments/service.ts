@@ -16,7 +16,7 @@ export async function markPaid(
   providerTxId: string,
   providerData?: Prisma.InputJsonValue,
 ): Promise<"paid" | "already_paid" | "not_found" | "cancelled"> {
-  const packageChecks = Number((await getSettings())["ai.packageChecks"]) || 20;
+  const premiumDays = Number((await getSettings())["ai.premiumDays"]) || 30;
   return db
     .$transaction(async (tx) => {
       const payment = await tx.payment.findUnique({ where: { id: paymentId } });
@@ -41,9 +41,15 @@ export async function markPaid(
         });
       }
       if (payment.purpose === "AI_PACKAGE") {
+        // Premium: a month from now, or added to the time still left.
+        const u = await tx.user.findUnique({
+          where: { id: payment.userId },
+          select: { premiumUntil: true },
+        });
+        const from = u?.premiumUntil && u.premiumUntil > now ? u.premiumUntil : now;
         await tx.user.update({
           where: { id: payment.userId },
-          data: { aiCredits: { increment: packageChecks } },
+          data: { premiumUntil: new Date(from.getTime() + premiumDays * 864e5) },
         });
       }
       if (payment.articleId && payment.purpose === "PUBLICATION") {
@@ -86,6 +92,9 @@ async function notifyPaid(paymentId: string) {
   const p = await db.payment.findUnique({ where: { id: paymentId }, include: { article: true } });
   if (!p?.article) return;
   const { enqueue } = await import("@/lib/jobs");
+  // Muharrir yordamchisi looks at a manuscript as soon as it reaches review.
+  if (p.purpose === "PUBLICATION" && p.article.status === "UNDER_REVIEW")
+    await enqueue("editor.brief", { articleId: p.article.id });
   await enqueue("notify", {
     userId: p.userId,
     event: { kind: "paid", title: p.article.titleUz, number: p.article.number, amount: p.amount },

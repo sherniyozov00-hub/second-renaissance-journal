@@ -19,6 +19,8 @@ import { db } from "@/lib/db";
 import { articleTitle, formatDate, formatNumber, pick } from "@/lib/l10n";
 import { getStorage } from "@/lib/storage";
 import { cn } from "@/lib/utils";
+import { EditorBriefPanel } from "@/components/admin/editor-brief";
+import { latestBrief } from "@/lib/editorial/assistant";
 
 /** Result codes of the editorial actions (?natija=…) → admin.article.res_<code>. */
 const RESULTS = new Set([
@@ -29,6 +31,7 @@ const RESULTS = new Set([
   "izoh",
   "saqlandi",
   "nashr",
+  "tahlil",
   "xato-bad_status",
   "xato-invalid",
   "xato-forbidden",
@@ -67,7 +70,7 @@ export default async function AdminArticlePage({
         include: { author: { select: { name: true } } },
       },
       payments: { orderBy: { createdAt: "desc" } },
-      aiChecks: { orderBy: { createdAt: "desc" }, take: 3 },
+      aiChecks: { where: { type: "ORIGINALITY" }, orderBy: { createdAt: "desc" }, take: 1 },
       certificates: true,
     },
   });
@@ -104,6 +107,7 @@ export default async function AdminArticlePage({
   );
   const originality = article.aiChecks.find((c) => c.type === "ORIGINALITY")?.result as
     { originality: number; matches: { title: string; overlap: number }[] } | undefined;
+  const brief = await latestBrief(article.id);
   const s = article.status;
   const defaultDue = dateInDays(14);
   const [t, tc, locale] = await Promise.all([
@@ -209,6 +213,8 @@ export default async function AdminArticlePage({
               </p>
             ) : null}
           </section>
+
+          <EditorBriefPanel articleId={article.id} brief={brief} />
 
           <section className={cn(panel, "p-5")}>
             <h2 className="font-sans text-lg font-semibold">{t("reviews")}</h2>

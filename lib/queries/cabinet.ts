@@ -1,4 +1,5 @@
 import "server-only";
+import { premiumUntil, premiumWorksUsed } from "@/lib/ai/quota";
 import { db } from "@/lib/db";
 import { getSettings } from "@/lib/settings/get";
 
@@ -54,15 +55,40 @@ export function getMyPayments(userId: string) {
 }
 
 /** Monthly Xorazmiy AI quota (TZ 10.4): per-user override or the Settings default. */
-export async function getAiQuota(user: { id: string; aiQuota: number | null; aiCredits?: number }) {
+export type AiQuota = {
+  limit: number;
+  used: number;
+  left: number;
+  credits: number;
+  /** Premium is active until this date (ISO), else null. */
+  premiumUntil: string | null;
+  premiumWorks: number;
+  premiumArticles: number;
+};
+
+export async function getAiQuota(user: {
+  id: string;
+  aiQuota: number | null;
+  aiCredits?: number;
+}): Promise<AiQuota> {
   const settings = await getSettings();
-  const limit = user.aiQuota ?? (Number(settings["ai.authorMonthlyChecks"]) || 0);
+  const limit = user.aiQuota ?? (Number(settings["ai.freeMonthlyChecks"]) || 0);
   const period = new Date().toISOString().slice(0, 7);
-  const usage = await db.aiUsage.findUnique({
-    where: { userId_period: { userId: user.id, period } },
-  });
+  const [usage, until, works] = await Promise.all([
+    db.aiUsage.findUnique({ where: { userId_period: { userId: user.id, period } } }),
+    premiumUntil(user.id),
+    premiumWorksUsed(user.id),
+  ]);
   const used = usage?.checksUsed ?? 0;
-  // Purchased checks (TZ 10.4) are spent after the monthly free ones.
+  // Checks bought earlier as packages are spent after the free ones.
   const credits = user.aiCredits ?? 0;
-  return { limit: limit + credits, used, left: Math.max(0, limit - used) + credits, credits };
+  return {
+    limit: limit + credits,
+    used,
+    left: Math.max(0, limit - used) + credits,
+    credits,
+    premiumUntil: until?.toISOString() ?? null,
+    premiumWorks: works,
+    premiumArticles: Number(settings["ai.premiumArticles"]) || 4,
+  };
 }
