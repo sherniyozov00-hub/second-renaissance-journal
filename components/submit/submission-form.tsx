@@ -50,11 +50,14 @@ export function SubmissionForm({
   categories,
   pricing: initialPricing,
   sandbox,
+  providers,
 }: {
   initial: SubmissionInitial;
   categories: { id: string; name: string }[];
   pricing: Pricing | null;
   sandbox: boolean;
+  /** Payment methods that work right now (lib/payments/providers.ts). */
+  providers: ("CLICK_QR" | "CLICK" | "PAYME" | "UZUM" | "CARD")[];
 }) {
   const t = useTranslations("submit");
   const locale = useLocale();
@@ -676,7 +679,10 @@ export function SubmissionForm({
                 <fieldset className="mt-4">
                   <legend className="text-sm font-semibold text-ink">{t("method")}</legend>
                   <div className="mt-2 space-y-2">
-                    {(["CLICK", "PAYME", "UZUM", "CARD"] as const).map((m, i) => (
+                    {!providers.length ? (
+                      <p className="text-sm text-text-2">{t("qr.none")}</p>
+                    ) : null}
+                    {providers.map((m, i) => (
                       <label
                         key={m}
                         className="flex min-h-11 cursor-pointer items-center gap-3 rounded-control border border-border-strong px-3 text-sm font-semibold text-ink has-checked:border-blue-800 has-checked:ring-1 has-checked:ring-blue-800"

@@ -62,6 +62,13 @@ export const SETTINGS: readonly SettingDefinition[] = [
 
   // Payments
   {
+    key: "payments.clickQrId",
+    group: "payments",
+    defaultValue: "0114800",
+    description:
+      "Click QR (self-employed) receiver id, e.g. 0114800 from https://indoor.click.uz/pay?id=0114800 — payments confirmed by an admin",
+  },
+  {
     key: "payments.mode",
     group: "payments",
     defaultValue: "sandbox",

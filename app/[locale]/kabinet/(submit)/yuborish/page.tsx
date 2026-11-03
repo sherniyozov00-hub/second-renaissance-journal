@@ -5,6 +5,7 @@ import { SubmissionForm, type SubmissionInitial } from "@/components/submit/subm
 import type { AppLocale } from "@/i18n/routing";
 import { requireCabinetUser } from "@/lib/auth/session";
 import { pick } from "@/lib/l10n";
+import { availableProviders } from "@/lib/payments/providers";
 import { paymentsMode } from "@/lib/payments/service";
 import { getCategories } from "@/lib/queries/catalog";
 import { getPricing, loadSubmission } from "@/lib/submission/service";
@@ -98,6 +99,7 @@ export default async function SubmitPage({ params, searchParams }: Props) {
           }))}
           pricing={pricing}
           sandbox={paymentsMode() === "sandbox"}
+          providers={await availableProviders()}
         />
       </div>
     </>

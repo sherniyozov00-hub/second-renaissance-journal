@@ -10,6 +10,7 @@ import { checkoutUrl } from "@/lib/payments/service";
 import { siteConfig } from "@/lib/site";
 import { aiPackagePrice } from "@/lib/payments/ai-package";
 import { parseProvider } from "@/lib/submission/service";
+import { availableProviders } from "@/lib/payments/providers";
 
 /** "Limitni oshirish" (TZ 10.4): pays for an extra Xorazmiy AI package. */
 export async function buyAiPackageAction(form: FormData) {
@@ -19,6 +20,8 @@ export async function buyAiPackageAction(form: FormData) {
   const locale = (await getLocale()) as AppLocale;
   if (price === null) redirect(getPathname({ href: "/kabinet/ai-paket", locale }));
   const provider = parseProvider(form.get("provider"));
+  if (!(await availableProviders()).includes(provider))
+    redirect(getPathname({ href: "/kabinet/ai-paket", locale }));
   await db.payment.updateMany({
     where: { userId: user.id, purpose: "AI_PACKAGE", status: "PENDING" },
     data: { status: "CANCELLED" },

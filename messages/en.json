@@ -560,7 +560,8 @@
       "CLICK": "Click",
       "PAYME": "Payme",
       "UZUM": "Uzum Bank",
-      "CARD": "Uzcard / Humo / Visa"
+      "CARD": "Uzcard / Humo / Visa",
+      "CLICK_QR": "Click (QR or USSD)"
     },
     "pay": "Pay {amount} UZS",
     "payNote": "After payment the article goes to review. The receipt and status updates arrive by email and Telegram.",
@@ -579,7 +580,8 @@
       "file": "manuscript file",
       "consents": "both confirmations",
       "price": "price",
-      "promo": "the promo code is invalid or expired"
+      "promo": "the promo code is invalid or expired",
+      "method": "this payment method is not available now"
     },
     "fixBeforePay": "Before paying, complete: {list}.",
     "revisionTitle": "Upload a new version",
@@ -591,7 +593,22 @@
     "sandboxCancel": "Cancel",
     "paidBanner": "Payment received. Your article has been sent for review.",
     "articleLabel": "Article",
-    "aiPackageLabel": "Xorazmiy AI Premium (1 month)"
+    "aiPackageLabel": "Xorazmiy AI Premium (1 month)",
+    "qr": {
+      "title": "Pay with Click",
+      "lead": "Scan the QR code in the Click app or dial the USSD code. Amount: {amount} UZS.",
+      "scan": "Scan the QR code in the Click app",
+      "ussd": "No internet: dial on your phone",
+      "dial": "Dial",
+      "code": "Payment code",
+      "codeHint": "Write this code in the Click comment so we find your payment quickly.",
+      "amountHint": "If the amount is not filled in, enter {amount} UZS.",
+      "paid": "I have paid",
+      "waitTitle": "Payment is being checked",
+      "wait": "Thank you! The editorial office confirms the payment once it appears in Click (usually within a few hours). You will get an email and a Telegram message.",
+      "cancel": "Cancel",
+      "none": "No online payment method is connected yet. Contact the editorial office."
+    }
   },
   "ai": {
     "name": "Xorazmiy AI",
@@ -996,7 +1013,8 @@
       "pricing_premium": "Xorazmiy AI Premium price (1 month), UZS",
       "ai_freeMonthlyChecks": "Free trial: AI checks a month without Premium",
       "ai_premiumArticles": "Premium: articles with AI in 30 days",
-      "ai_premiumDays": "Premium: days one payment lasts"
+      "ai_premiumDays": "Premium: days one payment lasts",
+      "payments_clickQrId": "Click QR receiver id (e.g. 0114800) — payments are confirmed by an admin"
     },
     "people": {
       "authorsTitle": "Authors",
@@ -1045,7 +1063,16 @@
       "newPromo": "New promo code",
       "percent": "Percent",
       "orAmount": "or amount",
-      "limit": "Limit"
+      "limit": "Limit",
+      "pending": "Click payments awaiting confirmation",
+      "pendingLead": "Compare the amount and the code in the comment in your Click app, then confirm.",
+      "confirm": "Confirm",
+      "reject": "Reject",
+      "claimed": "“I have paid” pressed",
+      "notClaimed": "“I have paid” not pressed yet",
+      "res_tasdiqlandi": "Payment confirmed.",
+      "res_rad": "Payment rejected.",
+      "none": "No payments waiting."
     },
     "pages": {
       "title": "Pages and SEO",

@@ -6,7 +6,7 @@ import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { currentUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
-import { checkoutUrl, markPaid } from "@/lib/payments/service";
+import { checkoutUrl, markPaid, paymentsMode } from "@/lib/payments/service";
 import { siteConfig } from "@/lib/site";
 import type { DocxError } from "@/lib/submission/docx";
 import {
@@ -136,7 +136,13 @@ export async function sandboxPayAction(form: FormData) {
   const locale = (await getLocale()) as AppLocale;
   const { redirect } = await import("next/navigation");
   if (!payment) redirect(getPathname({ href: "/kabinet", locale }));
-  if (form.get("decision") === "pay") {
+  // Only the sandbox may mark a payment paid from this button: live payments
+  // come from the provider callback or an admin's confirmation (Click QR).
+  if (
+    form.get("decision") === "pay" &&
+    paymentsMode() === "sandbox" &&
+    payment!.provider !== "CLICK_QR"
+  ) {
     await markPaid(payment!.id, `sandbox-${payment!.id}`, { sandbox: true, at: Date.now() });
     revalidatePath("/[locale]/kabinet", "layout");
     const back = payment!.purpose === "AI_PACKAGE" ? "/kabinet/ai-paket" : "/kabinet";
@@ -154,4 +160,38 @@ export async function sandboxPayAction(form: FormData) {
       locale,
     }),
   );
+}
+
+/** Click QR: the payer says they have paid; the editorial office checks Click and confirms. */
+export async function claimClickQrAction(form: FormData) {
+  const user = await requireAuthor();
+  const id = String(form.get("paymentId") ?? "");
+  const payment = await db.payment.findFirst({
+    where: { id, userId: user.id, provider: "CLICK_QR", status: "PENDING" },
+    include: { article: { select: { titleUz: true } } },
+  });
+  const locale = (await getLocale()) as AppLocale;
+  const { redirect } = await import("next/navigation");
+  if (!payment) redirect(getPathname({ href: "/kabinet", locale }));
+  const data = (payment!.providerData as Record<string, unknown> | null) ?? {};
+  if (!data.claimedAt) {
+    await db.payment.update({
+      where: { id: payment!.id },
+      data: { providerData: { ...data, claimedAt: Date.now() } },
+    });
+    const { paymentCode } = await import("@/lib/payments/providers");
+    const { notifyStaff } = await import("@/lib/notify/admins");
+    const what =
+      payment!.purpose === "AI_PACKAGE" ? "Premium (1 oy)" : `Nashr: ${payment!.article?.titleUz}`;
+    await notifyStaff(
+      `Click to‘lov: ${paymentCode(payment!.id)} — ${payment!.amount.toLocaleString("ru-RU")} so‘m`,
+      [
+        `${what}. To‘lovchi: ${user.name ?? user.email ?? user.phone ?? user.id}.`,
+        "Click ilovasida summa va izohdagi kodni tekshirib, tasdiqlang:",
+        `${siteConfig.url.replace(/\/$/, "")}/admin/tolovlar`,
+      ].join("\n"),
+      ["ADMIN"],
+    );
+  }
+  redirect(getPathname({ href: `/kabinet/tolov/${payment!.id}`, locale }));
 }

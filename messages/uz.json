@@ -560,7 +560,8 @@
       "CLICK": "Click",
       "PAYME": "Payme",
       "UZUM": "Uzum Bank",
-      "CARD": "Uzcard / Humo / Visa"
+      "CARD": "Uzcard / Humo / Visa",
+      "CLICK_QR": "Click (QR yoki USSD)"
     },
     "pay": "{amount} so‘m to‘lash",
     "payNote": "To‘lovdan keyin maqola taqrizga yuboriladi. Chek va holat o‘zgarishlari emailingiz va Telegram’ga keladi.",
@@ -579,7 +580,8 @@
       "file": "maqola fayli",
       "consents": "ikkala tasdiq belgisi",
       "price": "narx",
-      "promo": "promokod noto‘g‘ri yoki muddati o‘tgan"
+      "promo": "promokod noto‘g‘ri yoki muddati o‘tgan",
+      "method": "bu to‘lov usuli hozir mavjud emas"
     },
     "fixBeforePay": "To‘lovdan oldin to‘ldiring: {list}.",
     "revisionTitle": "Yangi versiyani yuklash",
@@ -591,7 +593,22 @@
     "sandboxCancel": "Bekor qilish",
     "paidBanner": "To‘lov qabul qilindi. Maqolangiz taqrizga yuborildi.",
     "articleLabel": "Maqola",
-    "aiPackageLabel": "Xorazmiy AI Premium (1 oy)"
+    "aiPackageLabel": "Xorazmiy AI Premium (1 oy)",
+    "qr": {
+      "title": "Click orqali to‘lash",
+      "lead": "Click ilovasida QR kodni skanerlang yoki USSD buyrug‘ini tering. Summa: {amount} so‘m.",
+      "scan": "QR kodni Click ilovasida skanerlang",
+      "ussd": "Internetsiz: telefonda tering",
+      "dial": "Terish",
+      "code": "To‘lov kodi",
+      "codeHint": "Click’da izohga shu kodni yozing — to‘lovingizni tez topamiz.",
+      "amountHint": "Summa avtomatik chiqmasa, {amount} so‘m deb yozing.",
+      "paid": "To‘ladim",
+      "waitTitle": "To‘lov tekshirilmoqda",
+      "wait": "Rahmat! Tahririyat Click’da to‘lovni ko‘rgach tasdiqlaydi (odatda bir necha soat ichida). Tasdiqlanganda email va Telegram orqali xabar olasiz.",
+      "cancel": "Bekor qilish",
+      "none": "Hozircha onlayn to‘lov usuli ulanmagan. Tahririyat bilan bog‘laning."
+    }
   },
   "ai": {
     "name": "Xorazmiy AI",
@@ -996,7 +1013,8 @@
       "pricing_premium": "Xorazmiy AI Premium narxi (1 oy), so‘m",
       "ai_freeMonthlyChecks": "Bepul sinov: Premium’siz muallifga oyiga AI tekshiruvlari",
       "ai_premiumArticles": "Premium: 30 kunda AI bilan ishlanadigan maqolalar soni",
-      "ai_premiumDays": "Premium: bir to‘lov necha kun amal qiladi"
+      "ai_premiumDays": "Premium: bir to‘lov necha kun amal qiladi",
+      "payments_clickQrId": "Click QR qabul qiluvchi raqami (masalan 0114800) — to‘lovlarni admin tasdiqlaydi"
     },
     "people": {
       "authorsTitle": "Mualliflar",
@@ -1045,7 +1063,16 @@
       "newPromo": "Yangi promokod",
       "percent": "Foiz",
       "orAmount": "yoki summa",
-      "limit": "Limit"
+      "limit": "Limit",
+      "pending": "Tasdiqlanishi kutilayotgan Click to‘lovlari",
+      "pendingLead": "Click ilovangizda summa va izohdagi kodni solishtiring, keyin tasdiqlang.",
+      "confirm": "Tasdiqlash",
+      "reject": "Rad etish",
+      "claimed": "“To‘ladim” bosilgan",
+      "notClaimed": "hali “To‘ladim” bosilmagan",
+      "res_tasdiqlandi": "To‘lov tasdiqlandi.",
+      "res_rad": "To‘lov rad etildi.",
+      "none": "Kutilayotgan to‘lov yo‘q."
     },
     "pages": {
       "title": "Sahifalar va SEO",

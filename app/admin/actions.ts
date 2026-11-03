@@ -297,6 +297,34 @@ export async function refundAction(form: FormData) {
   redirect(`/admin/tolovlar?natija=${code}`);
 }
 
+/** Click QR: an admin saw the money in Click and confirms (or rejects) the payment. */
+export async function confirmClickQrAction(form: FormData) {
+  const actor = await staffOrThrow(ADMIN);
+  const id = str(form, "paymentId");
+  const payment = await db.payment.findFirst({
+    where: { id, provider: "CLICK_QR", status: "PENDING" },
+  });
+  if (!payment) redirect("/admin/tolovlar?natija=xato-invalid");
+  if (form.get("decision") === "reject") {
+    await db.payment.update({ where: { id }, data: { status: "CANCELLED" } });
+    await db.auditLog.create({
+      data: {
+        actorId: actor.id,
+        action: "payment_rejected",
+        entity: "Payment",
+        entityId: id,
+        after: { provider: "CLICK_QR" },
+      },
+    });
+    revalidatePath("/admin/tolovlar");
+    redirect("/admin/tolovlar?natija=rad");
+  }
+  const { markPaid } = await import("@/lib/payments/service");
+  await markPaid(id, `click-qr-${id}`, { confirmedBy: actor.id, at: Date.now() });
+  revalidatePath("/admin/tolovlar");
+  redirect("/admin/tolovlar?natija=tasdiqlandi");
+}
+
 export async function savePromoAction(form: FormData) {
   const actor = await staffOrThrow(ADMIN);
   const code = str(form, "code", 40)
