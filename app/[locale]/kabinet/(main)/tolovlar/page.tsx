@@ -12,6 +12,7 @@ const PROVIDER = {
   PAYME: "Payme",
   UZUM: "Uzum Bank",
   CARD: "Uzcard / Humo / Visa",
+  CLICK_QR: "Click QR",
 } as const;
 const STATUS_CLASS = {
   PENDING: "bg-warning-bg text-warning",

@@ -61,6 +61,8 @@ enum PaymentProvider {
   PAYME
   UZUM
   CARD
+  /// Click QR of a self-employed person: paid in the Click app, confirmed by an admin.
+  CLICK_QR
 }
 
 enum PaymentStatus {

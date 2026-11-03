@@ -15,6 +15,7 @@ import {
 } from "./docx";
 import { originality, type OriginalityReport } from "./originality";
 import { enqueue } from "@/lib/jobs";
+import { availableProviders } from "@/lib/payments/providers";
 import { computePrice, parsePrice, SANDBOX_DEMO_PRICE, type PriceBreakdown } from "./pricing";
 import { paymentsMode } from "@/lib/payments/service";
 
@@ -331,7 +332,8 @@ export type SubmitIssue =
   | "file"
   | "consents"
   | "price"
-  | "promo";
+  | "promo"
+  | "method";
 
 /** Required before payment (TZ 7, 16). */
 export function submissionIssues(a: {
@@ -384,10 +386,10 @@ export async function getPricing(opts: { fastTrack: boolean; promoCode: string |
   return { pricing: { ...breakdown, fastTrackPrice, demo } satisfies Pricing, promo, promoError };
 }
 
-export const PROVIDERS: PaymentProvider[] = ["CLICK", "PAYME", "UZUM", "CARD"];
+export const PROVIDERS: PaymentProvider[] = ["CLICK_QR", "CLICK", "PAYME", "UZUM", "CARD"];
 
 export function parseProvider(v: unknown): PaymentProvider {
-  return PROVIDERS.includes(v as PaymentProvider) ? (v as PaymentProvider) : "CLICK";
+  return PROVIDERS.includes(v as PaymentProvider) ? (v as PaymentProvider) : "CLICK_QR";
 }
 
 /** Creates the pending payment and moves the article to AWAITING_PAYMENT. */
@@ -402,6 +404,7 @@ export async function startPayment(
   });
   if (promoError) return { error: "promo" as const };
   if (!pricing) return { error: "price" as const };
+  if (!(await availableProviders()).includes(opts.provider)) return { error: "method" as const };
 
   // Re-use the pending payment if the author comes back to the payment step.
   await db.payment.updateMany({

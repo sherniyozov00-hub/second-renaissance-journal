@@ -9,7 +9,8 @@ export type NotifyEvent =
   | { kind: "comment"; title: string; number: number; body: string }
   | { kind: "paid"; title: string; number: number; amount: number }
   | { kind: "published"; title: string; url: string; certificateUrl?: string }
-  | { kind: "issue"; year: number; number: number; count: number; url: string };
+  | { kind: "issue"; year: number; number: number; count: number; url: string }
+  | { kind: "premium"; until: string };
 
 type Text = { subject: string; text: string };
 
@@ -83,6 +84,19 @@ export function renderNotification(e: NotifyEvent, locale: Locale = "uz"): Text 
         uz: `«${e.title}» uchun ${e.amount.toLocaleString("ru-RU")} so‘m to‘lov qabul qilindi. Maqola taqrizga yuborildi.`,
         ru: `Оплата ${e.amount.toLocaleString("ru-RU")} сум за «${e.title}» получена. Статья отправлена на рецензию.`,
         en: `We received ${e.amount.toLocaleString("en-US")} UZS for “${e.title}”. The article has been sent for review.`,
+      }[l];
+      return { subject, text };
+    }
+    case "premium": {
+      const subject = {
+        uz: "Premium faollashdi",
+        ru: "Premium активирован",
+        en: "Premium is active",
+      }[l];
+      const text = {
+        uz: `Xorazmiy AI Premium ${e.until} gacha faol. Kabinet → “Xorazmiy AI bilan yozish”.`,
+        ru: `Xorazmiy AI Premium активен до ${e.until}. Кабинет → «Писать с Xorazmiy AI».`,
+        en: `Xorazmiy AI Premium is active until ${e.until}. Cabinet → “Write with Xorazmiy AI”.`,
       }[l];
       return { subject, text };
     }

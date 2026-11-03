@@ -7,7 +7,7 @@ import { formatNumber } from "@/lib/l10n";
 import { getAiQuota } from "@/lib/queries/cabinet";
 import { getSettings } from "@/lib/settings/get";
 import { aiPackagePrice } from "@/lib/payments/ai-package";
-import { PROVIDERS } from "@/lib/submission/service";
+import { availableProviders } from "@/lib/payments/providers";
 import { buyAiPackageAction } from "./actions";
 
 export async function generateMetadata({
@@ -32,12 +32,13 @@ export default async function AiPackagePage({
   setRequestLocale(locale);
   const user = await requireCabinetUser(locale, "/kabinet/ai-paket");
   const { tolandi } = await searchParams;
-  const [t, ts, quota, price, settings] = await Promise.all([
+  const [t, ts, quota, price, settings, providers] = await Promise.all([
     getTranslations("cabinet"),
     getTranslations("submit"),
     getAiQuota(user),
     aiPackagePrice(),
     getSettings(),
+    availableProviders(),
   ]);
   const monthly = user.aiQuota ?? (Number(settings["ai.freeMonthlyChecks"]) || 0);
   const articles = quota.premiumArticles;
@@ -71,9 +72,9 @@ export default async function AiPackagePage({
           ) : null}
         </div>
       )}
-      {price === null ? (
+      {price === null || !providers.length ? (
         <p className="mt-5 rounded-card border border-border bg-white p-5 text-text-2">
-          {t("aiPackageNoPrice")}
+          {price === null ? t("aiPackageNoPrice") : ts("qr.none")}
         </p>
       ) : (
         <form
@@ -94,7 +95,7 @@ export default async function AiPackagePage({
           <fieldset className="mt-4">
             <legend className="text-sm font-semibold">{t("method")}</legend>
             <div className="mt-2 grid grid-cols-2 gap-2">
-              {PROVIDERS.map((p, i) => (
+              {providers.map((p, i) => (
                 <label
                   key={p}
                   className="flex min-h-11 items-center gap-2 rounded-control border border-border px-3 text-sm has-[:checked]:border-blue-800 has-[:checked]:bg-blue-50"

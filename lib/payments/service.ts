@@ -89,9 +89,19 @@ export async function markPaid(
 }
 
 async function notifyPaid(paymentId: string) {
-  const p = await db.payment.findUnique({ where: { id: paymentId }, include: { article: true } });
-  if (!p?.article) return;
+  const p = await db.payment.findUnique({
+    where: { id: paymentId },
+    include: { article: true, user: { select: { premiumUntil: true } } },
+  });
   const { enqueue } = await import("@/lib/jobs");
+  if (p?.purpose === "AI_PACKAGE" && p.user.premiumUntil) {
+    await enqueue("notify", {
+      userId: p.userId,
+      event: { kind: "premium", until: p.user.premiumUntil.toISOString().slice(0, 10) },
+    });
+    return;
+  }
+  if (!p?.article) return;
   // Muharrir yordamchisi looks at a manuscript as soon as it reaches review.
   if (p.purpose === "PUBLICATION" && p.article.status === "UNDER_REVIEW")
     await enqueue("editor.brief", { articleId: p.article.id });
@@ -118,6 +128,8 @@ export function checkoutUrl(opts: {
   returnUrl: string;
   sandboxUrl: string;
 }): string {
+  // Click QR is paid in the Click app; our page shows the QR and the code.
+  if (opts.provider === "CLICK_QR") return opts.sandboxUrl;
   if (paymentsMode() === "sandbox") return opts.sandboxUrl;
   switch (opts.provider) {
     case "PAYME":
@@ -138,8 +150,8 @@ export function checkoutUrl(opts: {
       return `https://my.click.uz/services/pay?${q}`;
     }
     case "UZUM":
-      // Uzum Bank checkout needs merchant onboarding; until its keys and API
-      // contract are provided the sandbox page is used (see docs/decisions.md).
-      return opts.sandboxUrl;
+      // Uzum Bank checkout needs merchant onboarding; not offered live yet
+      // (availableProviders), so this never runs outside the sandbox.
+      throw new Error("Uzum checkout is not configured");
   }
 }

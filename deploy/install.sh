@@ -110,11 +110,14 @@ JSON
     set_env SEED_DEMO false
     set_env SEED_ADMIN_PHONE ""
     set_env OTP_MOCK_CODE ""
-    set_env PAYMENTS_MODE sandbox
+    # Live: only configured methods (Click QR, later Click/Payme) are offered;
+    # the sandbox would let anyone mark a payment paid.
+    set_env PAYMENTS_MODE live
     chmod 600 .env
   fi
   [ -n "$ADMIN" ] && set_env SEED_ADMIN_EMAIL "$ADMIN"
   ADMIN=$(grep '^SEED_ADMIN_EMAIL=' .env | cut -d= -f2-)
+  bash "$DIR/deploy/fix-env.sh" "$DIR" --no-restart
 
   # ── 6. Download the image and start ────────────────────────────────────────
   local DC="docker compose -f docker-compose.yml -f docker-compose.prod.yml"

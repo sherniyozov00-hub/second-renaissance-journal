@@ -1,6 +1,12 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
-import { refundAction, savePromoAction, togglePromoAction } from "@/app/admin/actions";
+import {
+  confirmClickQrAction,
+  refundAction,
+  savePromoAction,
+  togglePromoAction,
+} from "@/app/admin/actions";
+import { paymentCode } from "@/lib/payments/providers";
 import { Field, PageTitle, PaymentText, input, panel, td, th } from "@/components/admin/ui";
 import { buttonClass } from "@/components/ui/styles";
 import { requireAdmin } from "@/lib/admin/auth";
@@ -13,7 +19,14 @@ export async function generateMetadata() {
   return { title: (await getTranslations("admin.payments"))("title") };
 }
 
-const RESULTS = new Set(["qaytarildi", "promokod", "xato-invalid", "xato-bad_status"]);
+const RESULTS = new Set([
+  "qaytarildi",
+  "promokod",
+  "tasdiqlandi",
+  "rad",
+  "xato-invalid",
+  "xato-bad_status",
+]);
 
 export default async function PaymentsAdminPage({
   searchParams,
@@ -22,7 +35,16 @@ export default async function PaymentsAdminPage({
 }) {
   await requireAdmin("/admin/tolovlar");
   const { natija, holat } = await searchParams;
-  const [payments, promos] = await Promise.all([
+  const [pendingQr, payments, promos] = await Promise.all([
+    db.payment.findMany({
+      where: { provider: "CLICK_QR", status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      include: {
+        article: { select: { number: true, titleUz: true } },
+        user: { select: { name: true, phone: true, email: true } },
+      },
+    }),
     db.payment.findMany({
       where: holat ? { status: holat as "PAID" } : {},
       orderBy: { createdAt: "desc" },
@@ -57,6 +79,55 @@ export default async function PaymentsAdminPage({
           {t(`res_${natija}`)}
         </p>
       ) : null}
+      <section className={cn(panel, "mt-5 p-5")}>
+        <h2 className="font-sans text-lg font-semibold">{t("pending")}</h2>
+        <p className="mt-1 text-sm text-text-2">{t("pendingLead")}</p>
+        {pendingQr.length ? (
+          <ul className="mt-3 divide-y divide-border">
+            {pendingQr.map((p) => {
+              const claimed = Boolean((p.providerData as { claimedAt?: number } | null)?.claimedAt);
+              return (
+                <li key={p.id} className="flex flex-wrap items-center gap-3 py-3 text-sm">
+                  <code className="font-mono font-semibold">{paymentCode(p.id)}</code>
+                  <span className="font-semibold">{formatNumber(p.amount, locale)} so‘m</span>
+                  <span>
+                    {p.purpose === "AI_PACKAGE"
+                      ? "Premium"
+                      : `#${String(p.article?.number ?? 0).padStart(4, "0")} ${p.article?.titleUz ?? ""}`}
+                  </span>
+                  <span className="text-text-2">
+                    {p.user.name ?? p.user.email ?? p.user.phone} ·{" "}
+                    {formatDate(p.createdAt, locale)}
+                  </span>
+                  <span className={claimed ? "text-success" : "text-muted"}>
+                    {claimed ? t("claimed") : t("notClaimed")}
+                  </span>
+                  <form action={confirmClickQrAction} className="ml-auto flex gap-2">
+                    <input type="hidden" name="paymentId" value={p.id} />
+                    <button
+                      name="decision"
+                      value="confirm"
+                      className={buttonClass("primary", "sm")}
+                    >
+                      {t("confirm")}
+                    </button>
+                    <button
+                      name="decision"
+                      value="reject"
+                      className={buttonClass("secondary", "sm")}
+                    >
+                      {t("reject")}
+                    </button>
+                  </form>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="mt-3 text-sm text-text-2">{t("none")}</p>
+        )}
+      </section>
+
       <section className={cn(panel, "mt-5 overflow-x-auto")}>
         <table className="w-full min-w-[980px]">
           <thead className="border-b border-border bg-blue-50/40">
