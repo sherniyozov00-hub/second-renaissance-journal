@@ -17,6 +17,8 @@ DIR=/opt/journal
 cd "$DIR"
 exec 9>/run/journal-update.lock
 flock -n 9 || exit 0 # an update (or install.sh) is already running
+# New or changed timers (e.g. the nightly backup) arrive with code updates.
+bash "$DIR/deploy/ensure-units.sh" "$DIR" || echo "timers: update failed"
 
 DC="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
 IMAGE=$(grep -s '^APP_IMAGE=' .env | cut -d= -f2- || true)

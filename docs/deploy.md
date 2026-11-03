@@ -133,19 +133,24 @@ curl -fsS https://journal.uz/api/health
 
 ## 7. Zaxira nusxa (backup) — har kuni
 
-`scripts/backup.sh` PostgreSQL bazasini (`pg_dump`, custom format) va yuklangan fayllarni
-(`files` volume) `/var/backups/journal` ga saqlaydi, 14 kundan eskilarini o‘chiradi.
+`journal-backup.timer` (`deploy/ensure-units.sh` o‘rnatadi; avtodeploy ham yangilab turadi) har kecha
+03:17 da (Toshkent) `scripts/backup.sh` ni ishga tushiradi:
+
+1. PostgreSQL bazasi (`pg_dump`, custom format) va yuklangan fayllar (`files` volume) →
+   `/var/backups/journal`, oxirgi 7 kun. Diskda 1,5 GB dan kam joy qolsa, eng eski nusxalar
+   o‘chiriladi, fayllar nusxasi o‘tkazib yuboriladi — disk to‘lmaydi.
+2. **Server tashqarisiga nusxa:** baza nusxasi har kecha administratorga (`SEED_ADMIN_EMAIL`)
+   email ilovasi sifatida yuboriladi (Resend ulangan bo‘lsa, 30 MB gacha). Server butunlay
+   yo‘qolsa ham baza saqlanib qoladi. Yuklangan fayllarni ham tashqariga ko‘chirish uchun
+   `rclone`/`rsync` qo‘shing.
 
 ```bash
-sudo mkdir -p /var/backups/journal && sudo chown $USER /var/backups/journal
-./scripts/backup.sh            # sinab ko‘ring
-crontab -e                     # har kuni 03:17 da:
-17 3 * * * cd /opt/journal && ./scripts/backup.sh >> /var/log/journal-backup.log 2>&1
+bash /opt/journal/scripts/backup.sh          # hozir olish
+journalctl -u journal-backup -n 30           # oxirgi natija
+systemctl list-timers 'journal-*'            # keyingi ishga tushish vaqti
 ```
 
-Muhim: zaxira nusxalarni **boshqa serverga ham** ko‘chiring (masalan, `rclone` yoki `rsync`
-bilan har kuni), aks holda server yo‘qolsa nusxa ham yo‘qoladi. Sozlamalar:
-`BACKUP_DIR`, `BACKUP_KEEP_DAYS`.
+Sozlamalar (muhit o‘zgaruvchilari): `BACKUP_DIR`, `BACKUP_KEEP_DAYS`, `BACKUP_EMAIL=0` (emailsiz).
 
 ### Zaxira nusxadan tiklash
 
