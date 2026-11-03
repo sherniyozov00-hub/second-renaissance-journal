@@ -32,3 +32,4 @@ lighthouse-report/
 *.tsbuildinfo
 .tmp/
 .data/
+/.docker/
