@@ -919,7 +919,8 @@
       "certificates": "Certificates",
       "reject": "Reject",
       "rejectReason": "Reason (sent to the author)",
-      "rejectButton": "Reject"
+      "rejectButton": "Reject",
+      "res_tahlil": "The editor’s assistant updated the analysis."
     },
     "issues": {
       "title": "Journal issues",
@@ -1215,6 +1216,47 @@
       ],
       "k_ANTHROPIC_API_KEY": "Claude API key",
       "ph_ANTHROPIC_API_KEY": "sk-ant-…"
+    },
+    "brief": {
+      "title": "Editor’s assistant",
+      "run": "Analyse",
+      "rerun": "Analyse again",
+      "empty": "Not analysed yet. When the article reaches review the assistant checks it automatically; press “Analyse” to start now.",
+      "meta": "v{version} · {words} words",
+      "warnings": "{count} warnings",
+      "allGood": "meets the requirements",
+      "rec_send_to_review": "Recommendation: ready for review",
+      "rec_minor_fixes_first": "Recommendation: ask for minor fixes first",
+      "rec_major_revision": "Recommendation: needs major revision",
+      "rec_desk_reject": "Recommendation: check the fit with the journal’s scope (desk reject possible)",
+      "scope_good": "Fit with the field: good",
+      "scope_partial": "Fit with the field: partial",
+      "scope_poor": "Fit with the field: poor",
+      "strengths": "Strengths",
+      "concerns": "Look at",
+      "aiMock": "No AI assessment: the Claude API key is not connected (Admin → Integrations). Automatic checks below.",
+      "aiError": "Could not get the AI assessment (check the balance or the key). Automatic checks below.",
+      "check_words": "Length: {value} words (required {min}–{max})",
+      "check_sections": "Required sections: {missing} missing",
+      "check_references": "References: {value} (at least {min})",
+      "check_referencesYear": "References with a year: {value} / {total}",
+      "check_abstract": "Abstract: {value} words (150–250)",
+      "check_keywords": "Keywords: {value} (5–7)",
+      "check_titleEn": "English title",
+      "check_originality": "Originality: {value}% (at least {min}%)",
+      "missingSections": "Missing sections",
+      "sec_methods": "Materials and methods",
+      "sec_results": "Results",
+      "sec_conclusion": "Conclusion",
+      "similar": "Similar articles",
+      "reviewers": "Suggested reviewers",
+      "reviewerStats": "{inCategory} reviews in this field, {open} open now",
+      "conflict": "possible conflict of interest (same institution)",
+      "noReviewers": "No reviewers: give users the REVIEWER role.",
+      "disclaimer": "The assistant only advises; the editor decides.",
+      "sec_introduction": "Introduction",
+      "sec_discussion": "Discussion",
+      "sec_references": "References"
     }
   }
 }

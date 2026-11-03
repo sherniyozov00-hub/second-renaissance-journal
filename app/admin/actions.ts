@@ -67,6 +67,16 @@ export async function revisionAction(form: FormData) {
   await run(id, () => requestRevision(user, id, str(form, "note")), "tuzatish");
 }
 
+/** Runs Muharrir yordamchisi again (e.g. after the API key was connected). */
+export async function briefAction(form: FormData) {
+  await staffOrThrow(EDITOR);
+  const id = str(form, "articleId");
+  const { buildEditorBrief } = await import("@/lib/editorial/assistant");
+  await buildEditorBrief(id);
+  revalidatePath(`/admin/maqolalar/${id}`);
+  redirect(`/admin/maqolalar/${id}?natija=tahlil`);
+}
+
 export async function acceptAction(form: FormData) {
   const user = await staffOrThrow(EDITOR);
   const id = str(form, "articleId");

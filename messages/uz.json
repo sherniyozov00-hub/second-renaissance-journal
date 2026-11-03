@@ -919,7 +919,8 @@
       "certificates": "Sertifikatlar",
       "reject": "Rad etish",
       "rejectReason": "Sabab (muallifga yuboriladi)",
-      "rejectButton": "Rad etish"
+      "rejectButton": "Rad etish",
+      "res_tahlil": "Muharrir yordamchisi tahlilni yangiladi."
     },
     "issues": {
       "title": "Jurnal sonlari",
@@ -1215,6 +1216,47 @@
       ],
       "k_ANTHROPIC_API_KEY": "Claude API kaliti",
       "ph_ANTHROPIC_API_KEY": "sk-ant-…"
+    },
+    "brief": {
+      "title": "Muharrir yordamchisi",
+      "run": "Tahlil qilish",
+      "rerun": "Qayta tahlil",
+      "empty": "Hali tahlil qilinmagan. Maqola taqrizga tushganda yordamchi o‘zi ko‘rib chiqadi; hozir boshlash uchun “Tahlil qilish”ni bosing.",
+      "meta": "v{version} · {words} so‘z",
+      "warnings": "{count} ta ogohlantirish",
+      "allGood": "talablarga mos",
+      "rec_send_to_review": "Tavsiya: taqrizga yuborish mumkin",
+      "rec_minor_fixes_first": "Tavsiya: avval kichik tuzatishlar so‘rang",
+      "rec_major_revision": "Tavsiya: jiddiy qayta ishlash kerak",
+      "rec_desk_reject": "Tavsiya: jurnal mavzusiga mosligini ko‘rib chiqing (rad etish mumkin)",
+      "scope_good": "Yo‘nalishga mosligi: yaxshi",
+      "scope_partial": "Yo‘nalishga mosligi: qisman",
+      "scope_poor": "Yo‘nalishga mosligi: past",
+      "strengths": "Kuchli tomonlari",
+      "concerns": "E’tibor bering",
+      "aiMock": "AI xulosasi yo‘q: Claude API kaliti ulanmagan (Admin → Integratsiyalar). Avtomatik tekshiruvlar quyida.",
+      "aiError": "AI xulosasini olib bo‘lmadi (balans yoki kalitni tekshiring). Avtomatik tekshiruvlar quyida.",
+      "check_words": "Hajm: {value} so‘z (talab {min}–{max})",
+      "check_sections": "Majburiy bo‘limlar: {missing} tasi yetishmaydi",
+      "check_references": "Adabiyotlar: {value} ta (kamida {min})",
+      "check_referencesYear": "Yili ko‘rsatilgan manbalar: {value} / {total}",
+      "check_abstract": "Annotatsiya: {value} so‘z (150–250)",
+      "check_keywords": "Kalit so‘zlar: {value} ta (5–7)",
+      "check_titleEn": "Inglizcha sarlavha",
+      "check_originality": "Originallik: {value}% (kamida {min}%)",
+      "missingSections": "Yetishmayotgan bo‘limlar",
+      "sec_methods": "Materiallar va usullar",
+      "sec_results": "Natijalar",
+      "sec_conclusion": "Xulosa",
+      "similar": "O‘xshash maqolalar",
+      "reviewers": "Taqrizchi taklifi",
+      "reviewerStats": "shu yo‘nalishda {inCategory} ta taqriz, hozir {open} ta ochiq",
+      "conflict": "manfaatlar to‘qnashuvi ehtimoli (bir muassasa)",
+      "noReviewers": "Taqrizchi yo‘q: foydalanuvchilarga REVIEWER rolini bering.",
+      "disclaimer": "Yordamchi faqat maslahat beradi; qarorni muharrir qabul qiladi.",
+      "sec_introduction": "Kirish",
+      "sec_discussion": "Muhokama",
+      "sec_references": "Adabiyotlar"
     }
   }
 }

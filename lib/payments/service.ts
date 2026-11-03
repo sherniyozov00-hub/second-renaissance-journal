@@ -86,6 +86,9 @@ async function notifyPaid(paymentId: string) {
   const p = await db.payment.findUnique({ where: { id: paymentId }, include: { article: true } });
   if (!p?.article) return;
   const { enqueue } = await import("@/lib/jobs");
+  // Muharrir yordamchisi looks at a manuscript as soon as it reaches review.
+  if (p.purpose === "PUBLICATION" && p.article.status === "UNDER_REVIEW")
+    await enqueue("editor.brief", { articleId: p.article.id });
   await enqueue("notify", {
     userId: p.userId,
     event: { kind: "paid", title: p.article.titleUz, number: p.article.number, amount: p.amount },

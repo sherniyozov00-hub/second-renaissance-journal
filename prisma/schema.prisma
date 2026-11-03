@@ -85,6 +85,8 @@ enum AiCheckType {
   CITATIONS
   TRANSLATE
   CHAT
+  /// Muharrir yordamchisi: pre-review brief for the editor.
+  EDITOR_BRIEF
 }
 
 /// What a knowledge entry teaches Xorazmiy AI (stage 6 "training").

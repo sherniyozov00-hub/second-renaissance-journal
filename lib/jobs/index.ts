@@ -5,7 +5,13 @@ import { PgBoss } from "pg-boss";
  * Background jobs (TZ 4): pg-boss on the same PostgreSQL — no extra service.
  * JOBS_MODE=inline runs handlers immediately (tests, single-process setups).
  */
-export const QUEUES = ["pdf.article", "pdf.certificate", "notify", "issue.announce"] as const;
+export const QUEUES = [
+  "pdf.article",
+  "pdf.certificate",
+  "notify",
+  "issue.announce",
+  "editor.brief",
+] as const;
 export type QueueName = (typeof QUEUES)[number];
 
 export type JobData = {
@@ -13,7 +19,11 @@ export type JobData = {
   "pdf.certificate": { certificateId: string };
   notify: { userId: string; event: import("@/lib/notify/templates").NotifyEvent };
   "issue.announce": { issueId: string };
+  "editor.brief": { articleId: string };
 };
+
+/** In inline mode these run after the response instead of inside the request. */
+const BACKGROUND = new Set<QueueName>(["editor.brief"]);
 
 let boss: Promise<PgBoss> | null = null;
 
@@ -30,6 +40,14 @@ export function getBoss(): Promise<PgBoss> {
 
 export async function enqueue<Q extends QueueName>(queue: Q, data: JobData[Q]): Promise<void> {
   if (process.env.JOBS_MODE === "inline") {
+    // Slow jobs (an AI call) must not hold up the request that queued them —
+    // e.g. a payment callback that has to answer the provider quickly.
+    if (BACKGROUND.has(queue)) {
+      void import("./handlers")
+        .then(({ runJob }) => runJob(queue, data))
+        .catch((err) => console.error(`[jobs] inline ${queue} failed`, err));
+      return;
+    }
     try {
       const { runJob } = await import("./handlers");
       await runJob(queue, data);
