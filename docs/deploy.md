@@ -6,20 +6,24 @@ talab qilinishi mumkin).
 
 ## 0. Tez o‘rnatish (bitta buyruq)
 
-Kichik server uchun ham ishlaydi (1 vCPU, 2 GB RAM, 20 GB disk): skript 3 GB swap qo‘shadi,
-Docker’ni o‘rnatadi, firewall’ni yoqadi (22, 80, 443), maxfiy kalitlarni o‘zi yaratib `.env`
-ga yozadi, saytni yig‘adi va ishga tushiradi. Oldin domen uchun DNS’da A yozuv (`@` va `www`)
-server IP manziliga qaratilgan bo‘lsin.
+Kichik server yetadi (1 vCPU, 2 GB RAM, 20 GB disk). Serverda hech narsa yig‘ilmaydi: GitHub
+Actions har `main` yangilanishida tayyor rasmni (image) `ghcr.io/sherniyozov00-hub/second-renaissance-journal`
+ga joylaydi, server faqat uni yuklab oladi. Hammasi uchta konteyner: `postgres`, `app` (sayt +
+PDF/xabarnoma vazifalari, ichida headless Chromium) va `caddy` (HTTPS) — diskda ~1,5 GB.
+
+Skript 1 GB swap qo‘shadi, Docker’ni o‘rnatadi (kichik disk uchun overlay2), firewall’ni yoqadi
+(22, 80, 443), maxfiy kalitlarni o‘zi yaratib `.env` ga yozadi va saytni ishga tushiradi. Oldin
+domen uchun DNS’da A yozuv (`@` va `www`) server IP manziliga qaratilgan bo‘lsin.
 
 ```bash
-# repozitoriy yopiq bo‘lsa: export GITHUB_TOKEN=<faqat o‘qish huquqli token>
-curl -fsSL -o install.sh https://raw.githubusercontent.com/sherniyozov00-hub/second-renaissance-journal/main/deploy/install.sh
-sudo -E bash install.sh journal.uz +998901234567
+git clone https://github.com/sherniyozov00-hub/second-renaissance-journal /opt/journal
+bash /opt/journal/deploy/install.sh journal.uz +998901234567
 ```
 
-Qayta ishga tushirish xavfsiz: kod yangilanadi, `.env` va ma’lumotlar saqlanadi. SMS xizmati
-(Eskiz) ulanmaguncha kirish kodlari server jurnalida chiqadi:
-`docker compose -f docker-compose.yml -f docker-compose.prod.yml logs app | grep sms:mock`.
+Qayta ishga tushirish xavfsiz: kod va rasm yangilanadi, `.env` va ma’lumotlar saqlanadi
+(yangilash ham shu buyruq). SMS xizmati (Eskiz) ulanmaguncha kirish kodini
+`bash /opt/journal/deploy/sms-code.sh` ko‘rsatadi. Rasm yuklanmasa: GitHub → Packages →
+`second-renaissance-journal` → Package settings → Change visibility → Public.
 Quyidagi bo‘limlar xuddi shu ishni qo‘lda qilishni tushuntiradi.
 
 ## 1. Server
@@ -27,9 +31,9 @@ Quyidagi bo‘limlar xuddi shu ishni qo‘lda qilishni tushuntiradi.
 | Talab | Minimal                                                             | Tavsiya                           |
 | ----- | ------------------------------------------------------------------- | --------------------------------- |
 | OS    | Ubuntu 22.04 / 24.04 LTS (yoki Docker ishlaydigan har qanday Linux) |                                   |
-| CPU   | 2 vCPU                                                              | 4 vCPU                            |
-| RAM   | 4 GB                                                                | 8 GB (PDF uchun Chromium)         |
-| Disk  | 40 GB SSD                                                           | 80 GB + backup uchun alohida disk |
+| CPU   | 1 vCPU                                                              | 2 vCPU                            |
+| RAM   | 2 GB                                                                | 4 GB                              |
+| Disk  | 20 GB SSD                                                           | 40 GB + backup uchun alohida disk |
 
 Domen (masalan, `journal.uz`) va `www.journal.uz` uchun DNS’da **A yozuv** server IP manziliga
 qaratilgan bo‘lishi kerak. 80 va 443 portlar ochiq bo‘lsin.
@@ -59,7 +63,6 @@ cp .env.example .env
 | `NEXT_PUBLIC_SITE_URL`                                        | `https://journal.uz`                                        |
 | `AUTH_SECRET`                                                 | `openssl rand -base64 48` natijasi                          |
 | `POSTGRES_PASSWORD`                                           | uzun tasodifiy parol (`openssl rand -hex 24`)               |
-| `S3_ACCESS_KEY`, `S3_SECRET_KEY`                              | MinIO uchun login va uzun parol                             |
 | `SEED_ADMIN_PHONE`, `SEED_ADMIN_EMAIL`                        | birinchi administratorning telefon raqami va emaili         |
 | `SMS_PROVIDER=eskiz`, `SMS_ESKIZ_EMAIL`, `SMS_ESKIZ_PASSWORD` | SMS orqali kirish uchun                                     |
 | `OTP_MOCK_CODE`                                               | **bo‘sh qoldiring** (faqat test uchun)                      |
@@ -72,20 +75,21 @@ Keyinroq (kalitlar olinganda) qo‘shiladi: `PAYMENTS_MODE=live` va Click/Payme 
 ## 4. Ishga tushirish
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
 curl -fsS https://journal.uz/api/health
 ```
 
 Qisqartirish uchun: `alias dc='docker compose -f docker-compose.yml -f docker-compose.prod.yml'`.
 
-Birinchi ishga tushirishda `migrate` xizmati migratsiyalarni qo‘llaydi va boshlang‘ich
+Har ishga tushishda `app` konteyneri avval migratsiyalarni qo‘llaydi va boshlang‘ich
 ma’lumotlarni yuklaydi: administrator, yo‘nalishlar, Akademiya darslari, sahifalar, sozlamalar,
 Xorazmiy AI bilim bazasi. Production’da demo maqolalar va demo foydalanuvchilar **yuklanmaydi**
 (`SEED_DEMO=false`).
 
-Xizmatlar: `app` (sayt), `worker` (PDF, sertifikat, xabarnomalar), `postgres`, `redis`, `minio`
-(fayllar), `caddy` (HTTPS). Bazalar va fayl ombori tashqariga ochilmaydi — faqat Caddy (80/443).
+Xizmatlar: `app` (sayt + PDF, sertifikat, xabarnomalar; fayllar `files` volume’ida), `postgres`,
+`caddy` (HTTPS). Bazalar va fayl ombori tashqariga ochilmaydi — faqat Caddy (80/443).
 
 ## 5. Birinchi sozlash (sayt ichida)
 
@@ -98,7 +102,7 @@ Xizmatlar: `app` (sayt), `worker` (PDF, sertifikat, xabarnomalar), `postgres`, `
 4. **Admin → Foydalanuvchilar**: muharrir va taqrizchilarga rol bering.
 5. **Admin → Xorazmiy AI**: bilim bazasini ko‘rib chiqing; `ANTHROPIC_API_KEY` qo‘shilgach
    sifatni tekshiring (Claude API uchun to‘lov bo‘ladi, narxi oxirida chiqadi):
-   `dc run --rm -e ANTHROPIC_API_KEY migrate npm run ai:eval`.
+   lokal kompyuterda `ANTHROPIC_API_KEY=… npm run ai:eval`.
 6. Telegram-bot webhook’i (README → “Fon vazifalari”).
 7. Google Search Console va Bing Webmaster’ga `https://journal.uz/sitemap.xml` ni qo‘shing.
 
@@ -117,15 +121,14 @@ So‘ng `dc up -d app`.
 ```bash
 cd /opt/journal
 ./scripts/backup.sh            # avval zaxira nusxa
-git pull
-dc up -d --build               # migrate yangi migratsiyalarni qo‘llaydi
+bash deploy/install.sh journal.uz   # kod + yangi rasm; migratsiyalar o‘zi qo‘llanadi
 curl -fsS https://journal.uz/api/health
 ```
 
 ## 7. Zaxira nusxa (backup) — har kuni
 
 `scripts/backup.sh` PostgreSQL bazasini (`pg_dump`, custom format) va yuklangan fayllarni
-(MinIO) `/var/backups/journal` ga saqlaydi, 14 kundan eskilarini o‘chiradi.
+(`files` volume) `/var/backups/journal` ga saqlaydi, 14 kundan eskilarini o‘chiradi.
 
 ```bash
 sudo mkdir -p /var/backups/journal && sudo chown $USER /var/backups/journal
@@ -152,7 +155,7 @@ turing.
 ## 8. Monitoring va loglar
 
 - Holat: `GET /api/health` (baza ulanishi bilan) — UptimeRobot kabi xizmatga qo‘shing.
-- Loglar: `dc logs -f app`, `dc logs -f worker`, `dc logs caddy`.
+- Loglar: `dc logs -f app`, `dc logs caddy`.
 - Disk: `df -h`, `docker system df`.
 - AI xarajati: Admin → Xorazmiy AI (oylik).
 

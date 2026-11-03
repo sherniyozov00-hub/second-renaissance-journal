@@ -1,6 +1,8 @@
-# Local / single-server stack: app + PostgreSQL + Redis + MinIO.
-# `docker compose up --build` works without a .env file: the values below are
-# development defaults. Override them in .env for any real deployment.
+# The whole site: PostgreSQL + one app container (docs/deploy.md).
+#   local:  docker compose up --build        (http://localhost:3000)
+#   server: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# The server pulls the image GitHub Actions builds (APP_IMAGE); `--build`
+# builds it locally instead. Works without a .env file (development defaults).
 
 name: second-renaissance-journal
 
@@ -14,6 +16,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-journal}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-journal}
       POSTGRES_DB: ${POSTGRES_DB:-journal}
+    # Modest memory for a small server.
+    command: ["postgres", "-c", "shared_buffers=128MB", "-c", "max_connections=40"]
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
@@ -24,78 +28,24 @@ services:
       timeout: 5s
       retries: 10
 
-  redis:
-    image: redis:7-alpine
+  # Web app + background jobs (PDFs, notifications) in one process. On start
+  # it applies migrations and seeds (idempotent).
+  app:
+    image: ${APP_IMAGE:-ghcr.io/sherniyozov00-hub/second-renaissance-journal:latest}
+    build: .
     restart: unless-stopped
-    volumes:
-      - redis-data:/data
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-
-  # S3-compatible storage. MinIO no longer publishes community images on
-  # Docker Hub, so the archived Bitnami build is used for local development.
-  # In production point S3_* at any S3-compatible service.
-  minio:
-    image: bitnamilegacy/minio:2025.7.23
-    restart: unless-stopped
-    environment:
-      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-minioadmin}
-      MINIO_DEFAULT_BUCKETS: ${S3_BUCKET:-journal}
-    volumes:
-      - minio-data:/bitnami/minio/data
-    ports:
-      - "${MINIO_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-
-  # Applies migrations and seeds (idempotent), then exits.
-  migrate:
-    build:
-      context: .
-      target: migrator
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       DATABASE_URL: *db-url
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      SITE_NAME: ${SITE_NAME:-The Second Renaissance of Uzbekistan}
       SEED_ON_START: ${SEED_ON_START:-true}
       # false on a real server: no demo accounts and sample articles.
       SEED_DEMO: ${SEED_DEMO:-true}
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
       SEED_ADMIN_PHONE: ${SEED_ADMIN_PHONE:-+998900000001}
-
-  app:
-    build:
-      context: .
-      target: runner
-    restart: unless-stopped
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: *db-url
-      REDIS_URL: redis://redis:6379
-      S3_ENDPOINT: http://minio:9000
-      S3_REGION: ${S3_REGION:-us-east-1}
-      S3_BUCKET: ${S3_BUCKET:-journal}
-      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-minioadmin}
-      S3_SECRET_KEY: ${S3_SECRET_KEY:-minioadmin}
-      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
-      SITE_NAME: ${SITE_NAME:-The Second Renaissance of Uzbekistan}
       PAYMENTS_MODE: ${PAYMENTS_MODE:-sandbox}
       # Development default only — set a real secret in .env for any deployment.
       AUTH_SECRET: ${AUTH_SECRET:-dev-only-secret-change-me-in-env-file}
@@ -119,34 +69,18 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       AI_MODE: ${AI_MODE:-}
       SCHOLAR_MODE: ${SCHOLAR_MODE:-}
+      # Optional S3-compatible bucket instead of the local files volume.
+      # STORAGE_S3_ENDPOINT (not S3_ENDPOINT) so an old .env cannot switch it on.
+      S3_ENDPOINT: ${STORAGE_S3_ENDPOINT:-}
+      S3_REGION: ${STORAGE_S3_REGION:-us-east-1}
+      S3_BUCKET: ${STORAGE_S3_BUCKET:-}
+      S3_ACCESS_KEY: ${STORAGE_S3_ACCESS_KEY:-}
+      S3_SECRET_KEY: ${STORAGE_S3_SECRET_KEY:-}
+    volumes:
+      - files:/app/.data
     ports:
       - "${APP_PORT:-3000}:3000"
 
-  # Background jobs: article/certificate PDFs and email/Telegram notifications.
-  worker:
-    build:
-      context: .
-      target: worker
-    restart: unless-stopped
-    depends_on:
-      app:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: *db-url
-      APP_INTERNAL_URL: http://app:3000
-      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
-      S3_ENDPOINT: http://minio:9000
-      S3_REGION: ${S3_REGION:-us-east-1}
-      S3_BUCKET: ${S3_BUCKET:-journal}
-      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-minioadmin}
-      S3_SECRET_KEY: ${S3_SECRET_KEY:-minioadmin}
-      AUTH_SECRET: ${AUTH_SECRET:-dev-only-secret-change-me-in-env-file}
-      SMTP_URL: ${SMTP_URL:-}
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      EMAIL_FROM: ${EMAIL_FROM:-}
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
-
 volumes:
   postgres-data:
-  redis-data:
-  minio-data:
+  files:

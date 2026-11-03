@@ -11,14 +11,15 @@ COMPOSE="${COMPOSE:-docker compose -f docker-compose.yml -f docker-compose.prod.
 read -r -p "This replaces the current database${FILES:+ and files}. Type YES to continue: " ok
 [ "$ok" = "YES" ] || { echo "Cancelled."; exit 1; }
 
-$COMPOSE stop app worker
+$COMPOSE stop app
 echo "database…"
 $COMPOSE exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists --no-owner' \
   < "$DB_DUMP"
 if [ -n "$FILES" ]; then
   echo "files…"
-  gunzip -c "$FILES" | $COMPOSE exec -T minio sh -c 'tar -C /bitnami/minio/data -xf -'
+  # The app is stopped, so unpack into its volume with a throwaway container.
+  gunzip -c "$FILES" | $COMPOSE run --rm --no-deps -T --entrypoint sh app -c 'tar -C /app/.data -xf -'
 fi
 # Migrations newer than the dump are applied again; then the site starts.
-$COMPOSE up -d migrate app worker
+$COMPOSE up -d app
 echo "Restored. Check: curl -fsS https://\$DOMAIN/api/health"

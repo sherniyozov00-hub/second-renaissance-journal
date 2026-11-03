@@ -260,3 +260,20 @@ ish yuritishi kerak.”
    - CSV eksport ham panel tilida.
    - 5-bosqichdagi “panellar faqat o‘zbekcha” qarori bekor qilindi.
 7. **Topilgan xato tuzatildi:** qo‘lyozma tekshiruvi ruscha “Введение” sarlavhasini tanimas edi (JavaScript’dagi `\b` kirill harflarida ishlamaydi).
+
+## Server: bitta kichik konteyner (2026-11-03)
+
+1 vCPU / 2 GB RAM / 20 GB diskli serverda eski sxema sig‘madi: serverda yig‘ish (builder ~3,8 GB),
+Playwright rasmi (3,5 GB, uchta brauzer) ustiga `node_modules` nusxasi bilan worker (5,2 GB),
+MinIO va Redis. Docker 29 ning containerd ombori esa har qatlamni ikki marta saqlaydi.
+
+Yangi sxema:
+
+- Rasmni GitHub Actions yig‘adi va `ghcr.io` ga joylaydi; server faqat yuklab oladi.
+- Bitta `app` rasmi: Next.js standalone + faqat Chromium headless shell. Fon vazifalari sayt
+  jarayonida (`JOBS_MODE=inline`), shuning uchun alohida worker kerak emas. Redis kodda
+  ishlatilmas edi — olib tashlandi. Fayllar MinIO o‘rniga `files` volume’ida (S3 ixtiyoriy).
+- Migratsiyalar Prisma CLI’siz (`scripts/db-migrate.ts`, ~200 MB tejaladi), `_prisma_migrations`
+  jadvali bilan mos — Prisma CLI istalgan payt davom ettira oladi. Seed esbuild bilan bitta
+  faylga yig‘iladi.
+- Docker overlay2 (containerd-snapshotter o‘chiq), loglar cheklangan, swap 1 GB.

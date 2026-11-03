@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Daily backup (TZ 17): PostgreSQL dump + uploaded files (MinIO volume).
+# Daily backup (TZ 17): PostgreSQL dump + uploaded files (the app's files volume).
 #   ./scripts/backup.sh                       # from the project directory
 #   cron: 17 3 * * * cd /opt/journal && ./scripts/backup.sh >> /var/log/journal-backup.log 2>&1
 # Env: BACKUP_DIR (default /var/backups/journal), BACKUP_KEEP_DAYS (default 14).
@@ -17,7 +17,7 @@ $COMPOSE exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -
 mv "$DIR/db-$TS.dump.part" "$DIR/db-$TS.dump"
 
 echo "[$TS] files…"
-$COMPOSE exec -T minio sh -c 'tar -C /bitnami/minio/data -cf - .' | gzip > "$DIR/files-$TS.tar.gz.part"
+$COMPOSE exec -T app sh -c 'tar -C /app/.data -cf - .' | gzip > "$DIR/files-$TS.tar.gz.part"
 mv "$DIR/files-$TS.tar.gz.part" "$DIR/files-$TS.tar.gz"
 
 find "$DIR" -maxdepth 1 \( -name 'db-*.dump' -o -name 'files-*.tar.gz' \) -mtime +"$KEEP" -delete

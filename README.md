@@ -9,7 +9,7 @@ Yosh olimlar uchun elektron ilmiy jurnal va **Xorazmiy AI** ilmiy yordamchisi.
 ## Stek
 
 Next.js 16 (App Router, TypeScript) · Tailwind CSS 4 · PostgreSQL 16 + Prisma 7 ·
-Redis · S3 (lokalda MinIO) · Docker · GitHub Actions. Batafsil — TZ 4-bo‘lim.
+S3 yoki disk (fayllar) · Docker · GitHub Actions. Batafsil — TZ 4-bo‘lim.
 
 ## Tez ishga tushirish (Docker)
 
@@ -21,15 +21,13 @@ docker compose up --build
 
 So‘ng <http://localhost:3000> ni oching. Holatni tekshirish: <http://localhost:3000/api/health>.
 
-`migrate` xizmati ishga tushishda migratsiyalarni qo‘llaydi va seed ma’lumotlarni yuklaydi
+`app` konteyneri ishga tushishda migratsiyalarni qo‘llaydi va seed ma’lumotlarni yuklaydi
 (takroriy ishga tushirish xavfsiz). Seed’ni o‘chirish: `.env` da `SEED_ON_START=false`.
 
-| Xizmat     | Manzil                                                                                |
-| ---------- | ------------------------------------------------------------------------------------- |
-| Sayt       | http://localhost:3000                                                                 |
-| PostgreSQL | localhost:5432 (`journal` / `journal`)                                                |
-| Redis      | localhost:6379                                                                        |
-| MinIO (S3) | API http://localhost:9000, konsol http://localhost:9001 (`minioadmin` / `minioadmin`) |
+| Xizmat     | Manzil                                 |
+| ---------- | -------------------------------------- |
+| Sayt       | http://localhost:3000                  |
+| PostgreSQL | localhost:5432 (`journal` / `journal`) |
 
 To‘xtatish: `docker compose down` (ma’lumotlar bilan birga o‘chirish: `docker compose down -v`).
 
@@ -41,7 +39,7 @@ undan tiklash** (`scripts/backup.sh`, `scripts/restore.sh`) hamda monitoring yor
 
 ```bash
 cp .env.example .env    # DOMAIN, AUTH_SECRET, parollar, SEED_ADMIN_* …
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 Xavfsizlik tekshiruvi: [`docs/security.md`](docs/security.md).
@@ -50,7 +48,7 @@ Xavfsizlik tekshiruvi: [`docs/security.md`](docs/security.md).
 
 ```bash
 cp .env.example .env
-docker compose up -d postgres redis minio   # faqat infratuzilma
+docker compose up -d postgres   # faqat baza
 npm install                                 # Prisma Client ham generatsiya qilinadi
 npm run db:deploy                           # migratsiyalar
 npm run db:seed                             # namuna ma’lumotlar
@@ -194,9 +192,9 @@ To‘lov — `PAYMENTS_MODE`:
 
 ## Fon vazifalari (worker) va xabarnomalar
 
-`worker` xizmati (`npm run worker`, docker compose’da avtomatik) pg-boss navbatidan PDF va
-xabarnoma vazifalarini bajaradi. Lokal ishlab chiqishda worker’siz ishlash uchun
-`JOBS_MODE=inline` + `APP_INTERNAL_URL=http://localhost:3000`.
+PDF va xabarnoma vazifalari standart holatda sayt jarayonining o‘zida bajariladi
+(`JOBS_MODE=inline`, docker rasmida doim shunday — alohida worker, Redis yoki MinIO yo‘q).
+Katta yuklamada pg-boss navbatiga o‘tish mumkin: `JOBS_MODE=queue` + `npm run worker`.
 
 Xabarnomalar (status o‘zgarishi, muharrir izohi, to‘lov, nashr) — email va Telegram.
 Telegram botni ulash:
