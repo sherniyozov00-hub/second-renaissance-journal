@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { googleEnabled } from "@/auth";
+import { isGoogleEnabled } from "@/auth";
 import { PageShell } from "@/components/layout/page-shell";
 import { LoginForm } from "@/components/auth/login-form";
 import { getPathname, redirect } from "@/i18n/navigation";
@@ -37,6 +37,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
   if (await currentUser()) redirect({ href: next, locale: "uz" as AppLocale });
   const t = await getTranslations("auth");
   const phoneEnabled = phoneLoginEnabled();
+  const googleEnabled = await isGoogleEnabled();
 
   return (
     <PageShell>

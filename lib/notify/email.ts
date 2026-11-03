@@ -1,5 +1,6 @@
 import "server-only";
 import nodemailer from "nodemailer";
+import { getSecret } from "@/lib/secrets";
 
 export type EmailMessage = { to: string; subject: string; text: string; html?: string };
 
@@ -55,14 +56,24 @@ class ResendEmailProvider implements EmailProvider {
   }
 }
 
-let provider: EmailProvider | null = null;
+let provider: { sig: string; impl: EmailProvider } | null = null;
 
-export function getEmailProvider(): EmailProvider {
-  if (provider) return provider;
-  const from = process.env.EMAIL_FROM || "no-reply@localhost";
-  if (process.env.SMTP_URL) provider = new SmtpEmailProvider(process.env.SMTP_URL, from);
-  else if (process.env.RESEND_API_KEY)
-    provider = new ResendEmailProvider(process.env.RESEND_API_KEY, from);
-  else provider = new MockEmailProvider();
-  return provider;
+/**
+ * SMTP_URL → SMTP; RESEND_API_KEY (env or admin panel) → Resend; else logged.
+ * Rebuilt when the keys change, so a key pasted in the admin panel applies
+ * without a restart.
+ */
+export async function getEmailProvider(): Promise<EmailProvider> {
+  const smtp = process.env.SMTP_URL ?? "";
+  const resend = smtp ? "" : await getSecret("RESEND_API_KEY");
+  const from = (await getSecret("EMAIL_FROM")) || "no-reply@localhost";
+  const sig = `${smtp}|${resend}|${from}`;
+  if (provider?.sig === sig) return provider.impl;
+  const impl = smtp
+    ? new SmtpEmailProvider(smtp, from)
+    : resend
+      ? new ResendEmailProvider(resend, from)
+      : new MockEmailProvider();
+  provider = { sig, impl };
+  return impl;
 }

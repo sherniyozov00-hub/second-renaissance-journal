@@ -806,7 +806,8 @@
       "som": "so‘m",
       "yes": "Ha",
       "no": "Yo‘q",
-      "none": "—"
+      "none": "—",
+      "nav_integrations": "Integratsiyalar"
     },
     "dashboard": {
       "title": "Boshqaruv paneli",
@@ -1165,6 +1166,45 @@
       "comment": "Izoh (muharrir va muallif uchun)",
       "submittedOn": "Topshirilgan: {date}",
       "send": "Taqrizni yuborish"
+    },
+    "integrations": {
+      "title": "Integratsiyalar",
+      "lead": "Email yuborish va Google orqali kirish kalitlari. Kalitni shu yerga nusxalab qo‘yasiz — serverga kirish shart emas. Kalitlar shifrlangan holda saqlanadi va qayta ko‘rsatilmaydi.",
+      "g_email": "Email (Resend) — kirish kodlari va xabarnomalar",
+      "g_google": "Google orqali kirish",
+      "steps_email": [
+        "resend.com saytida ro‘yxatdan o‘ting (bepul: oyiga 3000 ta xat).",
+        "Domains → Add Domain → {domain} ni qo‘shing. Resend ko‘rsatgan DNS yozuvlarini (MX, TXT) domen panelida qo‘shing va “Verify” ni bosing.",
+        "API Keys → Create API Key (Sending access) → kalitni quyidagiga qo‘ying.",
+        "“Kimdan” maydoniga masalan: Jurnal <no-reply@{domain}> yozing."
+      ],
+      "steps_google": [
+        "console.cloud.google.com → yangi loyiha yarating.",
+        "APIs & Services → OAuth consent screen: External, ilova nomi va emailingizni yozing, “Publish app”.",
+        "Credentials → Create credentials → OAuth client ID → Web application.",
+        "Authorized redirect URIs: {callback}",
+        "Client ID va Client secret ni quyidagiga qo‘ying."
+      ],
+      "k_RESEND_API_KEY": "Resend API kaliti",
+      "k_EMAIL_FROM": "Kimdan (From)",
+      "k_AUTH_GOOGLE_ID": "Google Client ID",
+      "k_AUTH_GOOGLE_SECRET": "Google Client secret",
+      "ph_RESEND_API_KEY": "re_…",
+      "ph_EMAIL_FROM": "Jurnal <no-reply@domen.uz>",
+      "ph_AUTH_GOOGLE_ID": "…apps.googleusercontent.com",
+      "ph_AUTH_GOOGLE_SECRET": "GOCSPX-…",
+      "ph_keep": "o‘zgartirmaslik uchun bo‘sh qoldiring",
+      "state_env": "server .env faylida berilgan",
+      "state_set": "saqlangan ({hint})",
+      "state_none": "kiritilmagan",
+      "clear": "O‘chirish",
+      "test_title": "Emailni tekshirish",
+      "test_lead": "Sizning emailingizga test xat yuboriladi.",
+      "test_button": "Test xat yuborish",
+      "notice_yuborildi": "Test xat yuborildi — pochtangizni tekshiring (Spam papkasini ham).",
+      "notice_ulanmagan": "Email xizmati hali ulanmagan: avval Resend kalitini kiriting.",
+      "notice_xato": "Xat yuborilmadi: kalitni va domen tasdiqlanganini (Resend → Domains → Verified) tekshiring.",
+      "notice_email_yoq": "Hisobingizda email yo‘q."
     }
   }
 }

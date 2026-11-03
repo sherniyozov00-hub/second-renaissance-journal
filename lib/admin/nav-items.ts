@@ -11,5 +11,6 @@ export const ADMIN_NAV = [
   { href: "/admin/akademiya", key: "academy", adminOnly: true },
   { href: "/admin/sahifalar", key: "pages", adminOnly: true },
   { href: "/admin/foydalanuvchilar", key: "users", adminOnly: true },
+  { href: "/admin/integratsiyalar", key: "integrations", adminOnly: true },
   { href: "/admin/sozlamalar", key: "settings", adminOnly: true },
 ] as const;

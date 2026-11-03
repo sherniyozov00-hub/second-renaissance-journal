@@ -24,10 +24,12 @@ export function hashCode(target: string, code: string): string {
  * In mock mode a fixed code can be configured for demos and e2e tests;
  * it is ignored as soon as a real SMS provider is configured.
  */
-function generateCode(channel: OtpChannel): string {
+async function generateCode(channel: OtpChannel): Promise<string> {
   const fixed = process.env.OTP_MOCK_CODE;
   const mock =
-    channel === "PHONE" ? getSmsProvider().name === "mock" : getEmailProvider().name === "mock";
+    channel === "PHONE"
+      ? getSmsProvider().name === "mock"
+      : (await getEmailProvider()).name === "mock";
   if (fixed && mock && /^\d{6}$/.test(fixed)) return fixed;
   return String(randomInt(0, 1_000_000)).padStart(6, "0");
 }
@@ -60,7 +62,7 @@ export async function requestOtp(
     return { ok: false, error: "rate_limited" };
   }
 
-  const code = generateCode(channel);
+  const code = await generateCode(channel);
   await db.otpCode.create({
     data: {
       channel,
@@ -88,7 +90,10 @@ export async function requestOtp(
   const text = `${siteConfig.name}: ${msg.text}`;
   try {
     if (channel === "PHONE") await getSmsProvider().send(target, text);
-    else await getEmailProvider().send({ to: target, subject: `${msg.subject}: ${code}`, text });
+    else
+      await (
+        await getEmailProvider()
+      ).send({ to: target, subject: `${msg.subject}: ${code}`, text });
   } catch (err) {
     console.error("[otp] delivery failed", err);
     return { ok: false, error: "send_failed" };

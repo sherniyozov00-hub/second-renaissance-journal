@@ -806,7 +806,8 @@
       "som": "сум",
       "yes": "Да",
       "no": "Нет",
-      "none": "—"
+      "none": "—",
+      "nav_integrations": "Интеграции"
     },
     "dashboard": {
       "title": "Панель управления",
@@ -1165,6 +1166,45 @@
       "comment": "Комментарий (для редактора и автора)",
       "submittedOn": "Сдана: {date}",
       "send": "Отправить рецензию"
+    },
+    "integrations": {
+      "title": "Интеграции",
+      "lead": "Ключи для отправки email и входа через Google. Вставьте ключ сюда — заходить на сервер не нужно. Ключи хранятся в зашифрованном виде и больше не показываются.",
+      "g_email": "Email (Resend) — коды входа и уведомления",
+      "g_google": "Вход через Google",
+      "steps_email": [
+        "Зарегистрируйтесь на resend.com (бесплатно: 3000 писем в месяц).",
+        "Domains → Add Domain → добавьте {domain}. Добавьте показанные DNS-записи (MX, TXT) в панели домена и нажмите «Verify».",
+        "API Keys → Create API Key (Sending access) → вставьте ключ ниже.",
+        "В поле «От кого» укажите, например: Журнал <no-reply@{domain}>."
+      ],
+      "steps_google": [
+        "console.cloud.google.com → создайте проект.",
+        "APIs & Services → OAuth consent screen: External, название и ваш email, «Publish app».",
+        "Credentials → Create credentials → OAuth client ID → Web application.",
+        "Authorized redirect URIs: {callback}",
+        "Вставьте Client ID и Client secret ниже."
+      ],
+      "k_RESEND_API_KEY": "API-ключ Resend",
+      "k_EMAIL_FROM": "От кого (From)",
+      "k_AUTH_GOOGLE_ID": "Google Client ID",
+      "k_AUTH_GOOGLE_SECRET": "Google Client secret",
+      "ph_RESEND_API_KEY": "re_…",
+      "ph_EMAIL_FROM": "Журнал <no-reply@domain.uz>",
+      "ph_AUTH_GOOGLE_ID": "…apps.googleusercontent.com",
+      "ph_AUTH_GOOGLE_SECRET": "GOCSPX-…",
+      "ph_keep": "оставьте пустым, чтобы не менять",
+      "state_env": "задано в .env на сервере",
+      "state_set": "сохранено ({hint})",
+      "state_none": "не задано",
+      "clear": "Удалить",
+      "test_title": "Проверка email",
+      "test_lead": "На ваш email будет отправлено тестовое письмо.",
+      "test_button": "Отправить тестовое письмо",
+      "notice_yuborildi": "Тестовое письмо отправлено — проверьте почту (и папку «Спам»).",
+      "notice_ulanmagan": "Email ещё не подключён: сначала введите ключ Resend.",
+      "notice_xato": "Письмо не отправлено: проверьте ключ и подтверждение домена (Resend → Domains → Verified).",
+      "notice_email_yoq": "В вашем аккаунте нет email."
     }
   }
 }

@@ -9,7 +9,8 @@ export type Settings = Record<string, SettingValue>;
 export const getSettings = cache(async (): Promise<Settings> => {
   const out: Settings = Object.fromEntries(SETTINGS.map((s) => [s.key, s.defaultValue]));
   try {
-    const rows = await db.setting.findMany();
+    // Integration keys (lib/secrets.ts) live in the same table; never expose them.
+    const rows = await db.setting.findMany({ where: { NOT: { key: { startsWith: "secret:" } } } });
     for (const row of rows) out[row.key] = row.value as SettingValue;
   } catch {
     // Database unavailable: render with defaults rather than failing the page.
