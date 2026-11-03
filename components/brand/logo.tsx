@@ -28,7 +28,7 @@ export function LogoMark({
   );
 }
 
-/** Logo with wordmark: "The Second Renaissance" / "OF UZBEKISTAN · ILMIY JURNAL". */
+/** Logo with wordmark: "The Third Renaissance" / "OF UZBEKISTAN · ILMIY JURNAL". */
 export function Logo({
   variant = "header",
   subtitle,

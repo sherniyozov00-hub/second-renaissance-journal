@@ -48,7 +48,7 @@ const STATUS: Record<BotLang, Record<ArticleStatus, string>> = {
 const T = {
   uz: {
     help: [
-      "The Second Renaissance of Uzbekistan — ilmiy jurnal boti.",
+      "The Third Renaissance of Uzbekistan — ilmiy jurnal boti.",
       "",
       "/maqolalar — so‘nggi maqolalar",
       "/qidiruv <so‘z> — maqola qidirish",
@@ -76,7 +76,7 @@ const T = {
   },
   ru: {
     help: [
-      "The Second Renaissance of Uzbekistan — бот научного журнала.",
+      "The Third Renaissance of Uzbekistan — бот научного журнала.",
       "",
       "/maqolalar — последние статьи",
       "/qidiruv <слово> — поиск статей",
@@ -104,7 +104,7 @@ const T = {
   },
   en: {
     help: [
-      "The Second Renaissance of Uzbekistan — the journal’s bot.",
+      "The Third Renaissance of Uzbekistan — the journal’s bot.",
       "",
       "/maqolalar — latest articles",
       "/qidiruv <word> — search articles",

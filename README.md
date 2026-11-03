@@ -1,4 +1,4 @@
-# The Second Renaissance of Uzbekistan
+# The Third Renaissance of Uzbekistan
 
 Yosh olimlar uchun elektron ilmiy jurnal va **Xorazmiy AI** ilmiy yordamchisi.
 

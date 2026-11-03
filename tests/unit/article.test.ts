@@ -7,7 +7,7 @@ const input: CitationInput = {
   title: "Farg‘ona vodiysida tomchilatib sug‘orishning paxta hosildorligiga ta’siri",
   authors: ["Aziza Karimova", "Bekzod Rahimov"],
   year: 2026,
-  journal: "The Second Renaissance of Uzbekistan",
+  journal: "The Third Renaissance of Uzbekistan",
   volume: 1,
   issue: 1,
   pages: "3–12",
@@ -18,7 +18,7 @@ const input: CitationInput = {
 describe("citations", () => {
   it("formats APA 7 like the Ekran 4 sample", () => {
     expect(formatApa(input)).toBe(
-      "Karimova, A., & Rahimov, B. (2026). Farg‘ona vodiysida tomchilatib sug‘orishning paxta hosildorligiga ta’siri. The Second Renaissance of Uzbekistan, 1(1), 3–12. https://example.uz/maqola/x",
+      "Karimova, A., & Rahimov, B. (2026). Farg‘ona vodiysida tomchilatib sug‘orishning paxta hosildorligiga ta’siri. The Third Renaissance of Uzbekistan, 1(1), 3–12. https://example.uz/maqola/x",
     );
   });
 
@@ -30,7 +30,7 @@ describe("citations", () => {
     const gost = formatGost(input);
     expect(gost.startsWith("Karimova A. Farg‘ona")).toBe(true);
     expect(gost).toContain(
-      "/ Karimova A., Rahimov B. // The Second Renaissance of Uzbekistan. 2026. № 1. С. 3–12.",
+      "/ Karimova A., Rahimov B. // The Third Renaissance of Uzbekistan. 2026. № 1. С. 3–12.",
     );
   });
 

@@ -3,9 +3,9 @@
  * so it can be changed without touching components or the logo file.
  */
 export const siteConfig = {
-  name: process.env.SITE_NAME ?? "The Second Renaissance of Uzbekistan",
+  name: process.env.SITE_NAME ?? "The Third Renaissance of Uzbekistan",
   /** First line of the wordmark next to the logo. */
-  wordmark: process.env.SITE_WORDMARK ?? "The Second Renaissance",
+  wordmark: process.env.SITE_WORDMARK ?? "The Third Renaissance",
   /** Second line of the wordmark: "OF UZBEKISTAN · ILMIY JURNAL". */
   wordmarkSub: process.env.SITE_WORDMARK_SUB ?? "OF UZBEKISTAN",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",

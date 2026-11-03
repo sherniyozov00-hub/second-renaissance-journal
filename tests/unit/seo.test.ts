@@ -5,7 +5,7 @@ import { jsonLd, truncate } from "@/lib/seo";
 import { breadcrumbList, homeGraph, scholarlyArticle } from "@/lib/structured-data";
 
 const journal = {
-  name: "The Second Renaissance of Uzbekistan",
+  name: "The Third Renaissance of Uzbekistan",
   url: "https://x.uz/",
   issn: "[RAQAM]",
 };
