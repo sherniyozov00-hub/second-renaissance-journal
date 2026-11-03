@@ -41,6 +41,9 @@ RUN node /tmp/playwright-core/cli.js install --with-deps --only-shell chromium \
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+# The standalone trace keeps only part of playwright-core (no browsers.json);
+# the full package is ~10 MB.
+COPY --from=builder /app/node_modules/playwright-core ./node_modules/playwright-core
 COPY --from=builder /app/.docker ./.docker
 COPY --from=builder /app/prisma/migrations ./.docker/migrations
 COPY deploy/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
