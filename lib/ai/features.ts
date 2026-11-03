@@ -105,7 +105,7 @@ const mockResult = <T>(data: T) => ({ data, spend: NO_SPEND, model: "mock" });
 
 export async function makePlan(ctx: FeatureContext, title: string, notes: string) {
   const res: { data: Plan; spend: Spend; model: string } =
-    aiMode() === "mock"
+    (await aiMode()) === "mock"
       ? mockResult(mockPlan(title))
       : await structured({
           system: await systemPrompt(ctx.articleType, ctx.categoryId),
@@ -121,7 +121,7 @@ ${wrapText(`Mavzu: ${title}\nIzohlar: ${notes || "—"}`)}`,
 
 export async function assistWriting(ctx: FeatureContext, text: string, question: string) {
   const res: { data: Assist; spend: Spend; model: string } =
-    aiMode() === "mock"
+    (await aiMode()) === "mock"
       ? mockResult(mockAssist())
       : await structured({
           system: await systemPrompt(ctx.articleType, ctx.categoryId),
@@ -148,7 +148,7 @@ ${wrapText(text)}`,
 export async function suggestEdits(ctx: FeatureContext, text: string) {
   const paragraphs = splitParagraphs(text);
   const res =
-    aiMode() === "mock"
+    (await aiMode()) === "mock"
       ? mockResult({ edits: mockEdits(paragraphs, ctx.lang) })
       : await structured({
           system: await systemPrompt(ctx.articleType, ctx.categoryId),
@@ -176,7 +176,7 @@ ${wrapText(numbered(paragraphs))}`,
 
 export async function translate(ctx: FeatureContext, title: string, abstract: string) {
   const res: { data: Translation; spend: Spend; model: string } =
-    aiMode() === "mock"
+    (await aiMode()) === "mock"
       ? mockResult(mockTranslation(title, abstract, ctx.lang))
       : await structured({
           system: await systemPrompt(ctx.articleType, ctx.categoryId),
@@ -204,7 +204,7 @@ export async function findSources(ctx: FeatureContext, topic: string) {
   let queries = [topic.slice(0, 200)];
   let spend = NO_SPEND;
   let model = "none";
-  if (aiMode() === "live") {
+  if ((await aiMode()) === "live") {
     const res = await structured({
       system: await systemPrompt(ctx.articleType, ctx.categoryId),
       effort: "low",
@@ -269,7 +269,7 @@ export async function chat(
   question: string,
   draft: { title: string; text: string },
 ) {
-  if (aiMode() === "mock") {
+  if ((await aiMode()) === "mock") {
     const answer = mockChat(question, ctx.lang);
     await record(ctx, "chat", "CHAT", question, { question, answer }, NO_SPEND, "mock");
     return { answer };

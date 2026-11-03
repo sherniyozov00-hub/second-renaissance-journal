@@ -151,7 +151,8 @@ export default async function AiAdminPage({
         </p>
       ) : null}
       <p className="mt-2 text-sm text-text-2">
-        {t("mode")}: <strong>{aiMode() === "live" ? t("live") : t("mock")}</strong>. {t("modeHint")}
+        {t("mode")}: <strong>{(await aiMode()) === "live" ? t("live") : t("mock")}</strong>.{" "}
+        {t("modeHint")}
       </p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">

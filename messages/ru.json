@@ -1204,7 +1204,17 @@
       "notice_yuborildi": "Тестовое письмо отправлено — проверьте почту (и папку «Спам»).",
       "notice_ulanmagan": "Email ещё не подключён: сначала введите ключ Resend.",
       "notice_xato": "Письмо не отправлено: проверьте ключ и подтверждение домена (Resend → Domains → Verified).",
-      "notice_email_yoq": "В вашем аккаунте нет email."
+      "notice_email_yoq": "В вашем аккаунте нет email.",
+      "g_ai": "Xorazmiy AI (Claude API)",
+      "steps_ai": [
+        "Зарегистрируйтесь в platform.claude.com (Claude Console).",
+        "Billing → привяжите карту и пополните баланс (например, $10). «Auto reload» оставьте выключенным — когда баланс закончится, AI просто вернётся в тестовый режим.",
+        "Settings → Limits: задайте месячный лимит расходов (например, $20).",
+        "API Keys → Create Key → вставьте ключ ниже.",
+        "Модель: Настройки → Xorazmiy AI → ai.model (экономно: claude-sonnet-5-5)."
+      ],
+      "k_ANTHROPIC_API_KEY": "Ключ Claude API",
+      "ph_ANTHROPIC_API_KEY": "sk-ant-…"
     }
   }
 }

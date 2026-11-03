@@ -2,6 +2,7 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import type { z } from "zod";
+import { getSecret } from "@/lib/secrets";
 import { getSettings } from "@/lib/settings/get";
 import { spendOf, type Spend } from "./pricing";
 import type { AiErrorCode } from "./schemas";
@@ -12,9 +13,9 @@ import type { AiErrorCode } from "./schemas";
  * runs a deterministic mock so the workspace, tests and CI work offline; the
  * UI labels such answers "sinov rejimi".
  */
-export function aiMode(): "live" | "mock" {
+export async function aiMode(): Promise<"live" | "mock"> {
   if (process.env.AI_MODE === "mock") return "mock";
-  return process.env.ANTHROPIC_API_KEY ? "live" : "mock";
+  return (await getSecret("ANTHROPIC_API_KEY")) ? "live" : "mock";
 }
 
 export class AiError extends Error {
@@ -23,10 +24,13 @@ export class AiError extends Error {
   }
 }
 
-let client: Anthropic | null = null;
-export function anthropic(): Anthropic {
-  client ??= new Anthropic({ timeout: 180_000, maxRetries: 2 });
-  return client;
+let client: { key: string; impl: Anthropic } | null = null;
+/** The key comes from the environment or the admin panel (Integratsiyalar). */
+export async function anthropic(): Promise<Anthropic> {
+  const apiKey = await getSecret("ANTHROPIC_API_KEY");
+  if (client?.key !== apiKey)
+    client = { key: apiKey, impl: new Anthropic({ apiKey, timeout: 180_000, maxRetries: 2 }) };
+  return client.impl;
 }
 
 export async function aiModel(): Promise<string> {
@@ -61,7 +65,9 @@ export async function structured<S extends z.ZodType>(opts: {
 }): Promise<{ data: z.infer<S>; spend: Spend; model: string }> {
   const model = await aiModel();
   try {
-    const res = await anthropic().beta.messages.parse({
+    const res = await (
+      await anthropic()
+    ).beta.messages.parse({
       model,
       max_tokens: opts.maxTokens ?? 16000,
       betas: [FALLBACK_BETA],
@@ -88,7 +94,9 @@ export async function textAnswer(opts: {
 }): Promise<{ text: string; spend: Spend; model: string }> {
   const model = await aiModel();
   try {
-    const res = await anthropic().beta.messages.create({
+    const res = await (
+      await anthropic()
+    ).beta.messages.create({
       model,
       max_tokens: 8000,
       betas: [FALLBACK_BETA],

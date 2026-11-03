@@ -1204,7 +1204,17 @@
       "notice_yuborildi": "Test email sent — check your inbox (and Spam).",
       "notice_ulanmagan": "Email is not connected yet: enter the Resend key first.",
       "notice_xato": "Not sent: check the key and that the domain is verified (Resend → Domains → Verified).",
-      "notice_email_yoq": "Your account has no email."
+      "notice_email_yoq": "Your account has no email.",
+      "g_ai": "Xorazmiy AI (Claude API)",
+      "steps_ai": [
+        "Sign up at platform.claude.com (Claude Console).",
+        "Billing → add a card and top up the balance (e.g. $10). Leave “Auto reload” off — when the balance runs out, the AI simply returns to test mode.",
+        "Settings → Limits: set a monthly spend limit (e.g. $20).",
+        "API Keys → Create Key → paste the key below.",
+        "Model: Settings → Xorazmiy AI → ai.model (economical: claude-sonnet-5-5)."
+      ],
+      "k_ANTHROPIC_API_KEY": "Claude API key",
+      "ph_ANTHROPIC_API_KEY": "sk-ant-…"
     }
   }
 }

@@ -11,9 +11,10 @@ export async function generateMetadata() {
   return { title: (await getTranslations("admin.integrations"))("title") };
 }
 
-const GROUPS: { id: "email" | "google"; keys: SecretKey[] }[] = [
+const GROUPS: { id: "email" | "google" | "ai"; keys: SecretKey[] }[] = [
   { id: "email", keys: ["RESEND_API_KEY", "EMAIL_FROM"] },
   { id: "google", keys: ["AUTH_GOOGLE_ID", "AUTH_GOOGLE_SECRET"] },
+  { id: "ai", keys: ["ANTHROPIC_API_KEY"] },
 ];
 
 const NOTICES = ["saqlandi", "yuborildi", "ulanmagan", "xato", "email_yoq"] as const;

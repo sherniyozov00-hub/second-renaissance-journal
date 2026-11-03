@@ -63,7 +63,7 @@ async function extractClaims(
   system: string,
   items: { index: number; text: string }[],
 ): Promise<{ claims: Claim[]; spend: Spend; model: string }> {
-  if (aiMode() === "mock") {
+  if ((await aiMode()) === "mock") {
     const claims = items.flatMap(({ index, text }) =>
       mockClaims(text).map((c, i) => ({ id: `p${index}c${i}`, paragraph: index, text: c.text })),
     );
@@ -163,7 +163,9 @@ ${claims.map((c) => `${c.id}: ${c.text}`).join("\n")}
   const retrieved = new Set<string>();
   let spend = NO_SPEND;
   for (let turn = 0; turn < 6; turn++) {
-    const res = await anthropic().beta.messages.create({
+    const res = await (
+      await anthropic()
+    ).beta.messages.create({
       model,
       max_tokens: 16000,
       betas: [FALLBACK_BETA],
@@ -216,12 +218,12 @@ async function checkParagraph(
   lang: AiLang,
 ): Promise<ParagraphResult> {
   if (!claims.length)
-    return { results: [], spend: NO_SPEND, model: aiMode() === "mock" ? "mock" : "" };
+    return { results: [], spend: NO_SPEND, model: (await aiMode()) === "mock" ? "mock" : "" };
   let verdicts: ModelVerdict[];
   let retrieved: Set<string>;
   let spend = NO_SPEND;
   let model = "mock";
-  if (aiMode() === "mock") {
+  if ((await aiMode()) === "mock") {
     verdicts = claims.map((c) => mockVerdict(c.id, c.text, lang));
     retrieved = new Set(MOCK_RETRIEVED.map((u) => normalizeUrl(u)!));
   } else {
@@ -261,7 +263,7 @@ export async function runFactCheck(
   emit: (e: FactEvent) => void,
 ): Promise<{ results: FactResult[]; spend: Spend }> {
   const paragraphs = splitParagraphs(text);
-  const mock = aiMode() === "mock";
+  const mock = (await aiMode()) === "mock";
   emit({ type: "start", paragraphs: paragraphs.length, mock });
 
   const model = mock ? "mock" : await aiModel();

@@ -1204,7 +1204,17 @@
       "notice_yuborildi": "Test xat yuborildi — pochtangizni tekshiring (Spam papkasini ham).",
       "notice_ulanmagan": "Email xizmati hali ulanmagan: avval Resend kalitini kiriting.",
       "notice_xato": "Xat yuborilmadi: kalitni va domen tasdiqlanganini (Resend → Domains → Verified) tekshiring.",
-      "notice_email_yoq": "Hisobingizda email yo‘q."
+      "notice_email_yoq": "Hisobingizda email yo‘q.",
+      "g_ai": "Xorazmiy AI (Claude API)",
+      "steps_ai": [
+        "platform.claude.com (Claude Console) da ro‘yxatdan o‘ting.",
+        "Billing → kartani ulang va balansni to‘ldiring (masalan, $10). “Auto reload” ni o‘chiq qoldiring — balans tugasa, AI shunchaki sinov rejimiga qaytadi.",
+        "Settings → Limits: oylik xarajat chegarasini qo‘ying (masalan, $20).",
+        "API Keys → Create Key → kalitni quyidagiga qo‘ying.",
+        "Model: Sozlamalar → Xorazmiy AI → ai.model (tejamkor: claude-sonnet-5-5)."
+      ],
+      "k_ANTHROPIC_API_KEY": "Claude API kaliti",
+      "ph_ANTHROPIC_API_KEY": "sk-ant-…"
     }
   }
 }

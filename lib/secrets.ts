@@ -14,6 +14,7 @@ export const SECRET_KEYS = [
   "EMAIL_FROM",
   "AUTH_GOOGLE_ID",
   "AUTH_GOOGLE_SECRET",
+  "ANTHROPIC_API_KEY",
 ] as const;
 export type SecretKey = (typeof SECRET_KEYS)[number];
 
