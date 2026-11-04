@@ -318,7 +318,24 @@ async function main() {
   }
 
   // Xorazmiy AI knowledge base: created once, then edited by the editorial team.
+  // A row nobody has edited yet (updatedById is null) follows the defaults in
+  // code, so improved rules reach the site with a deploy; edited rows are kept.
   for (const k of KNOWLEDGE_DEFAULTS) {
+    const existing = await db.aiKnowledge.findUnique({
+      where: { key: k.key },
+      select: { updatedById: true, title: true, body: true },
+    });
+    if (
+      existing &&
+      !existing.updatedById &&
+      (existing.title !== k.title || existing.body !== k.body)
+    ) {
+      await db.aiKnowledge.update({
+        where: { key: k.key },
+        data: { title: k.title, body: k.body, kind: k.kind, articleType: k.articleType },
+      });
+      continue;
+    }
     await db.aiKnowledge.upsert({
       where: { key: k.key },
       update: {},

@@ -1,4 +1,5 @@
 import type { AiKnowledgeKind, ArticleType } from "@/generated/prisma/client";
+import { KNOWLEDGE_GUIDES } from "./knowledge-guides";
 
 /**
  * Starting knowledge base for Xorazmiy AI (stage 6 "training"). The seed writes
@@ -64,7 +65,7 @@ export const KNOWLEDGE_DEFAULTS: KnowledgeSeed[] = [
     title: "Fakt tekshiruvi usuli",
     body: `- Faqat RAQAMLI ma’lumotlar tekshiriladi: son, foiz, miqdor, o‘lchov, yil yoki sana bilan berilgan va dunyoda tekshirsa bo‘ladigan gap (statistika, tarixiy sana, boshqa muallifga havola qilingan raqamli natija). Raqamsiz gaplar tekshirilmaydi.
 - Tekshirilmaydi: muallifning o‘z tajribasi natijalari (“bizning tajribamizda hosil 12 % oshdi”), maqsad va reja gaplari, ta’riflar, fikr va baholar.
-- Har bir da’vo uchun kamida ikki xil qidiruv: o‘zbekcha/ruscha va inglizcha. Rasmiy statistika (stat.uz, FAO, World Bank), ilmiy maqolalar va xalqaro tashkilotlar ommaviy saytlardan ustun.
+- Har bir da’vo uchun odatda bitta aniq qidiruv yetadi; natija chiqmasa — boshqa tilda (o‘zbekcha/ruscha yoki inglizcha) qayta qidir. Rasmiy statistika (stat.uz, FAO, World Bank), ilmiy maqolalar va xalqaro tashkilotlar ommaviy saytlardan ustun.
 - “To‘g‘ri” — ishonchli manba da’voni tasdiqlaydi. “Noto‘g‘ri” — ishonchli manba boshqacha ma’lumot beradi; to‘g‘ri ma’lumotni va uning manbasini ko‘rsat. “Manba kerak” — topilmadi, manbalar bir-biriga zid yoki da’vo juda umumiy.
 - Taxminiy raqamlar (“taxminan”, “qariyb”) uchun 10–15 % farq “To‘g‘ri” hisoblanadi. Sana yoki ism xato bo‘lsa — “Noto‘g‘ri”.
 - Tuzatish matni qisqa, muallif jumlasiga qo‘yish mumkin bo‘lgan shaklda bo‘ladi.`,
@@ -207,6 +208,7 @@ Reja:
 5. Xulosa — gipotezaga javob, fermerlarga tavsiya.
 Namuna jumla (Kirish uchun): “O‘zbekistonda sug‘oriladigan yerlarning … foizida suv tanqisligi kuzatilmoqda [manba].” — raqamni manbadan o‘zingiz qo‘ying.`,
   },
+  ...KNOWLEDGE_GUIDES,
 ];
 
 /** Labels for the article types, used in prompts. */
