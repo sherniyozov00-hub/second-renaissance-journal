@@ -31,7 +31,8 @@
     "home": "Bosh sahifa",
     "search": "Qidiruv",
     "cabinet": "Kabinet",
-    "breadcrumbs": "Navigatsiya yo‘li"
+    "breadcrumbs": "Navigatsiya yo‘li",
+    "issuesShort": "Sonlar"
   },
   "home": {
     "eyebrow": "Yosh olimlar uchun ochiq ilmiy jurnal",
@@ -111,15 +112,15 @@
     "steps": {
       "1": {
         "title": "Ro‘yxatdan o‘ting",
-        "text": "Telefon yoki Google orqali."
+        "text": "Email yoki Google orqali."
       },
       "2": {
-        "title": "AI bilan tekshiring",
-        "text": "Faktlar, manbalar, originallik."
+        "title": "Yozing (ixtiyoriy AI bilan)",
+        "text": "Xorazmiy AI Premium: yozish, tahrir, raqamlarni tekshirish."
       },
       "3": {
         "title": "Yuklang va to‘lang",
-        "text": "Click, Payme, Uzum yoki karta."
+        "text": "Click orqali to‘lov."
       },
       "4": {
         "title": "Taqriz va tahrir",
@@ -131,14 +132,18 @@
       }
     },
     "priceLabel": "Nashr narxi",
-    "priceNote": "bir maqola uchun · taqriz va AI tekshiruvi kiritilgan",
-    "priceNoteMobile": "Taqriz, AI tekshiruvi, maqola sahifasi, PDF va sertifikat.",
+    "priceNote": "bir maqola uchun · taqriz, PDF va sertifikat",
+    "priceNoteMobile": "Taqriz, maqola sahifasi, PDF va sertifikat.",
     "priceIncludes": {
       "1": "Maqolaning Google uchun moslashtirilgan sahifasi",
       "2": "PDF va QR-kodli sertifikat",
       "3": "Muallif profili",
       "4": "Tayyor iqtibos (APA, GOST, BibTeX)"
-    }
+    },
+    "priceAi": "Xorazmiy AI bilan yozish — alohida, ixtiyoriy: {price} so‘m / oy.",
+    "emptyTitle": "1-son tayyorlanmoqda",
+    "emptyText": "Jurnalning birinchi soni uchun maqolalar qabul qilinmoqda. Maqolangizni yuboring — taqrizdan o‘tgach shu yerda chiqadi.",
+    "issuesEmpty": "Birinchi son tayyorlanmoqda — maqolalar qabul qilinmoqda."
   },
   "aiCard": {
     "name": "Xorazmiy AI",
@@ -191,7 +196,7 @@
     "author": "Muallif",
     "allByAuthor": "Muallifning barcha maqolalari",
     "related": "O‘xshash maqolalar",
-    "license": "Maqola CC BY 4.0 litsenziyasi ostida",
+    "license": "Litsenziya:",
     "viewsCount": "{count} ko‘rish",
     "cites": "Iqtibos"
   },
@@ -556,7 +561,7 @@
     "consentOriginal": "Maqola avval hech qayerda chop etilmaganini va originalligini tasdiqlayman",
     "consentOffer": "<offer>Ommaviy oferta</offer> va <policy>nashr siyosati</policy> bilan tanishdim",
     "s5": "5. To‘lov",
-    "priceLine": "Nashr, taqriz va AI tekshiruvi",
+    "priceLine": "Nashr: taqriz, maqola sahifasi, PDF va sertifikat",
     "certificateLine": "Sertifikat (PDF)",
     "included": "Kiritilgan",
     "fastTrack": "Tezlashtirilgan ko‘rib chiqish",
@@ -999,7 +1004,7 @@
       "contacts_email": "Email",
       "contacts_phone": "Telefon",
       "contacts_telegramChannel": "Telegram kanal",
-      "pricing_publication": "Nashr narxi: taqriz, AI tekshiruvi, PDF va sertifikat",
+      "pricing_publication": "Nashr narxi (so‘m): taqriz, maqola sahifasi, PDF, sertifikat. Xorazmiy AI alohida (Premium)",
       "pricing_fastTrack": "Tezlashtirilgan taqriz qo‘shimcha narxi",
       "pricing_refundTerms": "Rad etilganda va ofertada ko‘rsatiladigan qaytarish shartlari",
       "payments_mode": "Rejim: sandbox | live",

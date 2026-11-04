@@ -106,9 +106,19 @@ export async function SiteHeader({
                 </Link>
               </>
             ) : (
-              <Link href="/kabinet/yuborish" className={buttonClass("primary", "md")}>
-                {t("common.submit")}
-              </Link>
+              <>
+                {variant !== "home" ? (
+                  <Link
+                    href={user ? "/kabinet" : "/kirish"}
+                    className="px-2 text-[15px] font-semibold text-blue-800 hover:underline"
+                  >
+                    {user ? t("nav.cabinet") : t("common.login")}
+                  </Link>
+                ) : null}
+                <Link href="/kabinet/yuborish" className={buttonClass("primary", "md")}>
+                  {t("common.submit")}
+                </Link>
+              </>
             )}
           </div>
 

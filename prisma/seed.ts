@@ -9,7 +9,7 @@ import { PrismaClient, type Role } from "../generated/prisma/client";
 import { hashPassword } from "../lib/auth/password-hash";
 import { slugify } from "../lib/text/uz";
 import { KNOWLEDGE_DEFAULTS } from "../lib/ai/knowledge-defaults";
-import { SETTINGS } from "../lib/settings/registry";
+import { isPlaceholder, SETTINGS } from "../lib/settings/registry";
 import { categories } from "./seed-data/categories";
 import { articles, authors, type SeedArticle } from "./seed-data/articles";
 import { lessons, pages } from "./seed-data/content";
@@ -306,12 +306,15 @@ async function main() {
     });
   }
 
+  // Settings are created once and never overwritten — except a bracketed
+  // placeholder ("[NARX]") that now has a real default in the registry.
   for (const s of SETTINGS) {
-    await db.setting.upsert({
-      where: { key: s.key },
-      update: {},
-      create: { key: s.key, value: s.defaultValue },
-    });
+    const existing = await db.setting.findUnique({ where: { key: s.key } });
+    if (!existing) {
+      await db.setting.create({ data: { key: s.key, value: s.defaultValue } });
+    } else if (isPlaceholder(existing.value) && !isPlaceholder(s.defaultValue)) {
+      await db.setting.update({ where: { key: s.key }, data: { value: s.defaultValue } });
+    }
   }
 
   // Xorazmiy AI knowledge base: created once, then edited by the editorial team.

@@ -11,7 +11,8 @@ import type { AiErrorCode } from "./schemas";
  *   older purchased credits if any; then "quota" → the cabinet offers Premium.
  * - Premium (39 990 so‘m a month): AI on up to ai.premiumArticles drafts or
  *   articles in 30 days, not counted per check; a fifth one → "premium_limit".
- * - An article whose publication is paid: its AI work is always included.
+ * Publication (44 444 so‘m) and Premium are separate: paying for publication
+ * does not open the AI.
  */
 
 export type AiActor =
@@ -137,8 +138,6 @@ export async function consumeCheck(
   }
 
   if (opts.chars > limits.authorMaxChars) return { ok: false, code: "too_long" };
-  if (await articleIsPaid(opts.paidArticleId)) return { ok: true, refund: async () => {} };
-
   // Premium covers work on drafts/articles; a loose text (the public trial
   // box) still uses the small free allowance below.
   if (opts.workKey && (await premiumUntil(actor.id))) {

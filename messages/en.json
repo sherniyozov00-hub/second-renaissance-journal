@@ -31,7 +31,8 @@
     "home": "Home",
     "search": "Search",
     "cabinet": "Account",
-    "breadcrumbs": "Breadcrumbs"
+    "breadcrumbs": "Breadcrumbs",
+    "issuesShort": "Issues"
   },
   "home": {
     "eyebrow": "An open scientific journal for young researchers",
@@ -111,15 +112,15 @@
     "steps": {
       "1": {
         "title": "Sign up",
-        "text": "With your phone or Google."
+        "text": "With email or Google."
       },
       "2": {
-        "title": "Check with AI",
-        "text": "Facts, sources, originality."
+        "title": "Write (AI optional)",
+        "text": "Xorazmiy AI Premium: writing, edits, number checks."
       },
       "3": {
         "title": "Upload and pay",
-        "text": "Click, Payme, Uzum or card."
+        "text": "Pay with Click."
       },
       "4": {
         "title": "Review and edits",
@@ -131,14 +132,18 @@
       }
     },
     "priceLabel": "Publication fee",
-    "priceNote": "per article · review and AI check included",
-    "priceNoteMobile": "Review, AI check, article page, PDF and certificate.",
+    "priceNote": "per article · review, PDF and certificate",
+    "priceNoteMobile": "Review, article page, PDF and certificate.",
     "priceIncludes": {
       "1": "An article page optimised for Google",
       "2": "PDF and QR-coded certificate",
       "3": "Author profile",
       "4": "Ready citation (APA, GOST, BibTeX)"
-    }
+    },
+    "priceAi": "Writing with Xorazmiy AI is separate and optional: {price} UZS / month.",
+    "emptyTitle": "Issue 1 is in preparation",
+    "emptyText": "Submissions for the journal’s first issue are open. Send your article — after review it appears here.",
+    "issuesEmpty": "The first issue is in preparation — submissions are open."
   },
   "aiCard": {
     "name": "Xorazmiy AI",
@@ -191,7 +196,7 @@
     "author": "Author",
     "allByAuthor": "All articles by this author",
     "related": "Related articles",
-    "license": "Licensed under CC BY 4.0",
+    "license": "Licence:",
     "viewsCount": "{count} views",
     "cites": "Cite"
   },
@@ -556,7 +561,7 @@
     "consentOriginal": "I confirm the article has not been published elsewhere and is original",
     "consentOffer": "I have read the <offer>public offer</offer> and the <policy>publication policy</policy>",
     "s5": "5. Payment",
-    "priceLine": "Publication, review and AI check",
+    "priceLine": "Publication: review, article page, PDF and certificate",
     "certificateLine": "Certificate (PDF)",
     "included": "Included",
     "fastTrack": "Fast-track review",
@@ -999,7 +1004,7 @@
       "contacts_email": "Email",
       "contacts_phone": "Phone",
       "contacts_telegramChannel": "Telegram channel",
-      "pricing_publication": "Publication fee: review, AI check, PDF and certificate",
+      "pricing_publication": "Publication fee (UZS): review, article page, PDF, certificate. Xorazmiy AI is separate (Premium)",
       "pricing_fastTrack": "Fast-track review surcharge",
       "pricing_refundTerms": "Refund terms shown on rejection and in the offer",
       "payments_mode": "Mode: sandbox | live",

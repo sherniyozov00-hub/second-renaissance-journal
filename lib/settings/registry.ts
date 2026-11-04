@@ -38,8 +38,9 @@ export const SETTINGS: readonly SettingDefinition[] = [
   {
     key: "pricing.publication",
     group: "pricing",
-    defaultValue: "[NARX]",
-    description: "Publication fee: review, AI check, PDF and certificate",
+    defaultValue: 44444,
+    description:
+      "Publication fee (UZS): review, article page, PDF, certificate. Xorazmiy AI is separate (pricing.premium)",
   },
   {
     key: "pricing.fastTrack",

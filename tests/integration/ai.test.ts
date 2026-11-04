@@ -122,7 +122,7 @@ describe("quotas (TZ 10.4)", () => {
     await db.user.update({ where: { id: user.id }, data: { premiumUntil: null } });
   });
 
-  it("does not count checks on an article with paid publication", async () => {
+  it("publication and Premium are separate: a paid article does not open the AI", async () => {
     const article = await db.article.create({
       data: {
         slug: `ai-paid-${Date.now()}`,
@@ -144,8 +144,10 @@ describe("quotas (TZ 10.4)", () => {
       },
     });
     const actor = { kind: "user" as const, id: user.id, aiQuota: 2 };
-    expect((await consumeCheck(actor, { chars: 10, paidArticleId: article.id })).ok).toBe(true);
-    expect(await consumeCheck(actor, { chars: 10 })).toEqual({ ok: false, code: "quota" });
+    expect(await consumeCheck(actor, { chars: 10, paidArticleId: article.id })).toEqual({
+      ok: false,
+      code: "quota",
+    });
   });
 });
 
