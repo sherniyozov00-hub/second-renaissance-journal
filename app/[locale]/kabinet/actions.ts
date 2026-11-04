@@ -22,7 +22,10 @@ export async function connectTelegramAction() {
   redirect(`https://t.me/${bot}?start=${token}`);
 }
 
-export type ProfileState = { ok?: boolean; errors?: Partial<Record<"name" | "orcid" | "phone", true>> };
+export type ProfileState = {
+  ok?: boolean;
+  errors?: Partial<Record<"name" | "orcid" | "phone", true>>;
+};
 
 const ORCID = /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/;
 
