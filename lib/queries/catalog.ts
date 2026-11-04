@@ -30,7 +30,7 @@ export function parseIssueSlug(slug: string) {
 }
 
 export const getAuthorBySlug = cache((slug: string) =>
-  db.authorProfile.findFirst({ where: { slug, isPublic: true } }),
+  db.authorProfile.findFirst({ where: { slug, isPublic: true }, omit: { phone: true } }),
 );
 
 export const getPage = cache((slug: string) => db.page.findUnique({ where: { slug } }));

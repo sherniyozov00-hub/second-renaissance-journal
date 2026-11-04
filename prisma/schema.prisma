@@ -163,6 +163,10 @@ model AuthorProfile {
   position    String?
   orcid       String?
   bio         String?
+  /// Hobbies / research interests, shown on the public profile.
+  interests   String?
+  /// Contact phone; only the author and the editors see it.
+  phone       String?
   avatarUrl   String?
   isPublic    Boolean  @default(true)
   createdAt   DateTime @default(now())

@@ -14,6 +14,8 @@ type Initial = {
   position: string;
   orcid: string;
   bio: string;
+  interests: string;
+  phone: string;
   isPublic: boolean;
   needsConsent: boolean;
 };
@@ -40,12 +42,41 @@ export function ProfileForm({ initial }: { initial: Initial }) {
       </label>
       <label className="block text-sm font-semibold text-ink">
         {t("affiliation")}
-        <input name="affiliation" defaultValue={initial.affiliation} className={INPUT} />
+        <input
+          name="affiliation"
+          defaultValue={initial.affiliation}
+          placeholder={t("affiliationPlaceholder")}
+          className={INPUT}
+        />
       </label>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block text-sm font-semibold text-ink">
           {t("position")}
-          <input name="position" defaultValue={initial.position} className={INPUT} />
+          <input
+            name="position"
+            defaultValue={initial.position}
+            placeholder={t("positionPlaceholder")}
+            className={INPUT}
+          />
+        </label>
+        <label className="block text-sm font-semibold text-ink">
+          {t("phone")}
+          <input
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            inputMode="tel"
+            defaultValue={initial.phone}
+            placeholder="+998 90 123 45 67"
+            className={INPUT}
+            aria-describedby="phone-hint"
+          />
+          <span id="phone-hint" className="mt-1 block text-xs font-normal text-muted">
+            {t("phoneHint")}
+          </span>
+          {state.errors?.phone ? (
+            <span className="mt-1 block text-sm text-danger">{t("errors.phone")}</span>
+          ) : null}
         </label>
         <label className="block text-sm font-semibold text-ink">
           {t("orcid")}
@@ -64,6 +95,16 @@ export function ProfileForm({ initial }: { initial: Initial }) {
           ) : null}
         </label>
       </div>
+      <label className="block text-sm font-semibold text-ink">
+        {t("interests")}
+        <input
+          name="interests"
+          defaultValue={initial.interests}
+          maxLength={300}
+          placeholder={t("interestsPlaceholder")}
+          className={INPUT}
+        />
+      </label>
       <label className="block text-sm font-semibold text-ink">
         {t("bio")}
         <textarea

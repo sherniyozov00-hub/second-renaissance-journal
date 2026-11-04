@@ -230,7 +230,8 @@
     "authorArticles": "Nashr qilingan maqolalar",
     "searchResults": "«{q}» bo‘yicha natijalar",
     "position": "Lavozim",
-    "profile": "Muallif profili"
+    "profile": "Muallif profili",
+    "interests": "Qiziqishlari"
   },
   "academy": {
     "title": "Akademiya",
@@ -458,7 +459,7 @@
       "REFUNDED": "Qaytarilgan"
     },
     "lessonsLead": "Akademiya darslari. O‘qish holati keyingi bosqichda saqlanadi.",
-    "profileLead": "Bu ma’lumotlar ommaviy profilingizda va maqolalaringizda ko‘rinadi.",
+    "profileLead": "Ism, muassasa va qiziqishlaringiz ommaviy profilingizda va maqolalaringizda ko‘rinadi. Telefon raqam faqat tahririyatga ko‘rinadi.",
     "fullName": "F.I.Sh.",
     "affiliation": "Muassasa (OTM yoki tashkilot)",
     "position": "Lavozim yoki kurs",
@@ -472,7 +473,8 @@
     "consentMissing": "Shaxsiy ma’lumotlarni qayta ishlashga rozilik",
     "errors": {
       "name": "F.I.Sh.ni kiriting (kamida 3 belgi).",
-      "orcid": "ORCID noto‘g‘ri formatda."
+      "orcid": "ORCID noto‘g‘ri formatda.",
+      "phone": "Telefon raqam noto‘g‘ri. Masalan: +998 90 123 45 67"
     },
     "writing": "Xorazmiy AI bilan yozish",
     "aiPackageTitle": "Xorazmiy AI Premium",
@@ -489,7 +491,28 @@
     "premiumManage": "Premium",
     "aiPackageFeatures": "Yozishga yordam, reja va tahrir variantlari|Raqamli ma’lumotlarni internetdan tekshirish va manba|Xalqaro manbalar, iqtiboslar, tarjima|Oyiga {articles} ta maqola",
     "premiumStatus": "Premium faol: {date} gacha. 30 kun ichida {used} / {limit} ta maqola ishlatildi.",
-    "premiumExtend": "Yana 1 oyga uzaytirish"
+    "premiumExtend": "Yana 1 oyga uzaytirish",
+    "phone": "Telefon raqam",
+    "phoneHint": "Faqat tahririyat ko‘radi, ommaviy profilda chiqmaydi.",
+    "interests": "Qiziqishlar va hobbilar",
+    "interestsPlaceholder": "Masalan: sun’iy intellekt, tarix, shaxmat",
+    "affiliationPlaceholder": "Qayerda o‘qiysiz yoki ishlaysiz",
+    "positionPlaceholder": "Masalan: 3-kurs talabasi, dotsent",
+    "profileProgress": "Profil to‘ldirilgan: {done}/{total}",
+    "completeProfile": "Profilni to‘ldirish",
+    "editProfile": "Profilni tahrirlash",
+    "avatar": {
+      "title": "Profil rasmi",
+      "upload": "Rasm yuklash",
+      "change": "Rasmni almashtirish",
+      "remove": "O‘chirish",
+      "uploading": "Yuklanmoqda…",
+      "saveFirst": "Rasm qo‘yish uchun avval pastdagi ma’lumotlarni saqlang.",
+      "hint": "JPG, PNG yoki WEBP. Rasm avtomatik kvadrat qilib kichraytiriladi.",
+      "err_no_profile": "Avval profil ma’lumotlarini saqlang.",
+      "err_bad_file": "Bu faylni rasm sifatida o‘qib bo‘lmadi.",
+      "err_too_big": "Rasm juda katta."
+    }
   },
   "certificate": {
     "title": "Sertifikat {id}",
