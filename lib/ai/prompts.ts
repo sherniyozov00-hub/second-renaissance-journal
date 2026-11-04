@@ -1,6 +1,6 @@
 import "server-only";
 import type { ArticleType } from "@/generated/prisma/client";
-import { knowledgePrompt } from "./knowledge";
+import { factCheckKnowledgePrompt, knowledgePrompt } from "./knowledge";
 
 /**
  * Instructions shared by every Xorazmiy AI feature. Kept byte-stable per
@@ -17,6 +17,11 @@ Asosiy qoidalar:
 
 export async function systemPrompt(type: ArticleType, categoryId: string | null) {
   return `${PERSONA}\n\n${await knowledgePrompt(type, categoryId)}`;
+}
+
+/** Fact check: the persona and only the rules it needs (cheaper on every search turn). */
+export async function factCheckSystemPrompt() {
+  return `${PERSONA}\n\n${await factCheckKnowledgePrompt()}`;
 }
 
 const LANG_NAME = { uz: "o‘zbek (lotin)", ru: "rus", en: "ingliz" } as const;

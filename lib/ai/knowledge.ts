@@ -106,6 +106,32 @@ export async function knowledgePrompt(type: ArticleType, categoryId: string | nu
   return text;
 }
 
+/** Knowledge used by the fact check: integrity and the fact-check method only. */
+const FACT_CHECK_KEYS = ["general.integrity", "general.factcheck"];
+
+/**
+ * A short system prompt for the fact check. The full prompt (every rule and
+ * two sample articles) is not needed to verify numbers, and it is re-sent on
+ * every search turn, so it would multiply the cost of each check.
+ */
+export async function factCheckKnowledgePrompt() {
+  const hit = cache.get("factcheck");
+  if (hit && Date.now() - hit.at < TTL) return hit.text;
+  const rows = await db.aiKnowledge.findMany({
+    where: { active: true, key: { in: FACT_CHECK_KEYS } },
+    orderBy: { key: "asc" },
+    select: { kind: true, title: true, body: true },
+  });
+  const list = rows.length
+    ? rows
+    : KNOWLEDGE_DEFAULTS.filter((k) => FACT_CHECK_KEYS.includes(k.key));
+  const text = list
+    .map((e) => `<bilim turi="${e.kind}" nomi="${e.title}">\n${e.body}\n</bilim>`)
+    .join("\n\n");
+  cache.set("factcheck", { at: Date.now(), text });
+  return text;
+}
+
 export function clearKnowledgeCache() {
   cache.clear();
 }

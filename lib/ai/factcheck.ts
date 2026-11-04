@@ -15,7 +15,7 @@ import {
 } from "./client";
 import { MOCK_RETRIEVED, mockClaims, mockVerdict } from "./mock";
 import { addSpend, NO_SPEND, spendOf, type Spend } from "./pricing";
-import { languageLine, systemPrompt, wrapText } from "./prompts";
+import { factCheckSystemPrompt, languageLine, wrapText } from "./prompts";
 import {
   type AiLang,
   ClaimsSchema,
@@ -140,7 +140,9 @@ async function verifyLive(
     {
       type: "web_search_20260209",
       name: "web_search",
-      max_uses: Math.min(4 + claims.length * 2, 12),
+      // About one search per claim: each search is billed and its pages are
+      // read as input tokens, so searches are most of a check's cost.
+      max_uses: Math.min(claims.length + 1, 6),
     },
     {
       name: "submit_verdicts",
@@ -153,7 +155,7 @@ async function verifyLive(
   const messages: Anthropic.Beta.BetaMessageParam[] = [
     {
       role: "user",
-      content: `Vazifa: quyidagi da’volarni internetdan mustaqil tekshir. Har da’vo uchun kamida bitta qidiruv (o‘zbek/rus va ingliz tilida) qil, ishonchli manbalarni o‘qi, keyin submit_verdicts vositasini BIR marta chaqir.
+      content: `Vazifa: quyidagi da’volarni internetdan mustaqil tekshir. Har da’vo uchun odatda BITTA aniq qidiruv yetadi (bir mavzudagi da’volarni bitta qidiruvda tekshir); birinchi qidiruv natija bermasagina boshqa tilda qayta qidir. Ishonchli manbani o‘qi, keyin submit_verdicts vositasini BIR marta chaqir.
 Xulosalar: correct — manba tasdiqlaydi; incorrect — manba boshqacha ma’lumot beradi (correction da to‘g‘risini muallif jumlasiga qo‘yiladigan shaklda yoz); needs_source — topilmadi yoki manbalar zid.
 explanation — 1–3 jumla, nima topilgani va qaysi manbada.
 ${languageLine(lang)}
@@ -177,7 +179,7 @@ ${claims.map((c) => `${c.id}: ${c.text}`).join("\n")}
       betas: [FALLBACK_BETA],
       fallbacks: "default",
       system: systemBlocks(system),
-      output_config: { effort: "medium" },
+      output_config: { effort: "low" },
       tools,
       messages,
     });
@@ -306,7 +308,7 @@ export async function runFactCheck(
   let truncated = false;
   if (todo.length) {
     try {
-      const system = await systemPrompt(ctx.articleType, ctx.categoryId);
+      const system = await factCheckSystemPrompt();
       const extracted = await extractClaims(system, todo);
       spend = addSpend(spend, extracted.spend);
       let budget = Math.max(0, ctx.maxClaims - all.length);
