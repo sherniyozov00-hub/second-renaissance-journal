@@ -36,16 +36,28 @@ import {
   removeFact,
   resolveTracked,
   scrollToClaim,
+  selectQuote,
   selectedOrAll,
 } from "./editor-ops";
 import { AiErrorNote, Disclaimer, Feedback, MockNote, streamFactCheck, SummaryTiles } from "./ui";
 
 export type ToolName =
-  "plan" | "assist" | "edit" | "sources" | "facts" | "originality" | "citations" | "translate";
+  | "review"
+  | "plan"
+  | "assist"
+  | "edit"
+  | "sources"
+  | "facts"
+  | "originality"
+  | "citations"
+  | "translate";
 type Tab = "check" | "sources" | "edit" | "chat";
 export type PanelView =
   | { kind: "tab"; tab: Tab }
-  | { kind: "tool"; tool: "plan" | "assist" | "originality" | "citations" | "translate" };
+  | {
+      kind: "tool";
+      tool: "review" | "plan" | "assist" | "originality" | "citations" | "translate";
+    };
 
 type Ok<T extends string> = Extract<ToolResponse, { tool: T }>;
 type Err = { error: AiErrorCode };
@@ -936,6 +948,105 @@ export function Panel({
                 }
               />
             ) : null}
+          </>
+        ) : null}
+
+        {view.kind === "tool" && view.tool === "review" ? (
+          <>
+            <h2 className="text-lg font-semibold">{t("toolReview")}</h2>
+            <p className="text-sm text-text-2">{t("reviewIntro")}</p>
+            <button
+              type="button"
+              className={buttonClass("primary", "md", "w-full")}
+              disabled={toolBusy}
+              onClick={() => run({ tool: "review", text: aiText(editor) })}
+            >
+              {toolBusy ? t("reviewRunning") : t("reviewRun")}
+            </button>
+            <ToolOutcome result={toolResult} />
+            {toolResult?.tool === "review" && !isErr(toolResult)
+              ? (() => {
+                  const r = toolResult as Ok<"review">;
+                  return (
+                    <div className="space-y-3">
+                      <p className="text-[15px] leading-relaxed">{r.review.summary}</p>
+                      <List title={t("assistStrengths")} items={r.review.strengths} />
+                      {r.review.issues.length ? (
+                        <div>
+                          <p className="text-sm font-semibold">
+                            {t("reviewIssues", { count: r.review.issues.length })}
+                          </p>
+                          <ul className="mt-1.5 space-y-2">
+                            {r.review.issues.map((issue, i) => (
+                              <li
+                                key={i}
+                                className={cn(
+                                  card,
+                                  "border-l-4",
+                                  issue.severity === "high"
+                                    ? "border-l-danger"
+                                    : issue.severity === "medium"
+                                      ? "border-l-gold"
+                                      : "border-l-border-strong",
+                                )}
+                              >
+                                <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                  <span className="rounded-full bg-info-bg px-2 py-0.5 font-semibold text-blue-800">
+                                    {t(`reviewCategory.${issue.category}`)}
+                                  </span>
+                                  <span className="text-muted">
+                                    {t(`reviewSeverity.${issue.severity}`)}
+                                  </span>
+                                </div>
+                                {issue.quote ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => selectQuote(editor, issue.quote!)}
+                                    className="mt-2 block w-full rounded-control bg-blue-50 px-2.5 py-1.5 text-left text-sm text-ink italic hover:bg-info-bg"
+                                    title={t("reviewShow")}
+                                  >
+                                    “{issue.quote}”
+                                  </button>
+                                ) : null}
+                                <p className="mt-2 text-sm font-semibold">{issue.problem}</p>
+                                <p className="mt-1 text-sm text-text-2">{issue.how_to_fix}</p>
+                                {issue.sources.length ? (
+                                  <ul className="mt-1.5 space-y-0.5 text-sm">
+                                    {issue.sources.map((s) => (
+                                      <li key={s.url}>
+                                        <a
+                                          href={s.url}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="inline-flex items-center gap-1 text-blue-800 hover:underline"
+                                        >
+                                          {s.title || s.url}
+                                          <ExternalLink className="size-3.5" aria-hidden />
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : null}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : (
+                        <p className="text-sm font-semibold text-success">{t("reviewClean")}</p>
+                      )}
+                      <List title={t("reviewNext")} items={r.review.next_steps} />
+                      <div className="flex items-center justify-between">
+                        <Disclaimer />
+                        <Feedback
+                          onSend={(v) =>
+                            feedbackAction({ checkId: r.checkId, feature: "review", verdict: v })
+                          }
+                        />
+                      </div>
+                    </div>
+                  );
+                })()
+              : null}
           </>
         ) : null}
 

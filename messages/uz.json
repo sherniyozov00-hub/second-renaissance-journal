@@ -842,7 +842,30 @@
     "premiumLink": "Premium haqida",
     "premiumPoint1": "AI bilan yozish, reja va tahrir variantlari",
     "premiumPoint2": "Raqamli ma’lumotlarni internetdan tekshirish va manba",
-    "premiumPoint3": "Oyiga 4 ta maqola · 39 990 so‘m"
+    "premiumPoint3": "Oyiga 4 ta maqola · 39 990 so‘m",
+    "toolReview": "Tekshirib ber",
+    "reviewIntro": "Xorazmiy AI maqolani tajribali muharrir kabi o‘qib chiqadi: raqamlar (foizlar namuna hajmiga mosmi), bo‘limlar orasidagi moslik, statistik dalilsiz da’volar, usul, tashqi faktlar va manbalarni tekshiradi. Har bir muammo uchun matndan parcha va uni qanday tuzatishni ko‘rsatadi — matnni siz uchun qayta yozmaydi.",
+    "reviewRun": "Butun maqolani tekshirish",
+    "reviewRunning": "Tekshirilmoqda… (1–2 daqiqa)",
+    "reviewIssues": "Topilgan muammolar: {count}",
+    "reviewClean": "Jiddiy muammo topilmadi.",
+    "reviewNext": "Keyingi qadamlar",
+    "reviewShow": "Matnda ko‘rsatish",
+    "reviewCategory": {
+      "numbers": "Raqamlar",
+      "facts": "Faktlar",
+      "consistency": "Moslik",
+      "method": "Usul",
+      "claims": "Da’volar",
+      "structure": "Tuzilma",
+      "sources": "Manbalar",
+      "language": "Til va uslub"
+    },
+    "reviewSeverity": {
+      "high": "Muhim",
+      "medium": "O‘rtacha",
+      "low": "Kichik"
+    }
   },
   "ranking": {
     "title": "OTMlar reytingi",

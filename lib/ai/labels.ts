@@ -10,6 +10,7 @@ const LABELS: Record<string, Record<string, string>> = {
     citations: "iqtiboslar",
     translate: "tarjima",
     chat: "chat",
+    review: "umumiy tekshiruv",
   },
   ru: {
     plan: "план",
@@ -21,6 +22,7 @@ const LABELS: Record<string, Record<string, string>> = {
     citations: "цитаты",
     translate: "перевод",
     chat: "чат",
+    review: "общая проверка",
   },
   en: {
     plan: "outline",
@@ -32,6 +34,7 @@ const LABELS: Record<string, Record<string, string>> = {
     citations: "citations",
     translate: "translation",
     chat: "chat",
+    review: "full review",
   },
 };
 

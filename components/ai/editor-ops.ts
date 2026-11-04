@@ -193,3 +193,16 @@ export function paragraphLocations(
   });
   return out;
 }
+
+/** Selects the first occurrence of a quote in the document and scrolls to it. */
+export function selectQuote(editor: Editor, quote: string): boolean {
+  const count = blocks(editor.state.doc).length;
+  for (let i = 0; i < count; i++) {
+    const r = findRange(editor, i, quote);
+    if (r) {
+      editor.chain().focus().setTextSelection(r).scrollIntoView().run();
+      return true;
+    }
+  }
+  return false;
+}
