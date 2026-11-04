@@ -1,3 +1,4 @@
+import { FigureZoom, ReadingProgress, TocNav } from "@/components/article/reader";
 import { ArrowRight, Download } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -7,7 +8,7 @@ import { PageShell } from "@/components/layout/page-shell";
 import { buttonClass, cardClass, chipClass } from "@/components/ui/styles";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { prepareArticleHtml } from "@/lib/article-html";
+import { linkCitations, prepareArticleHtml } from "@/lib/article-html";
 import { formatApa, formatBibtex, formatGost } from "@/lib/citation";
 import {
   articleAbstract,
@@ -70,7 +71,12 @@ export default async function ArticlePage({ params }: Props) {
   ]);
 
   const title = articleTitle(article, locale);
-  const { html, toc } = prepareArticleHtml(article.versions[0]?.htmlBody ?? "");
+  const prepared = prepareArticleHtml(article.versions[0]?.htmlBody ?? "");
+  const toc = prepared.toc;
+  const html = linkCitations(
+    prepared.html,
+    article.references.map((r) => r.raw),
+  );
   const authors = article.authors.map((a) => ({
     name: a.authorProfile?.fullName ?? a.name ?? "",
     slug: a.authorProfile?.slug,
@@ -206,7 +212,8 @@ export default async function ArticlePage({ params }: Props) {
         </nav>
 
         <div className="mt-5 grid gap-12 lg:grid-cols-[1fr_300px]">
-          <article className="min-w-0">
+          <article id="maqola" className="min-w-0">
+            <ReadingProgress targetId="maqola" />
             <p className="text-[13px] text-text-2">
               <Link
                 href={`/yonalish/${article.category.slug}`}
@@ -285,7 +292,7 @@ export default async function ArticlePage({ params }: Props) {
                 </div>
               ) : null}
               <div className="flex gap-1">
-                <dt className="font-semibold text-ink">{t("article.license")}</dt>
+                <dt className="font-semibold text-ink">{t("article.licenseLabel")}</dt>
                 <dd className="text-text-2">
                   <a
                     href="https://creativecommons.org/licenses/by/4.0/"
@@ -323,7 +330,7 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             <section
-              className="mt-9 rounded-card bg-blue-50 p-5 md:p-7"
+              className="mt-9 rounded-card border border-l-4 border-border border-l-gold bg-white p-5 md:p-7"
               aria-label={t("article.abstractUz")}
             >
               <AbstractTabs
@@ -336,7 +343,7 @@ export default async function ArticlePage({ params }: Props) {
                   <Link
                     key={k}
                     href={`/kalit-soz/${slugify(k)}`}
-                    className={chipClass(false, "bg-white text-sm")}
+                    className={chipClass(false, "bg-blue-50 text-sm")}
                   >
                     {k}
                   </Link>
@@ -344,7 +351,12 @@ export default async function ArticlePage({ params }: Props) {
               </div>
             </section>
 
-            <div className="article-body mt-4" dangerouslySetInnerHTML={{ __html: html }} />
+            <div
+              id="maqola-matni"
+              className="article-body mt-4"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+            <FigureZoom containerId="maqola-matni" closeLabel={t("article.close")} />
 
             {article.references.length ? (
               <section id="adabiyotlar" className="mt-12 scroll-mt-6 border-t border-border pt-10">
@@ -352,8 +364,8 @@ export default async function ArticlePage({ params }: Props) {
                   {t("article.references")}
                 </h2>
                 <ol className="mt-4 list-decimal space-y-1.5 pl-6 text-[15px] text-text-2">
-                  {article.references.map((r) => (
-                    <li key={r.id}>
+                  {article.references.map((r, i) => (
+                    <li key={r.id} id={`ref-${i + 1}`} className="scroll-mt-24 target:text-ink">
                       {r.raw}
                       {r.doi ? (
                         <>
@@ -389,28 +401,6 @@ export default async function ArticlePage({ params }: Props) {
           </article>
 
           <aside className="space-y-5 lg:pt-1">
-            {toc.length ? (
-              <nav className={cn(cardClass, "p-5")} aria-label={t("article.toc")}>
-                <h2 className={SIDEBAR_LABEL}>{t("article.toc")}</h2>
-                <ul className="mt-3 space-y-2 text-[15px] text-blue-800">
-                  {toc.map((item) => (
-                    <li key={item.id}>
-                      <a href={`#${item.id}`} className="hover:underline">
-                        {item.text}
-                      </a>
-                    </li>
-                  ))}
-                  {article.references.length ? (
-                    <li>
-                      <a href="#adabiyotlar" className="hover:underline">
-                        {t("article.referencesShort")}
-                      </a>
-                    </li>
-                  ) : null}
-                </ul>
-              </nav>
-            ) : null}
-
             <div className={cn(cardClass, "grid grid-cols-2 gap-4 p-5")}>
               <div>
                 <p className="font-serif text-[26px] leading-none font-bold text-ink">
@@ -464,6 +454,22 @@ export default async function ArticlePage({ params }: Props) {
                     </li>
                   ))}
                 </ul>
+              </div>
+            ) : null}
+            {toc.length ? (
+              <div className={cn(cardClass, "p-5 lg:sticky lg:top-6 lg:z-10")}>
+                <h2 className={SIDEBAR_LABEL}>{t("article.toc")}</h2>
+                <div className="mt-3">
+                  <TocNav
+                    label={t("article.toc")}
+                    items={[
+                      ...toc,
+                      ...(article.references.length
+                        ? [{ id: "adabiyotlar", text: t("article.referencesShort") }]
+                        : []),
+                    ]}
+                  />
+                </div>
               </div>
             ) : null}
           </aside>

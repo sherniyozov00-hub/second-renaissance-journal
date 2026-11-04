@@ -197,23 +197,32 @@ export function SubmissionForm({
 
   return (
     <div>
-      <ol className="grid grid-cols-3 gap-2 md:grid-cols-6" aria-label={t("title")}>
-        {(["1", "2", "3", "4", "5", "6"] as const).map((s, i) => (
-          <li
-            key={s}
-            aria-current={i === stepIndex ? "step" : undefined}
-            className={cn(
-              "rounded-control border px-3 py-2 text-[13px] font-semibold",
-              i < stepIndex
-                ? "border-blue-800 bg-blue-800 text-white"
-                : i === stepIndex
-                  ? "border-gold bg-gold text-blue-900"
-                  : "border-border-strong bg-white text-ink",
-            )}
-          >
-            {t(`steps.${s}`)}
-          </li>
-        ))}
+      {/* Stays in view while scrolling; steps 1–5 jump to their section. */}
+      <ol
+        className="sticky top-0 z-20 -mx-1 grid grid-cols-3 gap-2 bg-blue-50/95 px-1 py-2 backdrop-blur md:grid-cols-6"
+        aria-label={t("title")}
+      >
+        {(["1", "2", "3", "4", "5", "6"] as const).map((s, i) => {
+          const cls = cn(
+            "block rounded-control border px-3 py-2 text-[13px] font-semibold transition-colors",
+            i < stepIndex
+              ? "border-blue-800 bg-blue-800 text-white"
+              : i === stepIndex
+                ? "border-gold bg-gold text-blue-900"
+                : "border-border-strong bg-white text-ink hover:border-blue-800",
+          );
+          return (
+            <li key={s} aria-current={i === stepIndex ? "step" : undefined}>
+              {s === "6" ? (
+                <span className={cls}>{t(`steps.${s}`)}</span>
+              ) : (
+                <a href={`#s${s}`} className={cls}>
+                  {t(`steps.${s}`)}
+                </a>
+              )}
+            </li>
+          );
+        })}
       </ol>
 
       <div className="mt-5 grid items-start gap-5 lg:grid-cols-[1fr_380px]">
@@ -229,7 +238,7 @@ export function SubmissionForm({
             <input type="hidden" name="articleId" value={articleId ?? ""} />
 
             <section className={CARD} aria-labelledby="s1">
-              <h2 id="s1" className="font-sans text-lg font-semibold text-ink">
+              <h2 id="s1" className="scroll-mt-24 font-sans text-lg font-semibold text-ink">
                 {t("s1")}
               </h2>
               <div className="mt-4 space-y-4">
@@ -333,7 +342,7 @@ export function SubmissionForm({
             </section>
 
             <section className={CARD} aria-labelledby="s2">
-              <h2 id="s2" className="font-sans text-lg font-semibold text-ink">
+              <h2 id="s2" className="scroll-mt-24 font-sans text-lg font-semibold text-ink">
                 {t("s2")}
               </h2>
               <ol className="mt-4 space-y-3">
@@ -442,7 +451,7 @@ export function SubmissionForm({
           </form>
 
           <section className={CARD} aria-labelledby="s3">
-            <h2 id="s3" className="font-sans text-lg font-semibold text-ink">
+            <h2 id="s3" className="scroll-mt-24 font-sans text-lg font-semibold text-ink">
               {t("s3")}
             </h2>
             <label
@@ -503,7 +512,7 @@ export function SubmissionForm({
 
           <section className={CARD} aria-labelledby="s4" aria-busy={checking}>
             <div className="flex items-center justify-between gap-3">
-              <h2 id="s4" className="font-sans text-lg font-semibold text-ink">
+              <h2 id="s4" className="scroll-mt-24 font-sans text-lg font-semibold text-ink">
                 {t("s4")}
               </h2>
               {check ? (
@@ -624,7 +633,7 @@ export function SubmissionForm({
 
         <aside className="lg:sticky lg:top-4">
           <form id="pay" action={pay} className={CARD} aria-labelledby="s5">
-            <h2 id="s5" className="font-sans text-lg font-semibold text-ink">
+            <h2 id="s5" className="scroll-mt-24 font-sans text-lg font-semibold text-ink">
               {t("s5")}
             </h2>
             {pricing ? (

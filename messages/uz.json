@@ -196,9 +196,11 @@
     "author": "Muallif",
     "allByAuthor": "Muallifning barcha maqolalari",
     "related": "O‘xshash maqolalar",
-    "license": "Litsenziya:",
+    "license": "Maqola CC BY 4.0 litsenziyasi ostida",
     "viewsCount": "{count} ko‘rish",
-    "cites": "Iqtibos"
+    "cites": "Iqtibos",
+    "close": "Yopish",
+    "licenseLabel": "Litsenziya:"
   },
   "footer": {
     "journal": "Jurnal",
@@ -253,7 +255,23 @@
   },
   "aiLanding": {
     "title": "Xorazmiy AI — ilmiy yordamchi",
-    "lead": "Nomi “algoritm” so‘zi kelib chiqqan al-Xorazmiy sharafiga. Maqola yozishni o‘rgatadi, matnni tahrirlaydi, xalqaro manbalarni topadi va faktlarni tekshiradi — lekin maqolani siz uchun yozib bermaydi."
+    "lead": "Nomi “algoritm” so‘zi kelib chiqqan al-Xorazmiy sharafiga. Maqola yozishni o‘rgatadi, matnni tahrirlaydi, xalqaro manbalarni topadi va faktlarni tekshiradi — lekin maqolani siz uchun yozib bermaydi.",
+    "plans": {
+      "eyebrow": "Narxlar",
+      "title": "Bepul va Premium",
+      "lead": "Tayyor maqolani topshirish va nashr — {publication} so‘m. Xorazmiy AI bilan yozish va tekshirish — alohida, ixtiyoriy obuna.",
+      "feature": "Imkoniyat",
+      "free": "Bepul",
+      "perMonth": "so‘m / oy",
+      "r1": "Maqolani topshirish, originallik va shablon tekshiruvi",
+      "r2": "Raqamli ma’lumotlarni internetdan tekshirish",
+      "r3": "Tahrir, reja va yozishga yordam",
+      "r4": "Oyiga {articles} ta maqola ustida cheksiz ishlash",
+      "r5": "Uch tilda (o‘zbek, rus, ingliz) izohlar",
+      "freeTrial": "oyiga {count} ta sinov",
+      "cta": "Premium olish",
+      "submit": "Maqola yuborish · {publication} so‘m"
+    }
   },
   "notFound": {
     "title": "Sahifa topilmadi",
@@ -793,7 +811,10 @@
     "kind_meaning": "ma’no",
     "kind_logic": "mantiq",
     "error_premium_limit": "Premium’dagi oylik maqolalar soni to‘ldi. Yangi maqola uchun keyingi oyni kuting yoki Premium’ni uzaytiring.",
-    "premiumLink": "Premium →"
+    "premiumLink": "Premium haqida",
+    "premiumPoint1": "AI bilan yozish, reja va tahrir variantlari",
+    "premiumPoint2": "Raqamli ma’lumotlarni internetdan tekshirish va manba",
+    "premiumPoint3": "Oyiga 4 ta maqola · 39 990 so‘m"
   },
   "ranking": {
     "title": "OTMlar reytingi",

@@ -24,18 +24,34 @@ export function MockNote() {
 
 export function AiErrorNote({ code }: { code: AiErrorCode }) {
   const t = useTranslations("ai");
-  const premium = code === "quota" || code === "premium_limit";
+  if (code === "quota" || code === "premium_limit") {
+    // Not an error to the author: an invitation, in the journal's formal style.
+    return (
+      <div
+        role="alert"
+        className="rounded-card border border-l-4 border-gold/60 border-l-gold bg-white p-4 text-sm"
+      >
+        <p className="text-xs font-semibold tracking-[0.12em] text-gold-text uppercase">
+          Xorazmiy AI Premium
+        </p>
+        <p className="mt-1 font-serif text-lg font-bold text-ink">{t(`error_${code}`)}</p>
+        <ul className="mt-2 list-disc space-y-0.5 pl-5 text-text-2">
+          <li>{t("premiumPoint1")}</li>
+          <li>{t("premiumPoint2")}</li>
+          <li>{t("premiumPoint3")}</li>
+        </ul>
+        <Link
+          href="/kabinet/ai-paket"
+          className="mt-3 inline-flex min-h-10 items-center rounded-control bg-blue-800 px-4 font-semibold text-white hover:bg-blue-900"
+        >
+          {t("premiumLink")}
+        </Link>
+      </div>
+    );
+  }
   return (
     <p role="alert" className="rounded-control bg-danger-bg px-3 py-2 text-sm text-danger">
       {t(`error_${code}`)}
-      {premium ? (
-        <>
-          {" "}
-          <Link href="/kabinet/ai-paket" className="font-semibold underline">
-            {t("premiumLink")}
-          </Link>
-        </>
-      ) : null}
     </p>
   );
 }
