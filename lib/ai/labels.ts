@@ -11,6 +11,7 @@ const LABELS: Record<string, Record<string, string>> = {
     translate: "tarjima",
     chat: "chat",
     review: "umumiy tekshiruv",
+    mentor: "Xorazmiy Ustoz",
   },
   ru: {
     plan: "план",
@@ -23,6 +24,7 @@ const LABELS: Record<string, Record<string, string>> = {
     translate: "перевод",
     chat: "чат",
     review: "общая проверка",
+    mentor: "Xorazmiy Ustoz",
   },
   en: {
     plan: "outline",
@@ -35,6 +37,7 @@ const LABELS: Record<string, Record<string, string>> = {
     translate: "translation",
     chat: "chat",
     review: "full review",
+    mentor: "Xorazmiy Ustoz (mentor)",
   },
 };
 

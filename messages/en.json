@@ -865,6 +865,45 @@
       "high": "Important",
       "medium": "Moderate",
       "low": "Minor"
+    },
+    "tabMentor": "Mentor",
+    "error_premium_required": "Xorazmiy Ustoz is for Premium users.",
+    "error_daily_limit": "Today's message limit is reached (60 a day). Let's continue tomorrow — the chat is saved.",
+    "mentor": {
+      "title": "Xorazmiy Ustoz",
+      "premiumOnly": "Premium",
+      "lockedText": "The mentor writes the paper with you from start to finish: at each stage it explains, asks questions, reviews what you wrote and shows the next step. The chat is saved — continue any time.",
+      "getPremium": "Get Premium — 39,990 so‘m a month",
+      "stageOf": "Stage {stage}/{total}",
+      "stagesLabel": "Paper stages",
+      "stages": {
+        "1": "Topic and research question",
+        "2": "Literature review",
+        "3": "Method and questionnaire",
+        "4": "Data and results",
+        "5": "Discussion and limitations",
+        "6": "Conclusion, abstract and title",
+        "7": "Final check and submission"
+      },
+      "goToStage": "Let's move to stage {stage}: {title}.",
+      "welcome": "Hello! I am your research mentor. We will write the paper together in 7 stages, from the topic and research question to submission.\n\nI do not write the paper for you — I explain, ask questions, show examples and review what you write. That way the paper is yours, and you will write the next one yourself.\n\nTo begin: what topic do you want to write about, and why does it interest you?",
+      "thinking": "The mentor is thinking…",
+      "placeholder": "Write to the mentor… (Enter — send, Shift+Enter — new line)",
+      "send": "Send",
+      "quickLabel": {
+        "start": "Let's start",
+        "topic": "I can't choose a topic",
+        "review": "Review my writing",
+        "next": "Next stage",
+        "example": "Show an example"
+      },
+      "quick": {
+        "start": "Let's start. I'll tell you about my topic.",
+        "topic": "I don't know what to write about. Help me choose a topic — which questions do we start with?",
+        "review": "Please review the part of my paper for the current stage: what is good and what should I improve?",
+        "next": "I think this stage is done. Let's move to the next one.",
+        "example": "Show a short example for this stage, then I'll try writing it myself."
+      }
     }
   },
   "ranking": {

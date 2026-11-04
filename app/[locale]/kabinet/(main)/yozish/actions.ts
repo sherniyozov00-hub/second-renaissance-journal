@@ -25,7 +25,8 @@ import {
   suggestEdits,
   translate,
 } from "@/lib/ai/features";
-import { allowLight, consumeCheck } from "@/lib/ai/quota";
+import { mentorMessagesToday, mentorTurn, type MentorMessageView } from "@/lib/ai/mentor";
+import { allowLight, consumeCheck, premiumUntil } from "@/lib/ai/quota";
 import { reviewDraft } from "@/lib/ai/review";
 import { parseLang } from "@/lib/ai/schemas";
 import type {
@@ -303,4 +304,61 @@ export async function feedbackAction(input: {
           : JSON.parse(JSON.stringify(input.payload).slice(0, 20000) || "null"),
     },
   });
+}
+
+/** Messages per author per day in Xorazmiy Ustoz (keeps a Premium month's cost bounded). */
+const MENTOR_DAILY = 60;
+
+export type MentorResponse =
+  { author: MentorMessageView; reply: MentorMessageView; stage: number } | { error: AiErrorCode };
+
+/** Xorazmiy Ustoz: Premium only; the chat is stored on the draft. */
+export async function mentorAction(
+  draftId: string,
+  message: string,
+  goTo?: number,
+  /** The editor's current text (the saved copy can be a few seconds behind). */
+  current?: string,
+): Promise<MentorResponse> {
+  const user = await requireUser();
+  const draft = await getOwnDraft(user.id, draftId);
+  if (!draft) return { error: "forbidden" };
+  const text = message.trim().slice(0, 4000);
+  if (!text) return { error: "empty" };
+  if (!(await premiumUntil(user.id))) return { error: "premium_required" };
+  if ((await mentorMessagesToday(user.id)) >= MENTOR_DAILY) return { error: "daily_limit" };
+  const taken = await consumeCheck(
+    { kind: "user", id: user.id, aiQuota: user.aiQuota },
+    {
+      chars: text.length,
+      paidArticleId: draft.articleId,
+      workKey: draft.articleId ? `article:${draft.articleId}` : `draft:${draft.id}`,
+    },
+  );
+  if (!taken.ok) return { error: taken.code };
+  const ctx: FeatureContext = {
+    userId: user.id,
+    draftId: draft.id,
+    articleId: null,
+    articleType: draft.articleType,
+    categoryId: draft.categoryId,
+    lang: parseLang(await getLocale()),
+  };
+  try {
+    return await mentorTurn(
+      ctx,
+      {
+        id: draft.id,
+        title: draft.title,
+        text: typeof current === "string" ? current.slice(0, 200_000) : draft.text,
+        mentorStage: draft.mentorStage,
+        mentorNotes: draft.mentorNotes,
+      },
+      text,
+      Number.isInteger(goTo) ? goTo : undefined,
+    );
+  } catch (e) {
+    await taken.refund();
+    return { error: e instanceof AiError ? e.code : "unavailable" };
+  }
 }

@@ -39,6 +39,7 @@ import {
   selectQuote,
   selectedOrAll,
 } from "./editor-ops";
+import { MentorPanel, type MentorMessage } from "./mentor";
 import { AiErrorNote, Disclaimer, Feedback, MockNote, streamFactCheck, SummaryTiles } from "./ui";
 
 export type ToolName =
@@ -51,7 +52,7 @@ export type ToolName =
   | "originality"
   | "citations"
   | "translate";
-type Tab = "check" | "sources" | "edit" | "chat";
+type Tab = "mentor" | "check" | "sources" | "edit" | "chat";
 export type PanelView =
   | { kind: "tab"; tab: Tab }
   | {
@@ -131,6 +132,9 @@ export function Panel({
   initialFacts,
   initialEdits,
   mock,
+  premium,
+  mentorMessages,
+  mentorStage,
 }: {
   editor: Editor;
   draftId: string;
@@ -142,6 +146,9 @@ export function Panel({
   initialFacts: FactResult[];
   initialEdits: EditSuggestion[];
   mock: boolean;
+  premium: boolean;
+  mentorMessages: MentorMessage[];
+  mentorStage: number;
 }) {
   const t = useTranslations("ai");
   const locale = useLocale();
@@ -453,6 +460,7 @@ export function Panel({
   /* ---------------- Render ---------------- */
 
   const tabs: { id: Tab; label: string }[] = [
+    { id: "mentor", label: t("tabMentor") },
     { id: "check", label: t("tabCheck") },
     { id: "sources", label: t("tabSources") },
     { id: "edit", label: t("tabEdit") },
@@ -463,7 +471,7 @@ export function Panel({
 
   return (
     <>
-      <div role="tablist" className="grid grid-cols-4 border-b border-border text-[15px]">
+      <div role="tablist" className="grid grid-cols-5 border-b border-border text-[14px]">
         {tabs.map((x) => (
           <button
             key={x.id}
@@ -472,7 +480,7 @@ export function Panel({
             aria-selected={tab === x.id}
             onClick={() => setView({ kind: "tab", tab: x.id })}
             className={cn(
-              "min-h-12 border-b-2 px-2 font-semibold",
+              "min-h-12 border-b-2 px-1 font-semibold",
               tab === x.id
                 ? "border-blue-800 text-blue-800"
                 : "border-transparent text-text-2 hover:text-ink",
@@ -483,841 +491,883 @@ export function Panel({
         ))}
       </div>
 
-      <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto p-5" role="tabpanel">
-        {/* ---------- Tekshiruv ---------- */}
-        {tab === "check" ? (
-          <>
-            {factRun.mock ? <MockNote /> : null}
-            {facts.length || factRun.running ? (
-              <SummaryTiles summary={summary} />
-            ) : (
-              <p className="text-sm text-text-2">{t("factsIntro")}</p>
-            )}
-            <button
-              type="button"
-              onClick={() => void runFacts()}
-              disabled={factRun.running}
-              className={buttonClass(facts.length ? "secondary" : "primary", "md", "w-full")}
-            >
-              {factRun.running ? t("running") : facts.length ? t("factsRerun") : t("factsRun")}
-            </button>
-            {factRun.running && factRun.total ? (
-              <p className="text-sm text-text-2" aria-live="polite">
-                {t("factsProgress", { done: factRun.done, total: factRun.total })}
-              </p>
-            ) : null}
-            {factRun.error ? <AiErrorNote code={factRun.error} /> : null}
-            {factRun.truncated ? (
-              <p className="text-sm text-warning">{t("factsTruncated", { count: 20 })}</p>
-            ) : null}
-            {factRun.finished && !factRun.running && !facts.length && !factRun.error ? (
-              <p className="text-sm text-text-2">{t("factsNone")}</p>
-            ) : null}
+      {tab === "mentor" ? (
+        <MentorPanel
+          editor={editor}
+          draftId={draftId}
+          premium={premium}
+          initialMessages={mentorMessages}
+          initialStage={mentorStage}
+        />
+      ) : (
+        <>
+          <div
+            ref={scrollRef}
+            className="min-h-0 flex-1 space-y-3 overflow-y-auto p-5"
+            role="tabpanel"
+          >
+            {/* ---------- Tekshiruv ---------- */}
+            {tab === "check" ? (
+              <>
+                {factRun.mock ? <MockNote /> : null}
+                {facts.length || factRun.running ? (
+                  <SummaryTiles summary={summary} />
+                ) : (
+                  <p className="text-sm text-text-2">{t("factsIntro")}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => void runFacts()}
+                  disabled={factRun.running}
+                  className={buttonClass(facts.length ? "secondary" : "primary", "md", "w-full")}
+                >
+                  {factRun.running ? t("running") : facts.length ? t("factsRerun") : t("factsRun")}
+                </button>
+                {factRun.running && factRun.total ? (
+                  <p className="text-sm text-text-2" aria-live="polite">
+                    {t("factsProgress", { done: factRun.done, total: factRun.total })}
+                  </p>
+                ) : null}
+                {factRun.error ? <AiErrorNote code={factRun.error} /> : null}
+                {factRun.truncated ? (
+                  <p className="text-sm text-warning">{t("factsTruncated", { count: 20 })}</p>
+                ) : null}
+                {factRun.finished && !factRun.running && !facts.length && !factRun.error ? (
+                  <p className="text-sm text-text-2">{t("factsNone")}</p>
+                ) : null}
 
-            {visibleFacts.map((f) => {
-              const done = handled[f.id];
-              const tone =
-                f.verdict === "incorrect"
-                  ? { border: "border-danger/30", text: "text-danger", name: t("verdictIncorrect") }
-                  : f.verdict === "needs_source"
-                    ? {
-                        border: "border-[#f5d58a]",
-                        text: "text-warning",
-                        name: t("verdictNeedsSource"),
-                      }
-                    : {
-                        border: "border-success/30",
-                        text: "text-success",
-                        name: t("verdictCorrect"),
-                      };
-              return (
-                <article key={f.id} className={cn("rounded-card border bg-white p-4", tone.border)}>
-                  <button
-                    type="button"
-                    className={cn(label, tone.text, "text-left hover:underline")}
-                    onClick={() => scrollToClaim(editor, f.id)}
-                  >
-                    {tone.name} · {where(f.paragraph)}
-                  </button>
-                  <p className="mt-1.5 font-serif text-[16px] leading-snug text-ink">“{f.text}”</p>
-                  {f.verdict === "correct" ? (
-                    <p className="mt-1.5 text-sm text-text-2">
-                      {t("confirmedBy", { count: f.sources.length })}
-                    </p>
-                  ) : (
-                    <p className="mt-1.5 text-sm leading-relaxed text-ink">{f.explanation}</p>
-                  )}
-                  {f.correction ? (
-                    <p className="mt-2 rounded-control bg-success-bg/60 px-3 py-2 text-sm text-ink">
-                      <span className="font-semibold">{t("correction")}:</span> {f.correction}
-                    </p>
-                  ) : null}
-                  {f.downgraded ? (
-                    <p className="mt-1.5 text-xs text-warning">
-                      {f.downgraded === "no_source"
-                        ? t("downgradedNoSource")
-                        : t("downgradedUnverified")}
-                    </p>
-                  ) : null}
-                  {f.sources.length && f.verdict !== "correct" ? (
-                    <ul className="mt-2.5 space-y-1.5">
-                      {f.sources.map((s) => (
-                        <li key={s.url}>
-                          <a
-                            href={s.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block rounded-control bg-blue-50 px-3 py-2 text-[13px] text-blue-800 hover:underline"
-                          >
-                            {s.title}
-                            {s.publisher || s.year
-                              ? ` — ${[s.publisher, s.year].filter(Boolean).join(", ")}`
-                              : ""}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                  {f.verdict === "correct" && f.sources.length ? (
-                    <p className="mt-1 flex flex-wrap gap-x-3 text-xs">
-                      {f.sources.map((s) => (
-                        <a
-                          key={s.url}
-                          href={s.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-800 hover:underline"
-                        >
-                          {s.publisher || new URL(s.url).hostname}
-                        </a>
-                      ))}
-                    </p>
-                  ) : null}
-                  {done ? (
-                    <p className="mt-3 flex items-center gap-1 text-sm font-semibold text-success">
-                      <Check className="size-4" aria-hidden />{" "}
-                      {done === "fixed" ? t("applyFix") : t("addCitation")}
-                    </p>
-                  ) : f.verdict === "incorrect" ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                {visibleFacts.map((f) => {
+                  const done = handled[f.id];
+                  const tone =
+                    f.verdict === "incorrect"
+                      ? {
+                          border: "border-danger/30",
+                          text: "text-danger",
+                          name: t("verdictIncorrect"),
+                        }
+                      : f.verdict === "needs_source"
+                        ? {
+                            border: "border-[#f5d58a]",
+                            text: "text-warning",
+                            name: t("verdictNeedsSource"),
+                          }
+                        : {
+                            border: "border-success/30",
+                            text: "text-success",
+                            name: t("verdictCorrect"),
+                          };
+                  return (
+                    <article
+                      key={f.id}
+                      className={cn("rounded-card border bg-white p-4", tone.border)}
+                    >
+                      <button
+                        type="button"
+                        className={cn(label, tone.text, "text-left hover:underline")}
+                        onClick={() => scrollToClaim(editor, f.id)}
+                      >
+                        {tone.name} · {where(f.paragraph)}
+                      </button>
+                      <p className="mt-1.5 font-serif text-[16px] leading-snug text-ink">
+                        “{f.text}”
+                      </p>
+                      {f.verdict === "correct" ? (
+                        <p className="mt-1.5 text-sm text-text-2">
+                          {t("confirmedBy", { count: f.sources.length })}
+                        </p>
+                      ) : (
+                        <p className="mt-1.5 text-sm leading-relaxed text-ink">{f.explanation}</p>
+                      )}
                       {f.correction ? (
-                        <button
-                          type="button"
-                          className={buttonClass("primary", "sm")}
-                          onClick={() => applyFix(f)}
-                        >
-                          {t("applyFix")}
-                        </button>
+                        <p className="mt-2 rounded-control bg-success-bg/60 px-3 py-2 text-sm text-ink">
+                          <span className="font-semibold">{t("correction")}:</span> {f.correction}
+                        </p>
                       ) : null}
-                      {f.sources.length ? (
+                      {f.downgraded ? (
+                        <p className="mt-1.5 text-xs text-warning">
+                          {f.downgraded === "no_source"
+                            ? t("downgradedNoSource")
+                            : t("downgradedUnverified")}
+                        </p>
+                      ) : null}
+                      {f.sources.length && f.verdict !== "correct" ? (
+                        <ul className="mt-2.5 space-y-1.5">
+                          {f.sources.map((s) => (
+                            <li key={s.url}>
+                              <a
+                                href={s.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block rounded-control bg-blue-50 px-3 py-2 text-[13px] text-blue-800 hover:underline"
+                              >
+                                {s.title}
+                                {s.publisher || s.year
+                                  ? ` — ${[s.publisher, s.year].filter(Boolean).join(", ")}`
+                                  : ""}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {f.verdict === "correct" && f.sources.length ? (
+                        <p className="mt-1 flex flex-wrap gap-x-3 text-xs">
+                          {f.sources.map((s) => (
+                            <a
+                              key={s.url}
+                              href={s.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-800 hover:underline"
+                            >
+                              {s.publisher || new URL(s.url).hostname}
+                            </a>
+                          ))}
+                        </p>
+                      ) : null}
+                      {done ? (
+                        <p className="mt-3 flex items-center gap-1 text-sm font-semibold text-success">
+                          <Check className="size-4" aria-hidden />{" "}
+                          {done === "fixed" ? t("applyFix") : t("addCitation")}
+                        </p>
+                      ) : f.verdict === "incorrect" ? (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {f.correction ? (
+                            <button
+                              type="button"
+                              className={buttonClass("primary", "sm")}
+                              onClick={() => applyFix(f)}
+                            >
+                              {t("applyFix")}
+                            </button>
+                          ) : null}
+                          {f.sources.length ? (
+                            <button
+                              type="button"
+                              className={buttonClass("secondary", "sm", "text-ink")}
+                              onClick={() => void citeFact(f)}
+                            >
+                              {t("addCitation")}
+                            </button>
+                          ) : null}
+                          <button
+                            type="button"
+                            className={buttonClass("secondary", "sm", "text-ink")}
+                            onClick={() => ignoreFact(f)}
+                          >
+                            {t("ignore")}
+                          </button>
+                        </div>
+                      ) : f.verdict === "needs_source" ? (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            className={buttonClass("secondary", "sm", "text-ink")}
+                            onClick={() => searchSources(f.text)}
+                          >
+                            {t("findSource")}
+                          </button>
+                          <button
+                            type="button"
+                            className={buttonClass("secondary", "sm", "text-ink")}
+                            onClick={() => ignoreFact(f)}
+                          >
+                            {t("ignore")}
+                          </button>
+                        </div>
+                      ) : f.sources.length ? (
                         <button
                           type="button"
-                          className={buttonClass("secondary", "sm", "text-ink")}
+                          className="mt-2 text-xs font-semibold text-blue-800 hover:underline"
                           onClick={() => void citeFact(f)}
                         >
                           {t("addCitation")}
                         </button>
                       ) : null}
-                      <button
-                        type="button"
-                        className={buttonClass("secondary", "sm", "text-ink")}
-                        onClick={() => ignoreFact(f)}
-                      >
-                        {t("ignore")}
-                      </button>
-                    </div>
-                  ) : f.verdict === "needs_source" ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        className={buttonClass("secondary", "sm", "text-ink")}
-                        onClick={() => searchSources(f.text)}
-                      >
-                        {t("findSource")}
-                      </button>
-                      <button
-                        type="button"
-                        className={buttonClass("secondary", "sm", "text-ink")}
-                        onClick={() => ignoreFact(f)}
-                      >
-                        {t("ignore")}
-                      </button>
-                    </div>
-                  ) : f.sources.length ? (
-                    <button
-                      type="button"
-                      className="mt-2 text-xs font-semibold text-blue-800 hover:underline"
-                      onClick={() => void citeFact(f)}
-                    >
-                      {t("addCitation")}
-                    </button>
-                  ) : null}
-                </article>
-              );
-            })}
-            {facts.length ? <Disclaimer /> : null}
-          </>
-        ) : null}
+                    </article>
+                  );
+                })}
+                {facts.length ? <Disclaimer /> : null}
+              </>
+            ) : null}
 
-        {/* ---------- Manbalar ---------- */}
-        {tab === "sources" ? (
-          <>
+            {/* ---------- Manbalar ---------- */}
+            {tab === "sources" ? (
+              <>
+                <form
+                  className="flex gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (query.trim()) searchSources(query);
+                  }}
+                >
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={t("sourcesPlaceholder")}
+                    aria-label={t("sourcesPlaceholder")}
+                    className={field}
+                  />
+                  <button
+                    type="submit"
+                    className={buttonClass("primary", "md")}
+                    disabled={searching}
+                  >
+                    {searching ? "…" : t("search")}
+                  </button>
+                </form>
+                {!sources && !searching ? (
+                  <p className="text-sm text-text-2">{t("sourcesIntro")}</p>
+                ) : null}
+                {sourcesError ? <AiErrorNote code={sourcesError} /> : null}
+                {sourcesFailed.length ? (
+                  <p className="text-xs text-warning">
+                    {t("sourcesFailed", { names: sourcesFailed.join(", ") })}
+                  </p>
+                ) : null}
+                {sources && !sources.length ? (
+                  <p className="text-sm text-text-2">{t("sourcesNone")}</p>
+                ) : null}
+                {sources?.map((s) => (
+                  <article key={s.id} className={card}>
+                    <a
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="leading-snug font-semibold text-blue-800 hover:underline"
+                    >
+                      {s.title} <ExternalLink className="inline size-3.5" aria-hidden />
+                    </a>
+                    <p className="mt-1 text-[13px] text-text-2">
+                      {[
+                        s.authors.slice(0, 3).join(", ") +
+                          (s.authors.length > 3 ? " va boshq." : ""),
+                        s.year,
+                        s.journal,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                    <p className="mt-1 flex flex-wrap gap-x-3 text-xs">
+                      {s.doi ? (
+                        <span className={s.verified ? "text-success" : "text-warning"}>
+                          DOI {s.doi} — {s.verified ? t("doiVerified") : t("unverified")}
+                        </span>
+                      ) : (
+                        <span className="text-warning">{t("unverified")}</span>
+                      )}
+                      {s.citedBy ? (
+                        <span className="text-text-2">{t("citedBy", { count: s.citedBy })}</span>
+                      ) : null}
+                    </p>
+                    {s.abstract ? (
+                      <p className="mt-2 line-clamp-3 text-sm text-text-2">{s.abstract}</p>
+                    ) : null}
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        className={buttonClass(addedIds.has(s.id) ? "secondary" : "outline", "sm")}
+                        disabled={addedIds.has(s.id)}
+                        onClick={async () => {
+                          const ref: DraftReference = {
+                            id: s.id,
+                            title: s.title,
+                            authors: s.authors,
+                            year: s.year,
+                            journal: s.journal,
+                            doi: s.doi,
+                            url: s.url,
+                            verified: s.verified,
+                          };
+                          if (await addReference(ref)) setAddedIds((x) => new Set(x).add(s.id));
+                        }}
+                      >
+                        {addedIds.has(s.id) ? t("added") : t("addToRefs")}
+                      </button>
+                    </div>
+                  </article>
+                ))}
+                {sources?.length ? <Disclaimer /> : null}
+                <References
+                  references={references}
+                  format={citeFormat}
+                  setFormat={setCiteFormat}
+                  onRemove={async (id) =>
+                    setReferences((await removeReferenceAction(draftId, id)).references)
+                  }
+                />
+              </>
+            ) : null}
+
+            {/* ---------- Tahrir ---------- */}
+            {tab === "edit" ? (
+              <>
+                <p className="text-sm text-text-2">{t("editIntro")}</p>
+                <button
+                  type="button"
+                  onClick={runEdits}
+                  disabled={editing}
+                  className={buttonClass("primary", "md", "w-full")}
+                >
+                  {editing ? t("running") : t("editRun")}
+                </button>
+                {editError ? <AiErrorNote code={editError} /> : null}
+                {editRan && !editing && !editError && !pendingTracked.length ? (
+                  <p className="text-sm text-text-2">{t("editNone")}</p>
+                ) : null}
+                {pendingTracked.length > 1 ? (
+                  <button
+                    type="button"
+                    className="text-sm font-semibold text-blue-800 hover:underline"
+                    onClick={() => pendingTracked.forEach((x) => resolve(x, true))}
+                  >
+                    {t("acceptAll")} ({pendingTracked.length})
+                  </button>
+                ) : null}
+                {tracked.map((x) => (
+                  <article key={x.id} className={cn(card, x.status !== "pending" && "opacity-60")}>
+                    <p className={cn(label, "text-blue-800")}>
+                      {x.kind ? t(`kind_${x.kind}`) : t("factFixReason")}
+                    </p>
+                    <p className="mt-1.5 text-[15px]">
+                      <del className="tc-del">{x.original}</del>{" "}
+                      {x.replacement ? <ins className="tc-ins">{x.replacement}</ins> : null}
+                    </p>
+                    <p className="mt-1.5 text-sm text-text-2">{x.reason}</p>
+                    {x.status === "pending" && x.variants.length > 1 ? (
+                      <div
+                        className="mt-3 space-y-1.5"
+                        role="radiogroup"
+                        aria-label={t("variants")}
+                      >
+                        <p className="text-xs font-semibold text-text-2">{t("variants")}</p>
+                        {x.variants.map((v, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            role="radio"
+                            aria-checked={v === x.replacement}
+                            onClick={() => chooseVariant(x, v)}
+                            className={cn(
+                              "block w-full rounded-control border px-3 py-2 text-left text-sm",
+                              v === x.replacement
+                                ? "border-blue-800 bg-info-bg text-blue-900"
+                                : "border-border bg-white text-ink hover:border-blue-800",
+                            )}
+                          >
+                            <span className="mr-1.5 font-semibold">{i + 1}.</span>
+                            {v || t("variantDelete")}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                    {x.status === "pending" ? (
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          type="button"
+                          className={buttonClass("primary", "sm")}
+                          onClick={() => resolve(x, true)}
+                        >
+                          {t("accept")}
+                        </button>
+                        <button
+                          type="button"
+                          className={buttonClass("secondary", "sm", "text-ink")}
+                          onClick={() => resolve(x, false)}
+                        >
+                          {t("reject")}
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-xs font-semibold text-text-2">
+                        {x.status === "accepted" ? t("accepted") : t("rejected")}
+                      </p>
+                    )}
+                  </article>
+                ))}
+                {tracked.length ? <Disclaimer /> : null}
+              </>
+            ) : null}
+
+            {/* ---------- Chat ---------- */}
+            {tab === "chat" ? (
+              <>
+                {!messages.length ? <p className="text-sm text-text-2">{t("chatEmpty")}</p> : null}
+                {messages.map((m, i) =>
+                  m.role === "user" ? (
+                    <p
+                      key={i}
+                      className="ml-8 rounded-card bg-blue-800 px-4 py-2.5 text-[15px] text-white"
+                    >
+                      {m.text}
+                    </p>
+                  ) : (
+                    <div key={i} className="mr-4 rounded-card bg-blue-50 px-4 py-3">
+                      <p className="text-[15px] leading-relaxed whitespace-pre-line text-ink">
+                        {m.text}
+                      </p>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <Disclaimer />
+                        <Feedback
+                          onSend={(v) =>
+                            feedbackAction({
+                              checkId: null,
+                              feature: "chat",
+                              verdict: v,
+                              payload: { q: messages[i - 1]?.text, a: m.text },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  ),
+                )}
+                {chatting ? (
+                  <p className="text-sm text-text-2" aria-live="polite">
+                    {t("running")}
+                  </p>
+                ) : null}
+                {chatError ? <AiErrorNote code={chatError} /> : null}
+              </>
+            ) : null}
+
+            {/* ---------- Tools ---------- */}
+            {view.kind === "tool" && view.tool === "plan" ? (
+              <>
+                <h2 className="text-lg font-semibold">{t("toolPlan")}</h2>
+                <textarea
+                  value={planNotes}
+                  onChange={(e) => setPlanNotes(e.target.value)}
+                  rows={3}
+                  placeholder={t("planNotes")}
+                  aria-label={t("planNotes")}
+                  className={field}
+                />
+                <button
+                  type="button"
+                  className={buttonClass("primary", "md", "w-full")}
+                  disabled={toolBusy}
+                  onClick={() => run({ tool: "plan", notes: planNotes })}
+                >
+                  {toolBusy ? t("running") : t("planRun")}
+                </button>
+                <ToolOutcome result={toolResult} />
+                {toolResult?.tool === "plan" && !isErr(toolResult) ? (
+                  <PlanView
+                    plan={(toolResult as Ok<"plan">).plan}
+                    onInsert={(titles) => {
+                      const existing = new Set(
+                        aiText(editor)
+                          .split("\n")
+                          .map((l) => l.trim().toLowerCase()),
+                      );
+                      const missing = titles.filter((x) => !existing.has(x.toLowerCase()));
+                      if (!missing.length) return;
+                      const end = editor.state.doc.content.size;
+                      editor
+                        .chain()
+                        .focus()
+                        .insertContentAt(
+                          end,
+                          missing.flatMap((x) => [
+                            {
+                              type: "heading",
+                              attrs: { level: 2 },
+                              content: [{ type: "text", text: x }],
+                            },
+                            { type: "paragraph" },
+                          ]),
+                        )
+                        .run();
+                    }}
+                    onFeedback={(v) =>
+                      feedbackAction({
+                        checkId: (toolResult as Ok<"plan">).checkId,
+                        feature: "plan",
+                        verdict: v,
+                      })
+                    }
+                  />
+                ) : null}
+              </>
+            ) : null}
+
+            {view.kind === "tool" && view.tool === "review" ? (
+              <>
+                <h2 className="text-lg font-semibold">{t("toolReview")}</h2>
+                <p className="text-sm text-text-2">{t("reviewIntro")}</p>
+                <button
+                  type="button"
+                  className={buttonClass("primary", "md", "w-full")}
+                  disabled={toolBusy}
+                  onClick={() => run({ tool: "review", text: aiText(editor) })}
+                >
+                  {toolBusy ? t("reviewRunning") : t("reviewRun")}
+                </button>
+                <ToolOutcome result={toolResult} />
+                {toolResult?.tool === "review" && !isErr(toolResult)
+                  ? (() => {
+                      const r = toolResult as Ok<"review">;
+                      return (
+                        <div className="space-y-3">
+                          <p className="text-[15px] leading-relaxed">{r.review.summary}</p>
+                          <List title={t("assistStrengths")} items={r.review.strengths} />
+                          {r.review.issues.length ? (
+                            <div>
+                              <p className="text-sm font-semibold">
+                                {t("reviewIssues", { count: r.review.issues.length })}
+                              </p>
+                              <ul className="mt-1.5 space-y-2">
+                                {r.review.issues.map((issue, i) => (
+                                  <li
+                                    key={i}
+                                    className={cn(
+                                      card,
+                                      "border-l-4",
+                                      issue.severity === "high"
+                                        ? "border-l-danger"
+                                        : issue.severity === "medium"
+                                          ? "border-l-gold"
+                                          : "border-l-border-strong",
+                                    )}
+                                  >
+                                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                      <span className="rounded-full bg-info-bg px-2 py-0.5 font-semibold text-blue-800">
+                                        {t(`reviewCategory.${issue.category}`)}
+                                      </span>
+                                      <span className="text-muted">
+                                        {t(`reviewSeverity.${issue.severity}`)}
+                                      </span>
+                                    </div>
+                                    {issue.quote ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => selectQuote(editor, issue.quote!)}
+                                        className="mt-2 block w-full rounded-control bg-blue-50 px-2.5 py-1.5 text-left text-sm text-ink italic hover:bg-info-bg"
+                                        title={t("reviewShow")}
+                                      >
+                                        “{issue.quote}”
+                                      </button>
+                                    ) : null}
+                                    <p className="mt-2 text-sm font-semibold">{issue.problem}</p>
+                                    <p className="mt-1 text-sm text-text-2">{issue.how_to_fix}</p>
+                                    {issue.sources.length ? (
+                                      <ul className="mt-1.5 space-y-0.5 text-sm">
+                                        {issue.sources.map((s) => (
+                                          <li key={s.url}>
+                                            <a
+                                              href={s.url}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                              className="inline-flex items-center gap-1 text-blue-800 hover:underline"
+                                            >
+                                              {s.title || s.url}
+                                              <ExternalLink className="size-3.5" aria-hidden />
+                                            </a>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    ) : null}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : (
+                            <p className="text-sm font-semibold text-success">{t("reviewClean")}</p>
+                          )}
+                          <List title={t("reviewNext")} items={r.review.next_steps} />
+                          <div className="flex items-center justify-between">
+                            <Disclaimer />
+                            <Feedback
+                              onSend={(v) =>
+                                feedbackAction({
+                                  checkId: r.checkId,
+                                  feature: "review",
+                                  verdict: v,
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      );
+                    })()
+                  : null}
+              </>
+            ) : null}
+
+            {view.kind === "tool" && view.tool === "assist" ? (
+              <>
+                <h2 className="text-lg font-semibold">{t("toolAssist")}</h2>
+                <p className="text-sm text-text-2">{t("assistIntro")}</p>
+                <input
+                  value={assistQ}
+                  onChange={(e) => setAssistQ(e.target.value)}
+                  placeholder={t("assistQuestion")}
+                  aria-label={t("assistQuestion")}
+                  className={field}
+                />
+                <button
+                  type="button"
+                  className={buttonClass("primary", "md", "w-full")}
+                  disabled={toolBusy}
+                  onClick={() =>
+                    run({ tool: "assist", text: selectedOrAll(editor), question: assistQ })
+                  }
+                >
+                  {toolBusy ? t("running") : t("assistRun")}
+                </button>
+                <ToolOutcome result={toolResult} />
+                {toolResult?.tool === "assist" && !isErr(toolResult)
+                  ? (() => {
+                      const r = toolResult as Ok<"assist">;
+                      return (
+                        <div className="space-y-3">
+                          <p className="text-[15px] leading-relaxed">{r.assist.summary}</p>
+                          <List title={t("assistStrengths")} items={r.assist.strengths} />
+                          <List title={t("assistQuestions")} items={r.assist.questions} />
+                          {r.assist.advice.length ? (
+                            <div>
+                              <p className="text-sm font-semibold">{t("assistAdvice")}</p>
+                              <ul className="mt-1.5 space-y-2">
+                                {r.assist.advice.map((a, i) => (
+                                  <li key={i} className={card}>
+                                    <p className="text-sm font-semibold">{a.issue}</p>
+                                    <p className="mt-1 text-sm text-text-2">{a.how_to_fix}</p>
+                                    {a.sample_sentence ? (
+                                      <p className="mt-1.5 text-sm text-ink italic">
+                                        {t("planSample")}: {a.sample_sentence}
+                                      </p>
+                                    ) : null}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : null}
+                          <div className="flex items-center justify-between">
+                            <Disclaimer />
+                            <Feedback
+                              onSend={(v) =>
+                                feedbackAction({
+                                  checkId: r.checkId,
+                                  feature: "assist",
+                                  verdict: v,
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      );
+                    })()
+                  : null}
+              </>
+            ) : null}
+
+            {view.kind === "tool" && view.tool === "originality" ? (
+              <>
+                <h2 className="text-lg font-semibold">{t("toolOriginality")}</h2>
+                <p className="text-sm text-text-2">{t("originalityIntro")}</p>
+                <button
+                  type="button"
+                  className={buttonClass("primary", "md", "w-full")}
+                  disabled={toolBusy}
+                  onClick={() => run({ tool: "originality", text: aiText(editor) })}
+                >
+                  {toolBusy ? t("running") : t("originalityRun")}
+                </button>
+                <ToolOutcome result={toolResult} />
+                {toolResult?.tool === "originality" && !isErr(toolResult)
+                  ? (() => {
+                      const r = toolResult as Ok<"originality">;
+                      return (
+                        <div className="space-y-2">
+                          <p
+                            className={cn(
+                              "rounded-card px-4 py-3 text-xl font-bold",
+                              r.originality >= 80
+                                ? "bg-success-bg text-success"
+                                : "bg-warning-bg text-warning",
+                            )}
+                          >
+                            {t("originalityScore", { value: r.originality })}
+                          </p>
+                          {r.matches.length ? (
+                            <ul className="space-y-1.5">
+                              {r.matches.map((m) => (
+                                <li key={m.id} className="flex justify-between gap-3 text-sm">
+                                  {m.slug ? (
+                                    <Link
+                                      href={`/maqola/${m.slug}`}
+                                      target="_blank"
+                                      className="text-blue-800 hover:underline"
+                                    >
+                                      {m.title}
+                                    </Link>
+                                  ) : (
+                                    <span>{m.title}</span>
+                                  )}
+                                  <span className="shrink-0 text-text-2">
+                                    {t("overlap", { value: m.overlap })}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-sm text-text-2">{t("originalityNone")}</p>
+                          )}
+                        </div>
+                      );
+                    })()
+                  : null}
+              </>
+            ) : null}
+
+            {view.kind === "tool" && view.tool === "citations" ? (
+              <>
+                <h2 className="text-lg font-semibold">{t("toolCitations")}</h2>
+                <p className="text-sm text-text-2">{t("citationsIntro")}</p>
+                <button
+                  type="button"
+                  className={buttonClass("primary", "md", "w-full")}
+                  disabled={toolBusy}
+                  onClick={() => run({ tool: "citations", text: aiText(editor) })}
+                >
+                  {toolBusy ? t("running") : t("citationsRun")}
+                </button>
+                <ToolOutcome result={toolResult} />
+                {toolResult?.tool === "citations" && !isErr(toolResult)
+                  ? (() => {
+                      const c = (toolResult as Ok<"citations">).check;
+                      return (
+                        <div className="space-y-3">
+                          {c.matched ? (
+                            <p className="text-sm text-success">
+                              {t("citationsMatched", { count: c.matched })}
+                            </p>
+                          ) : null}
+                          <List title={t("citationsMissing")} items={c.missing} />
+                          <List title={t("citationsUncited")} items={c.uncited} />
+                          {!c.missing.length && !c.uncited.length ? (
+                            <p className="text-sm text-success">{t("citationsOk")}</p>
+                          ) : null}
+                        </div>
+                      );
+                    })()
+                  : null}
+                <References
+                  references={references}
+                  format={citeFormat}
+                  setFormat={setCiteFormat}
+                  onRemove={async (id) =>
+                    setReferences((await removeReferenceAction(draftId, id)).references)
+                  }
+                />
+              </>
+            ) : null}
+
+            {view.kind === "tool" && view.tool === "translate" ? (
+              <>
+                <h2 className="text-lg font-semibold">{t("toolTranslate")}</h2>
+                <input
+                  value={trTitle}
+                  onChange={(e) => setTrTitle(e.target.value)}
+                  aria-label={t("translateTitle")}
+                  placeholder={t("translateTitle")}
+                  className={field}
+                />
+                <textarea
+                  value={trAbstract}
+                  onChange={(e) => setTrAbstract(e.target.value)}
+                  rows={6}
+                  aria-label={t("translateAbstract")}
+                  placeholder={t("translateAbstract")}
+                  className={field}
+                />
+                <button
+                  type="button"
+                  className={buttonClass("primary", "md", "w-full")}
+                  disabled={toolBusy}
+                  onClick={() => run({ tool: "translate", title: trTitle, abstract: trAbstract })}
+                >
+                  {toolBusy ? t("running") : t("translateRun")}
+                </button>
+                <ToolOutcome result={toolResult} />
+                {toolResult?.tool === "translate" && !isErr(toolResult)
+                  ? (() => {
+                      const r = (toolResult as Ok<"translate">).translation;
+                      return (
+                        <div className="space-y-3">
+                          {[
+                            ["EN", r.title_en, r.abstract_en],
+                            ["RU", r.title_ru, r.abstract_ru],
+                          ].map(([lang, tt, ab]) => (
+                            <div key={lang} className={card}>
+                              <div className="flex justify-between">
+                                <p className={cn(label, "text-blue-800")}>{lang}</p>
+                                <CopyButton text={`${tt}\n\n${ab}`} />
+                              </div>
+                              <p className="mt-1 font-semibold">{tt}</p>
+                              <p className="mt-1.5 text-sm leading-relaxed text-text-2">{ab}</p>
+                            </div>
+                          ))}
+                          <List title={t("translateNote")} items={r.notes} />
+                          <Disclaimer />
+                        </div>
+                      );
+                    })()
+                  : null}
+              </>
+            ) : null}
+          </div>
+
+          <div className="border-t border-border p-4">
+            <div className="mb-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={chipClass(false, "min-h-9 text-[13px]")}
+                onClick={() => searchSources(title)}
+              >
+                {t("quickSources")}
+              </button>
+              <button
+                type="button"
+                className={chipClass(false, "min-h-9 text-[13px]")}
+                onClick={() => ask(t("quickShortenPrompt"))}
+              >
+                {t("quickShorten")}
+              </button>
+              <button
+                type="button"
+                className={chipClass(false, "min-h-9 text-[13px]")}
+                onClick={() => setView({ kind: "tool", tool: "translate" })}
+              >
+                {t("quickAbstract")}
+              </button>
+            </div>
             <form
-              className="flex gap-2"
+              className="flex items-center gap-2 rounded-card border border-border-strong p-1.5 pl-3 focus-within:border-blue-800"
               onSubmit={(e) => {
                 e.preventDefault();
-                if (query.trim()) searchSources(query);
+                ask(question);
               }}
             >
               <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t("sourcesPlaceholder")}
-                aria-label={t("sourcesPlaceholder")}
-                className={field}
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder={t("chatPlaceholder")}
+                aria-label={t("chatPlaceholder")}
+                className="min-w-0 flex-1 bg-transparent py-2 text-[15px] focus:outline-none"
               />
-              <button type="submit" className={buttonClass("primary", "md")} disabled={searching}>
-                {searching ? "…" : t("search")}
+              <button
+                type="submit"
+                aria-label={t("chatSend")}
+                disabled={chatting || !question.trim()}
+                className="flex size-10 items-center justify-center rounded-control bg-blue-800 text-white disabled:opacity-50"
+              >
+                <ArrowRight className="size-4" aria-hidden />
               </button>
             </form>
-            {!sources && !searching ? (
-              <p className="text-sm text-text-2">{t("sourcesIntro")}</p>
-            ) : null}
-            {sourcesError ? <AiErrorNote code={sourcesError} /> : null}
-            {sourcesFailed.length ? (
-              <p className="text-xs text-warning">
-                {t("sourcesFailed", { names: sourcesFailed.join(", ") })}
-              </p>
-            ) : null}
-            {sources && !sources.length ? (
-              <p className="text-sm text-text-2">{t("sourcesNone")}</p>
-            ) : null}
-            {sources?.map((s) => (
-              <article key={s.id} className={card}>
-                <a
-                  href={s.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="leading-snug font-semibold text-blue-800 hover:underline"
-                >
-                  {s.title} <ExternalLink className="inline size-3.5" aria-hidden />
-                </a>
-                <p className="mt-1 text-[13px] text-text-2">
-                  {[
-                    s.authors.slice(0, 3).join(", ") + (s.authors.length > 3 ? " va boshq." : ""),
-                    s.year,
-                    s.journal,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
-                <p className="mt-1 flex flex-wrap gap-x-3 text-xs">
-                  {s.doi ? (
-                    <span className={s.verified ? "text-success" : "text-warning"}>
-                      DOI {s.doi} — {s.verified ? t("doiVerified") : t("unverified")}
-                    </span>
-                  ) : (
-                    <span className="text-warning">{t("unverified")}</span>
-                  )}
-                  {s.citedBy ? (
-                    <span className="text-text-2">{t("citedBy", { count: s.citedBy })}</span>
-                  ) : null}
-                </p>
-                {s.abstract ? (
-                  <p className="mt-2 line-clamp-3 text-sm text-text-2">{s.abstract}</p>
-                ) : null}
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    className={buttonClass(addedIds.has(s.id) ? "secondary" : "outline", "sm")}
-                    disabled={addedIds.has(s.id)}
-                    onClick={async () => {
-                      const ref: DraftReference = {
-                        id: s.id,
-                        title: s.title,
-                        authors: s.authors,
-                        year: s.year,
-                        journal: s.journal,
-                        doi: s.doi,
-                        url: s.url,
-                        verified: s.verified,
-                      };
-                      if (await addReference(ref)) setAddedIds((x) => new Set(x).add(s.id));
-                    }}
-                  >
-                    {addedIds.has(s.id) ? t("added") : t("addToRefs")}
-                  </button>
-                </div>
-              </article>
-            ))}
-            {sources?.length ? <Disclaimer /> : null}
-            <References
-              references={references}
-              format={citeFormat}
-              setFormat={setCiteFormat}
-              onRemove={async (id) =>
-                setReferences((await removeReferenceAction(draftId, id)).references)
-              }
-            />
-          </>
-        ) : null}
-
-        {/* ---------- Tahrir ---------- */}
-        {tab === "edit" ? (
-          <>
-            <p className="text-sm text-text-2">{t("editIntro")}</p>
-            <button
-              type="button"
-              onClick={runEdits}
-              disabled={editing}
-              className={buttonClass("primary", "md", "w-full")}
-            >
-              {editing ? t("running") : t("editRun")}
-            </button>
-            {editError ? <AiErrorNote code={editError} /> : null}
-            {editRan && !editing && !editError && !pendingTracked.length ? (
-              <p className="text-sm text-text-2">{t("editNone")}</p>
-            ) : null}
-            {pendingTracked.length > 1 ? (
-              <button
-                type="button"
-                className="text-sm font-semibold text-blue-800 hover:underline"
-                onClick={() => pendingTracked.forEach((x) => resolve(x, true))}
-              >
-                {t("acceptAll")} ({pendingTracked.length})
-              </button>
-            ) : null}
-            {tracked.map((x) => (
-              <article key={x.id} className={cn(card, x.status !== "pending" && "opacity-60")}>
-                <p className={cn(label, "text-blue-800")}>
-                  {x.kind ? t(`kind_${x.kind}`) : t("factFixReason")}
-                </p>
-                <p className="mt-1.5 text-[15px]">
-                  <del className="tc-del">{x.original}</del>{" "}
-                  {x.replacement ? <ins className="tc-ins">{x.replacement}</ins> : null}
-                </p>
-                <p className="mt-1.5 text-sm text-text-2">{x.reason}</p>
-                {x.status === "pending" && x.variants.length > 1 ? (
-                  <div className="mt-3 space-y-1.5" role="radiogroup" aria-label={t("variants")}>
-                    <p className="text-xs font-semibold text-text-2">{t("variants")}</p>
-                    {x.variants.map((v, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        role="radio"
-                        aria-checked={v === x.replacement}
-                        onClick={() => chooseVariant(x, v)}
-                        className={cn(
-                          "block w-full rounded-control border px-3 py-2 text-left text-sm",
-                          v === x.replacement
-                            ? "border-blue-800 bg-info-bg text-blue-900"
-                            : "border-border bg-white text-ink hover:border-blue-800",
-                        )}
-                      >
-                        <span className="mr-1.5 font-semibold">{i + 1}.</span>
-                        {v || t("variantDelete")}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-                {x.status === "pending" ? (
-                  <div className="mt-3 flex gap-2">
-                    <button
-                      type="button"
-                      className={buttonClass("primary", "sm")}
-                      onClick={() => resolve(x, true)}
-                    >
-                      {t("accept")}
-                    </button>
-                    <button
-                      type="button"
-                      className={buttonClass("secondary", "sm", "text-ink")}
-                      onClick={() => resolve(x, false)}
-                    >
-                      {t("reject")}
-                    </button>
-                  </div>
-                ) : (
-                  <p className="mt-2 text-xs font-semibold text-text-2">
-                    {x.status === "accepted" ? t("accepted") : t("rejected")}
-                  </p>
-                )}
-              </article>
-            ))}
-            {tracked.length ? <Disclaimer /> : null}
-          </>
-        ) : null}
-
-        {/* ---------- Chat ---------- */}
-        {tab === "chat" ? (
-          <>
-            {!messages.length ? <p className="text-sm text-text-2">{t("chatEmpty")}</p> : null}
-            {messages.map((m, i) =>
-              m.role === "user" ? (
-                <p
-                  key={i}
-                  className="ml-8 rounded-card bg-blue-800 px-4 py-2.5 text-[15px] text-white"
-                >
-                  {m.text}
-                </p>
-              ) : (
-                <div key={i} className="mr-4 rounded-card bg-blue-50 px-4 py-3">
-                  <p className="text-[15px] leading-relaxed whitespace-pre-line text-ink">
-                    {m.text}
-                  </p>
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <Disclaimer />
-                    <Feedback
-                      onSend={(v) =>
-                        feedbackAction({
-                          checkId: null,
-                          feature: "chat",
-                          verdict: v,
-                          payload: { q: messages[i - 1]?.text, a: m.text },
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              ),
-            )}
-            {chatting ? (
-              <p className="text-sm text-text-2" aria-live="polite">
-                {t("running")}
-              </p>
-            ) : null}
-            {chatError ? <AiErrorNote code={chatError} /> : null}
-          </>
-        ) : null}
-
-        {/* ---------- Tools ---------- */}
-        {view.kind === "tool" && view.tool === "plan" ? (
-          <>
-            <h2 className="text-lg font-semibold">{t("toolPlan")}</h2>
-            <textarea
-              value={planNotes}
-              onChange={(e) => setPlanNotes(e.target.value)}
-              rows={3}
-              placeholder={t("planNotes")}
-              aria-label={t("planNotes")}
-              className={field}
-            />
-            <button
-              type="button"
-              className={buttonClass("primary", "md", "w-full")}
-              disabled={toolBusy}
-              onClick={() => run({ tool: "plan", notes: planNotes })}
-            >
-              {toolBusy ? t("running") : t("planRun")}
-            </button>
-            <ToolOutcome result={toolResult} />
-            {toolResult?.tool === "plan" && !isErr(toolResult) ? (
-              <PlanView
-                plan={(toolResult as Ok<"plan">).plan}
-                onInsert={(titles) => {
-                  const existing = new Set(
-                    aiText(editor)
-                      .split("\n")
-                      .map((l) => l.trim().toLowerCase()),
-                  );
-                  const missing = titles.filter((x) => !existing.has(x.toLowerCase()));
-                  if (!missing.length) return;
-                  const end = editor.state.doc.content.size;
-                  editor
-                    .chain()
-                    .focus()
-                    .insertContentAt(
-                      end,
-                      missing.flatMap((x) => [
-                        {
-                          type: "heading",
-                          attrs: { level: 2 },
-                          content: [{ type: "text", text: x }],
-                        },
-                        { type: "paragraph" },
-                      ]),
-                    )
-                    .run();
-                }}
-                onFeedback={(v) =>
-                  feedbackAction({
-                    checkId: (toolResult as Ok<"plan">).checkId,
-                    feature: "plan",
-                    verdict: v,
-                  })
-                }
-              />
-            ) : null}
-          </>
-        ) : null}
-
-        {view.kind === "tool" && view.tool === "review" ? (
-          <>
-            <h2 className="text-lg font-semibold">{t("toolReview")}</h2>
-            <p className="text-sm text-text-2">{t("reviewIntro")}</p>
-            <button
-              type="button"
-              className={buttonClass("primary", "md", "w-full")}
-              disabled={toolBusy}
-              onClick={() => run({ tool: "review", text: aiText(editor) })}
-            >
-              {toolBusy ? t("reviewRunning") : t("reviewRun")}
-            </button>
-            <ToolOutcome result={toolResult} />
-            {toolResult?.tool === "review" && !isErr(toolResult)
-              ? (() => {
-                  const r = toolResult as Ok<"review">;
-                  return (
-                    <div className="space-y-3">
-                      <p className="text-[15px] leading-relaxed">{r.review.summary}</p>
-                      <List title={t("assistStrengths")} items={r.review.strengths} />
-                      {r.review.issues.length ? (
-                        <div>
-                          <p className="text-sm font-semibold">
-                            {t("reviewIssues", { count: r.review.issues.length })}
-                          </p>
-                          <ul className="mt-1.5 space-y-2">
-                            {r.review.issues.map((issue, i) => (
-                              <li
-                                key={i}
-                                className={cn(
-                                  card,
-                                  "border-l-4",
-                                  issue.severity === "high"
-                                    ? "border-l-danger"
-                                    : issue.severity === "medium"
-                                      ? "border-l-gold"
-                                      : "border-l-border-strong",
-                                )}
-                              >
-                                <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                                  <span className="rounded-full bg-info-bg px-2 py-0.5 font-semibold text-blue-800">
-                                    {t(`reviewCategory.${issue.category}`)}
-                                  </span>
-                                  <span className="text-muted">
-                                    {t(`reviewSeverity.${issue.severity}`)}
-                                  </span>
-                                </div>
-                                {issue.quote ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => selectQuote(editor, issue.quote!)}
-                                    className="mt-2 block w-full rounded-control bg-blue-50 px-2.5 py-1.5 text-left text-sm text-ink italic hover:bg-info-bg"
-                                    title={t("reviewShow")}
-                                  >
-                                    “{issue.quote}”
-                                  </button>
-                                ) : null}
-                                <p className="mt-2 text-sm font-semibold">{issue.problem}</p>
-                                <p className="mt-1 text-sm text-text-2">{issue.how_to_fix}</p>
-                                {issue.sources.length ? (
-                                  <ul className="mt-1.5 space-y-0.5 text-sm">
-                                    {issue.sources.map((s) => (
-                                      <li key={s.url}>
-                                        <a
-                                          href={s.url}
-                                          target="_blank"
-                                          rel="noreferrer"
-                                          className="inline-flex items-center gap-1 text-blue-800 hover:underline"
-                                        >
-                                          {s.title || s.url}
-                                          <ExternalLink className="size-3.5" aria-hidden />
-                                        </a>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                ) : null}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ) : (
-                        <p className="text-sm font-semibold text-success">{t("reviewClean")}</p>
-                      )}
-                      <List title={t("reviewNext")} items={r.review.next_steps} />
-                      <div className="flex items-center justify-between">
-                        <Disclaimer />
-                        <Feedback
-                          onSend={(v) =>
-                            feedbackAction({ checkId: r.checkId, feature: "review", verdict: v })
-                          }
-                        />
-                      </div>
-                    </div>
-                  );
-                })()
-              : null}
-          </>
-        ) : null}
-
-        {view.kind === "tool" && view.tool === "assist" ? (
-          <>
-            <h2 className="text-lg font-semibold">{t("toolAssist")}</h2>
-            <p className="text-sm text-text-2">{t("assistIntro")}</p>
-            <input
-              value={assistQ}
-              onChange={(e) => setAssistQ(e.target.value)}
-              placeholder={t("assistQuestion")}
-              aria-label={t("assistQuestion")}
-              className={field}
-            />
-            <button
-              type="button"
-              className={buttonClass("primary", "md", "w-full")}
-              disabled={toolBusy}
-              onClick={() =>
-                run({ tool: "assist", text: selectedOrAll(editor), question: assistQ })
-              }
-            >
-              {toolBusy ? t("running") : t("assistRun")}
-            </button>
-            <ToolOutcome result={toolResult} />
-            {toolResult?.tool === "assist" && !isErr(toolResult)
-              ? (() => {
-                  const r = toolResult as Ok<"assist">;
-                  return (
-                    <div className="space-y-3">
-                      <p className="text-[15px] leading-relaxed">{r.assist.summary}</p>
-                      <List title={t("assistStrengths")} items={r.assist.strengths} />
-                      <List title={t("assistQuestions")} items={r.assist.questions} />
-                      {r.assist.advice.length ? (
-                        <div>
-                          <p className="text-sm font-semibold">{t("assistAdvice")}</p>
-                          <ul className="mt-1.5 space-y-2">
-                            {r.assist.advice.map((a, i) => (
-                              <li key={i} className={card}>
-                                <p className="text-sm font-semibold">{a.issue}</p>
-                                <p className="mt-1 text-sm text-text-2">{a.how_to_fix}</p>
-                                {a.sample_sentence ? (
-                                  <p className="mt-1.5 text-sm text-ink italic">
-                                    {t("planSample")}: {a.sample_sentence}
-                                  </p>
-                                ) : null}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ) : null}
-                      <div className="flex items-center justify-between">
-                        <Disclaimer />
-                        <Feedback
-                          onSend={(v) =>
-                            feedbackAction({ checkId: r.checkId, feature: "assist", verdict: v })
-                          }
-                        />
-                      </div>
-                    </div>
-                  );
-                })()
-              : null}
-          </>
-        ) : null}
-
-        {view.kind === "tool" && view.tool === "originality" ? (
-          <>
-            <h2 className="text-lg font-semibold">{t("toolOriginality")}</h2>
-            <p className="text-sm text-text-2">{t("originalityIntro")}</p>
-            <button
-              type="button"
-              className={buttonClass("primary", "md", "w-full")}
-              disabled={toolBusy}
-              onClick={() => run({ tool: "originality", text: aiText(editor) })}
-            >
-              {toolBusy ? t("running") : t("originalityRun")}
-            </button>
-            <ToolOutcome result={toolResult} />
-            {toolResult?.tool === "originality" && !isErr(toolResult)
-              ? (() => {
-                  const r = toolResult as Ok<"originality">;
-                  return (
-                    <div className="space-y-2">
-                      <p
-                        className={cn(
-                          "rounded-card px-4 py-3 text-xl font-bold",
-                          r.originality >= 80
-                            ? "bg-success-bg text-success"
-                            : "bg-warning-bg text-warning",
-                        )}
-                      >
-                        {t("originalityScore", { value: r.originality })}
-                      </p>
-                      {r.matches.length ? (
-                        <ul className="space-y-1.5">
-                          {r.matches.map((m) => (
-                            <li key={m.id} className="flex justify-between gap-3 text-sm">
-                              {m.slug ? (
-                                <Link
-                                  href={`/maqola/${m.slug}`}
-                                  target="_blank"
-                                  className="text-blue-800 hover:underline"
-                                >
-                                  {m.title}
-                                </Link>
-                              ) : (
-                                <span>{m.title}</span>
-                              )}
-                              <span className="shrink-0 text-text-2">
-                                {t("overlap", { value: m.overlap })}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-sm text-text-2">{t("originalityNone")}</p>
-                      )}
-                    </div>
-                  );
-                })()
-              : null}
-          </>
-        ) : null}
-
-        {view.kind === "tool" && view.tool === "citations" ? (
-          <>
-            <h2 className="text-lg font-semibold">{t("toolCitations")}</h2>
-            <p className="text-sm text-text-2">{t("citationsIntro")}</p>
-            <button
-              type="button"
-              className={buttonClass("primary", "md", "w-full")}
-              disabled={toolBusy}
-              onClick={() => run({ tool: "citations", text: aiText(editor) })}
-            >
-              {toolBusy ? t("running") : t("citationsRun")}
-            </button>
-            <ToolOutcome result={toolResult} />
-            {toolResult?.tool === "citations" && !isErr(toolResult)
-              ? (() => {
-                  const c = (toolResult as Ok<"citations">).check;
-                  return (
-                    <div className="space-y-3">
-                      {c.matched ? (
-                        <p className="text-sm text-success">
-                          {t("citationsMatched", { count: c.matched })}
-                        </p>
-                      ) : null}
-                      <List title={t("citationsMissing")} items={c.missing} />
-                      <List title={t("citationsUncited")} items={c.uncited} />
-                      {!c.missing.length && !c.uncited.length ? (
-                        <p className="text-sm text-success">{t("citationsOk")}</p>
-                      ) : null}
-                    </div>
-                  );
-                })()
-              : null}
-            <References
-              references={references}
-              format={citeFormat}
-              setFormat={setCiteFormat}
-              onRemove={async (id) =>
-                setReferences((await removeReferenceAction(draftId, id)).references)
-              }
-            />
-          </>
-        ) : null}
-
-        {view.kind === "tool" && view.tool === "translate" ? (
-          <>
-            <h2 className="text-lg font-semibold">{t("toolTranslate")}</h2>
-            <input
-              value={trTitle}
-              onChange={(e) => setTrTitle(e.target.value)}
-              aria-label={t("translateTitle")}
-              placeholder={t("translateTitle")}
-              className={field}
-            />
-            <textarea
-              value={trAbstract}
-              onChange={(e) => setTrAbstract(e.target.value)}
-              rows={6}
-              aria-label={t("translateAbstract")}
-              placeholder={t("translateAbstract")}
-              className={field}
-            />
-            <button
-              type="button"
-              className={buttonClass("primary", "md", "w-full")}
-              disabled={toolBusy}
-              onClick={() => run({ tool: "translate", title: trTitle, abstract: trAbstract })}
-            >
-              {toolBusy ? t("running") : t("translateRun")}
-            </button>
-            <ToolOutcome result={toolResult} />
-            {toolResult?.tool === "translate" && !isErr(toolResult)
-              ? (() => {
-                  const r = (toolResult as Ok<"translate">).translation;
-                  return (
-                    <div className="space-y-3">
-                      {[
-                        ["EN", r.title_en, r.abstract_en],
-                        ["RU", r.title_ru, r.abstract_ru],
-                      ].map(([lang, tt, ab]) => (
-                        <div key={lang} className={card}>
-                          <div className="flex justify-between">
-                            <p className={cn(label, "text-blue-800")}>{lang}</p>
-                            <CopyButton text={`${tt}\n\n${ab}`} />
-                          </div>
-                          <p className="mt-1 font-semibold">{tt}</p>
-                          <p className="mt-1.5 text-sm leading-relaxed text-text-2">{ab}</p>
-                        </div>
-                      ))}
-                      <List title={t("translateNote")} items={r.notes} />
-                      <Disclaimer />
-                    </div>
-                  );
-                })()
-              : null}
-          </>
-        ) : null}
-      </div>
-
-      <div className="border-t border-border p-4">
-        <div className="mb-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            className={chipClass(false, "min-h-9 text-[13px]")}
-            onClick={() => searchSources(title)}
-          >
-            {t("quickSources")}
-          </button>
-          <button
-            type="button"
-            className={chipClass(false, "min-h-9 text-[13px]")}
-            onClick={() => ask(t("quickShortenPrompt"))}
-          >
-            {t("quickShorten")}
-          </button>
-          <button
-            type="button"
-            className={chipClass(false, "min-h-9 text-[13px]")}
-            onClick={() => setView({ kind: "tool", tool: "translate" })}
-          >
-            {t("quickAbstract")}
-          </button>
-        </div>
-        <form
-          className="flex items-center gap-2 rounded-card border border-border-strong p-1.5 pl-3 focus-within:border-blue-800"
-          onSubmit={(e) => {
-            e.preventDefault();
-            ask(question);
-          }}
-        >
-          <input
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder={t("chatPlaceholder")}
-            aria-label={t("chatPlaceholder")}
-            className="min-w-0 flex-1 bg-transparent py-2 text-[15px] focus:outline-none"
-          />
-          <button
-            type="submit"
-            aria-label={t("chatSend")}
-            disabled={chatting || !question.trim()}
-            className="flex size-10 items-center justify-center rounded-control bg-blue-800 text-white disabled:opacity-50"
-          >
-            <ArrowRight className="size-4" aria-hidden />
-          </button>
-        </form>
-      </div>
+          </div>
+        </>
+      )}
     </>
   );
 }

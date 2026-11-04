@@ -74,7 +74,9 @@ export type AiErrorCode =
   | "rate_limit"
   | "unavailable"
   | "refused"
-  | "forbidden";
+  | "forbidden"
+  | "premium_required"
+  | "daily_limit";
 
 export const EditsSchema = z.object({
   edits: z
@@ -213,6 +215,7 @@ export const AI_FEATURES = [
   "translate",
   "chat",
   "review",
+  "mentor",
 ] as const;
 export type AiFeature = (typeof AI_FEATURES)[number];
 

@@ -24,7 +24,7 @@ export function MockNote() {
 
 export function AiErrorNote({ code }: { code: AiErrorCode }) {
   const t = useTranslations("ai");
-  if (code === "quota" || code === "premium_limit") {
+  if (code === "quota" || code === "premium_limit" || code === "premium_required") {
     // Not an error to the author: an invitation, in the journal's formal style.
     return (
       <div

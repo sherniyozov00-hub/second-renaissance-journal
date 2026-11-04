@@ -865,6 +865,45 @@
       "high": "Muhim",
       "medium": "O‘rtacha",
       "low": "Kichik"
+    },
+    "tabMentor": "Ustoz",
+    "error_premium_required": "Xorazmiy Ustoz — Premium foydalanuvchilar uchun.",
+    "error_daily_limit": "Bugungi xabarlar soni tugadi (kuniga 60 ta). Ertaga davom etamiz — suhbat saqlanib qoladi.",
+    "mentor": {
+      "title": "Xorazmiy Ustoz",
+      "premiumOnly": "Premium uchun",
+      "lockedText": "Ustoz maqolangizni boshidan oxirigacha siz bilan birga yozadi: har bosqichda tushuntiradi, savol beradi, yozganingizni ko‘rib chiqadi va keyingi qadamni ko‘rsatadi. Suhbat saqlanib qoladi — istalgan payt davom ettirasiz.",
+      "getPremium": "Premium olish — oyiga 39 990 so‘m",
+      "stageOf": "{stage}/{total}-bosqich",
+      "stagesLabel": "Maqola bosqichlari",
+      "stages": {
+        "1": "Mavzu va tadqiqot savoli",
+        "2": "Adabiyotlar sharhi",
+        "3": "Usul va so‘rovnoma",
+        "4": "Ma’lumot va natijalar",
+        "5": "Muhokama va cheklovlar",
+        "6": "Xulosa, annotatsiya va sarlavha",
+        "7": "Yakuniy tekshiruv va topshirish"
+      },
+      "goToStage": "Keling, {stage}-bosqichga o‘tamiz: {title}.",
+      "welcome": "Assalomu alaykum! Men sizning ilmiy ustozingizman. Maqolani birga, 7 bosqichda yozamiz: mavzu va tadqiqot savolidan boshlab, topshirishgacha.\n\nMen maqolani siz uchun yozmayman — tushuntiraman, savol beraman, namuna ko‘rsataman va yozganingizni tekshiraman. Shunda maqola sizniki bo‘ladi va keyingisini o‘zingiz yozasiz.\n\nBoshlash uchun: qaysi mavzuda yozmoqchisiz va nima uchun aynan shu mavzu sizni qiziqtiradi?",
+      "thinking": "Ustoz o‘ylayapti…",
+      "placeholder": "Ustozga yozing… (Enter — yuborish, Shift+Enter — yangi qator)",
+      "send": "Yuborish",
+      "quickLabel": {
+        "start": "Boshladik",
+        "topic": "Mavzu tanlay olmayapman",
+        "review": "Yozganimni ko‘rib chiq",
+        "next": "Keyingi bosqich",
+        "example": "Namuna ko‘rsat"
+      },
+      "quick": {
+        "start": "Boshladik. Mavzuim haqida aytib beraman.",
+        "topic": "Qaysi mavzuda yozishni bilmayapman. Mavzu tanlashga yordam bering — qanday savollar bilan boshlaymiz?",
+        "review": "Maqolamning hozirgi bosqichga tegishli qismini ko‘rib chiqing: nima yaxshi va nimani yaxshilash kerak?",
+        "next": "Bu bosqichni tugatdim deb o‘ylayman. Keyingi bosqichga o‘tamiz.",
+        "example": "Shu bosqich uchun qisqa namuna ko‘rsating, keyin o‘zim yozib ko‘raman."
+      }
     }
   },
   "ranking": {
