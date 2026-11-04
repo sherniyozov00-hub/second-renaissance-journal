@@ -26,6 +26,7 @@ import {
   translate,
 } from "@/lib/ai/features";
 import { allowLight, consumeCheck } from "@/lib/ai/quota";
+import { reviewDraft } from "@/lib/ai/review";
 import { parseLang } from "@/lib/ai/schemas";
 import type {
   AiErrorCode,
@@ -34,6 +35,7 @@ import type {
   DraftReference,
   EditSuggestion,
   Plan,
+  Review,
   ScholarItem,
   Translation,
 } from "@/lib/ai/schemas";
@@ -120,7 +122,8 @@ export type ToolRequest =
   | { tool: "originality"; text: string }
   | { tool: "citations"; text: string }
   | { tool: "translate"; title: string; abstract: string }
-  | { tool: "chat"; history: ChatMessage[]; question: string; text: string };
+  | { tool: "chat"; history: ChatMessage[]; question: string; text: string }
+  | { tool: "review"; text: string };
 
 export type ToolResponse =
   | { tool: "plan"; plan: Plan; checkId: string }
@@ -139,10 +142,11 @@ export type ToolResponse =
     }
   | { tool: "translate"; translation: Translation; checkId: string }
   | { tool: "chat"; answer: string }
+  | { tool: "review"; review: Review; checkId: string }
   | { tool: string; error: AiErrorCode };
 
 /** Checks counted against the quota (TZ 10.4); the rest are only rate limited. */
-const COUNTED = new Set(["plan", "assist", "edit", "translate"]);
+const COUNTED = new Set(["plan", "assist", "edit", "translate", "review"]);
 
 export async function runToolAction(draftId: string, req: ToolRequest): Promise<ToolResponse> {
   const user = await requireUser();
@@ -217,6 +221,10 @@ export async function runToolAction(draftId: string, req: ToolRequest): Promise<
         if (!req.query.trim()) throw new AiError("empty");
         const r = await findSources(ctx, req.query.slice(0, 2000));
         return { tool: "sources", items: r.items, failed: r.failed, checkId: r.checkId };
+      }
+      case "review": {
+        const r = await reviewDraft(ctx, draft.title, req.text.slice(0, 60_000));
+        return { tool: "review", ...r };
       }
       case "chat": {
         if (!req.question.trim()) throw new AiError("empty");

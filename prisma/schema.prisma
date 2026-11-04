@@ -89,6 +89,8 @@ enum AiCheckType {
   CHAT
   /// Muharrir yordamchisi: pre-review brief for the editor.
   EDITOR_BRIEF
+  /// "Tekshirib ber": the author's review agent report.
+  REVIEW
 }
 
 /// What a knowledge entry teaches Xorazmiy AI (stage 6 "training").

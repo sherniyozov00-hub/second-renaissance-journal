@@ -54,5 +54,24 @@ test.describe("Xorazmiy AI (Ekran 3)", () => {
       await edit.getByRole("button", { name: "Qabul qilish" }).click();
       await expect(editor).not.toContainText("biz shuni ko‘rib chiqamizki");
     });
+
+    test("“Tekshirib ber” finds a percentage that the sample cannot give", async ({ page }) => {
+      await page.goto("/kabinet/yozish");
+      await page.getByLabel("Maqola mavzusi").fill("E2E: so‘rovnoma tekshiruvi");
+      await page.getByRole("button", { name: "Yaratish" }).click();
+      await page.waitForURL(/\/kabinet\/yozish\/.+/);
+      const editor = page.locator(".ai-editor");
+      await editor.click();
+      await page.keyboard.press("Control+End");
+      await page.keyboard.type(
+        "So‘rovnomada 35 talaba qatnashdi. Ularning 37,3 % i ijodkorlikni muhim, 31,4 % i juda muhim deb hisoblaydi.",
+      );
+      await page.getByRole("button", { name: "Tekshirib ber" }).click();
+      await page.getByRole("button", { name: "Butun maqolani tekshirish" }).click();
+      await expect(
+        page.getByText("37,3 % qiymati n = 35 kishidan chiqishi mumkin emas."),
+      ).toBeVisible();
+      await expect(page.getByText("37,1 % (13 kishi)", { exact: false })).toBeVisible();
+    });
   });
 });

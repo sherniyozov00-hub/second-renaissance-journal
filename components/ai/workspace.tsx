@@ -32,6 +32,7 @@ export type WorkspaceDraft = {
 };
 
 const TOOLS: { id: ToolName; label: string }[] = [
+  { id: "review", label: "toolReview" },
   { id: "plan", label: "toolPlan" },
   { id: "assist", label: "toolAssist" },
   { id: "edit", label: "toolEdit" },

@@ -141,6 +141,37 @@ export const AssistSchema = z.object({
 });
 export type Assist = z.infer<typeof AssistSchema>;
 
+/** "Tekshirib ber": the review agent's report on a draft. */
+export const REVIEW_CATEGORIES = [
+  "numbers",
+  "facts",
+  "consistency",
+  "method",
+  "claims",
+  "structure",
+  "sources",
+  "language",
+] as const;
+export const ReviewSchema = z.object({
+  summary: z.string().max(1000),
+  strengths: z.array(z.string().max(300)).max(5),
+  issues: z
+    .array(
+      z.object({
+        category: z.enum(REVIEW_CATEGORIES),
+        severity: z.enum(["high", "medium", "low"]),
+        quote: z.string().max(400).nullable(),
+        problem: z.string().max(700),
+        how_to_fix: z.string().max(700),
+        sources: z.array(z.object({ title: z.string().max(300), url: z.string().max(600) })).max(3),
+      }),
+    )
+    .max(15),
+  next_steps: z.array(z.string().max(300)).max(5),
+});
+export type Review = z.infer<typeof ReviewSchema>;
+export type ReviewIssue = Review["issues"][number];
+
 export const TranslateSchema = z.object({
   title_en: z.string().max(400),
   abstract_en: z.string().max(4000),
@@ -181,6 +212,7 @@ export const AI_FEATURES = [
   "citations",
   "translate",
   "chat",
+  "review",
 ] as const;
 export type AiFeature = (typeof AI_FEATURES)[number];
 

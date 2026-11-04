@@ -842,7 +842,30 @@
     "premiumLink": "About Premium",
     "premiumPoint1": "Write with AI, outline and edit variants",
     "premiumPoint2": "Numeric data checked on the web, with sources",
-    "premiumPoint3": "4 articles a month · 39 990 UZS"
+    "premiumPoint3": "4 articles a month · 39 990 UZS",
+    "toolReview": "Review my paper",
+    "reviewIntro": "Xorazmiy AI reads the paper like an experienced editor: it checks numbers (do percentages fit the sample size), consistency between sections, claims without statistical evidence, method, external facts and sources. For each problem it shows the passage and how to fix it — it does not rewrite the text for you.",
+    "reviewRun": "Review the whole paper",
+    "reviewRunning": "Reviewing… (1–2 minutes)",
+    "reviewIssues": "Problems found: {count}",
+    "reviewClean": "No serious problems found.",
+    "reviewNext": "Next steps",
+    "reviewShow": "Show in text",
+    "reviewCategory": {
+      "numbers": "Numbers",
+      "facts": "Facts",
+      "consistency": "Consistency",
+      "method": "Method",
+      "claims": "Claims",
+      "structure": "Structure",
+      "sources": "Sources",
+      "language": "Language and style"
+    },
+    "reviewSeverity": {
+      "high": "Important",
+      "medium": "Moderate",
+      "low": "Minor"
+    }
   },
   "ranking": {
     "title": "University ranking",
