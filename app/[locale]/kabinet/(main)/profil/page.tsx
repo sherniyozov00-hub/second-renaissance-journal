@@ -5,6 +5,7 @@ import { ProfileForm } from "@/components/cabinet/profile-form";
 import { buttonClass, cardClass } from "@/components/ui/styles";
 import { requireCabinetUser } from "@/lib/auth/session";
 import { maskPhone } from "@/lib/auth/identifiers";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 export async function generateMetadata({
@@ -50,11 +51,18 @@ export default async function ProfilePage({ params }: { params: Promise<{ locale
             {[user.phone ? maskPhone(user.phone) : null, user.email].filter(Boolean).join(" · ")}
           </p>
         </div>
-        <form action={signOutAction}>
-          <button type="submit" className={buttonClass("secondary", "md", "text-danger")}>
-            {t("auth.logout")}
-          </button>
-        </form>
+        <div className="flex flex-wrap gap-2">
+          {user.email ? (
+            <Link href="/kabinet/parol" className={buttonClass("secondary", "md")}>
+              {user.passwordHash ? t("password.titleChange") : t("password.title")}
+            </Link>
+          ) : null}
+          <form action={signOutAction}>
+            <button type="submit" className={buttonClass("secondary", "md", "text-danger")}>
+              {t("auth.logout")}
+            </button>
+          </form>
+        </div>
       </section>
     </>
   );

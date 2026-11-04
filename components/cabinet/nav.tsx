@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
+import { signOutAction } from "@/app/[locale]/kirish/actions";
 import { cn } from "@/lib/utils";
 
 const ITEMS = [
@@ -15,6 +16,7 @@ const ITEMS = [
 
 export function CabinetNav() {
   const t = useTranslations("cabinet");
+  const ta = useTranslations("auth");
   const pathname = usePathname();
   return (
     <nav aria-label={t("title")} className="rounded-card border border-border bg-white p-2">
@@ -38,6 +40,16 @@ export function CabinetNav() {
             </li>
           );
         })}
+        <li>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="flex min-h-11 w-full items-center rounded-control px-3.5 text-base text-danger hover:bg-danger-bg"
+            >
+              {ta("logout")}
+            </button>
+          </form>
+        </li>
       </ul>
     </nav>
   );

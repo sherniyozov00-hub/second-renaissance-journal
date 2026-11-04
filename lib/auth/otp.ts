@@ -43,6 +43,8 @@ export async function requestOtp(
   target: string,
   ip: string | null,
   locale: string = "uz",
+  /** Where to send the code when `target` is a namespaced key (e.g. "staff:<email>"). */
+  deliverTo: string = target,
 ): Promise<RequestResult> {
   const now = Date.now();
   const hourAgo = new Date(now - 3600 * 1000);
@@ -89,11 +91,11 @@ export async function requestOtp(
   }[locale === "ru" || locale === "en" ? locale : "uz"];
   const text = `${siteConfig.name}: ${msg.text}`;
   try {
-    if (channel === "PHONE") await getSmsProvider().send(target, text);
+    if (channel === "PHONE") await getSmsProvider().send(deliverTo, text);
     else
       await (
         await getEmailProvider()
-      ).send({ to: target, subject: `${msg.subject}: ${code}`, text });
+      ).send({ to: deliverTo, subject: `${msg.subject}: ${code}`, text });
   } catch (err) {
     console.error("[otp] delivery failed", err);
     return { ok: false, error: "send_failed" };

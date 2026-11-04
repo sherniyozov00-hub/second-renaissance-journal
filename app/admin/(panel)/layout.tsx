@@ -5,11 +5,15 @@ import { AdminNav } from "@/components/admin/nav";
 import { ADMIN_NAV } from "@/lib/admin/nav-items";
 import { LogoMark } from "@/components/brand/logo";
 import { requireEditor } from "@/lib/admin/auth";
+import { staffLogoutAction } from "@/app/admin/kirish/actions";
 
 /** Ekran 8: dark sidebar on the left, content on the right. Uzbek, Russian or English. */
 export default async function AdminPanelLayout({ children }: { children: React.ReactNode }) {
   const user = await requireEditor();
-  const t = await getTranslations("admin.common");
+  const [t, tl] = await Promise.all([
+    getTranslations("admin.common"),
+    getTranslations("admin.login"),
+  ]);
   const isAdmin = user.roles.includes("ADMIN");
   const items = ADMIN_NAV.filter((i) => isAdmin || !i.adminOnly).map((i) => ({
     href: i.href,
@@ -29,11 +33,16 @@ export default async function AdminPanelLayout({ children }: { children: React.R
           <StaffLocaleSwitcher />
         </div>
         <p className="mt-4 px-3 text-xs text-blue-50/60">
-          {user.name ?? user.phone} ·{" "}
+          {user.name ?? user.email} ·{" "}
           <Link href="/" className="underline">
             {t("site")}
           </Link>
         </p>
+        <form action={staffLogoutAction} className="mt-3 px-3">
+          <button className="text-sm font-semibold text-white hover:underline">
+            {tl("logout")} →
+          </button>
+        </form>
       </aside>
       <main className="min-w-0 flex-1 p-5 md:p-8">{children}</main>
     </div>

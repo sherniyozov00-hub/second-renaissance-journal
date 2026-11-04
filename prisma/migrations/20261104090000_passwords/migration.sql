@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "passwordHash" TEXT,
+ADD COLUMN "staffPasswordHash" TEXT,
+ADD COLUMN "staffPasswordVersion" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "failedLogins" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "lockedUntil" TIMESTAMP(3);

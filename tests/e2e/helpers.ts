@@ -20,6 +20,18 @@ export async function login(page: Page, phone: string, next: string) {
   await page.waitForURL((u) => u.pathname === next.split("?")[0], { timeout: 60_000 });
 }
 
+/** Demo staff password (prisma/seed.ts, SEED_STAFF_PASSWORD in CI). */
+export const STAFF_PASSWORD = process.env.SEED_STAFF_PASSWORD ?? "Demo-Admin-2026";
+
+/** The admin panel has its own sign-in: email + admin password at /admin/kirish. */
+export async function staffLogin(page: Page, email = "admin@example.com") {
+  await page.goto("/admin/kirish");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Admin paroli").fill(STAFF_PASSWORD);
+  await page.getByRole("button", { name: "Kirish", exact: true }).click();
+  await page.waitForURL((u) => u.pathname === "/admin", { timeout: 60_000 });
+}
+
 /** TZ 17: nothing scrolls sideways at 360 px. */
 export async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(
