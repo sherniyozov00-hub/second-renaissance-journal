@@ -2,12 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { AppLocale } from "@/i18n/routing";
 import { listAdminArticles, parseAdminFilters, toCsv } from "@/lib/admin/articles";
-import { currentUser } from "@/lib/auth/session";
+import { adminUser } from "@/lib/admin/session";
 import { articleTitle, pick } from "@/lib/l10n";
 
 /** "Eksport (Excel)": the filtered article table as CSV (opens in Excel). */
 export async function GET(req: NextRequest) {
-  const user = await currentUser();
+  const user = await adminUser();
   if (!user || !user.roles.some((r) => r === "EDITOR" || r === "ADMIN")) {
     return new NextResponse("Forbidden", { status: 403 });
   }

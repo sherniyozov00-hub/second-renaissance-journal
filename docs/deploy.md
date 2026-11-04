@@ -98,8 +98,11 @@ Xizmatlar: `app` (sayt + PDF, sertifikat, xabarnomalar; fayllar `files` volume�
 
 ## 5. Birinchi sozlash (sayt ichida)
 
-1. `https://journal.uz/kirish` — `SEED_ADMIN_EMAIL` emaili bilan kiring (kod emailga keladi; email
-   xizmati ulanmaguncha: `bash deploy/login-code.sh`).
+1. **Admin panel** — `https://journal.uz/admin` (alohida kirish, saytdagi hisob ochmaydi): `SEED_ADMIN_EMAIL`
+   ni yozing → “Parolni o‘rnatish yoki tiklash” → emailga kelgan kod bilan admin parolini o‘rnating.
+   Sessiya 8 soat; parol o‘zgarsa, eski sessiyalar bekor bo‘ladi; 5 marta xato parol — 15 daqiqa blok.
+   Saytga (kabinetga) esa Google yoki email kodi bilan kiriladi; birinchi kirishdan keyin sayt paroli
+   o‘rnatiladi, keyingi safar email + parol yoki Google.
 2. **Admin → Sozlamalar**: narxlar, ISSN, kontaktlar, MXIK kodi, AI limitlari va modeli,
    Telegram-bot nomi, Google/Bing tasdiqlash kodlari. `[NARX]`, `[ISSN]`, `[EMAIL]` kabi
    barcha placeholderlarni to‘ldiring.

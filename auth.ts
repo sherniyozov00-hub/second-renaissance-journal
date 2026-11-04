@@ -4,12 +4,15 @@ import Google from "next-auth/providers/google";
 import type { Role } from "@/generated/prisma/client";
 import { normalizeEmail, normalizePhone } from "@/lib/auth/identifiers";
 import { verifyOtp } from "@/lib/auth/otp";
+import { checkUserPassword } from "@/lib/auth/password";
 import { db } from "@/lib/db";
 import { getSecret } from "@/lib/secrets";
 
 declare module "next-auth" {
   interface Session {
     user: { id: string; roles: Role[] } & DefaultSession["user"];
+    /** How and when this session signed in (lib/auth/session.ts → recentCodeSignIn). */
+    signedIn?: { method?: string; at?: number };
   }
 }
 
@@ -17,6 +20,9 @@ declare module "@auth/core/jwt" {
   interface JWT {
     uid?: string;
     roles?: Role[];
+    /** How and when this session signed in ("otp" right now lets a password be set). */
+    method?: string;
+    at?: number;
   }
 }
 
@@ -61,6 +67,22 @@ const otpProvider =
     },
   });
 
+/** Email + password (set after the first email-code sign-in). */
+const passwordProvider = Credentials({
+  id: "password",
+  credentials: { email: {}, password: {} },
+  async authorize(raw) {
+    const email = normalizeEmail(String(raw?.email ?? ""));
+    if (!email) return null;
+    const user = await db.user.findUnique({ where: { email } });
+    if (!user || user.isBlocked || !user.passwordHash) return null;
+    const result = await checkUserPassword(user, user.passwordHash, String(raw?.password ?? ""));
+    if (result !== "ok") return null;
+    await db.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+    return { id: user.id, name: user.name, email: user.email };
+  },
+});
+
 /** Google keys from the environment or the admin panel (Integratsiyalar). */
 async function googleKeys() {
   const [clientId, clientSecret] = await Promise.all([
@@ -79,7 +101,7 @@ export async function isGoogleEnabled(): Promise<boolean> {
 export const { handlers, auth, signIn, signOut } = NextAuth(async () => {
   const google = await googleKeys();
   return {
-    providers: [otpProvider, ...(google ? [Google(google)] : [])],
+    providers: [otpProvider, passwordProvider, ...(google ? [Google(google)] : [])],
     session: { strategy: "jwt", maxAge: 30 * 24 * 3600 },
     pages: { signIn: "/kirish", error: "/kirish" },
     trustHost: true,
@@ -91,6 +113,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth(async () => {
         return (await upsertUser({ email }, { name: profile?.name })) !== null;
       },
       async jwt({ token, user, account, profile }) {
+        if (account) {
+          token.method = account.provider;
+          token.at = Date.now();
+        }
         if (account?.provider === "google" && profile?.email) {
           const u = await db.user.findUnique({ where: { email: profile.email.toLowerCase() } });
           if (u) {
@@ -109,6 +135,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(async () => {
           session.user.id = token.uid;
           session.user.roles = token.roles ?? [];
         }
+        session.signedIn = { method: token.method, at: token.at };
         return session;
       },
     },

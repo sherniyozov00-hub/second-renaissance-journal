@@ -89,6 +89,7 @@ jobs:
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       SMS_PROVIDER: mock
       OTP_MOCK_CODE: "123456"
+      SEED_STAFF_PASSWORD: Demo-Admin-2026
       PAYMENTS_MODE: sandbox
       JOBS_MODE: inline
       APP_INTERNAL_URL: http://localhost:3000

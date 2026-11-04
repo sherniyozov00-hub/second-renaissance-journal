@@ -6,6 +6,7 @@ import "dotenv/config";
 import { createHash } from "node:crypto";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, type Role } from "../generated/prisma/client";
+import { hashPassword } from "../lib/auth/password-hash";
 import { slugify } from "../lib/text/uz";
 import { KNOWLEDGE_DEFAULTS } from "../lib/ai/knowledge-defaults";
 import { SETTINGS } from "../lib/settings/registry";
@@ -113,6 +114,14 @@ async function main() {
       name: "Taqrizchi",
       roles: ["REVIEWER"],
     });
+    // Demo staff can open the admin panel with SEED_STAFF_PASSWORD (tests, demos).
+    if (process.env.SEED_STAFF_PASSWORD) {
+      const staffPasswordHash = await hashPassword(process.env.SEED_STAFF_PASSWORD);
+      await db.user.updateMany({
+        where: { id: { in: [admin.id, editor.id] } },
+        data: { staffPasswordHash },
+      });
+    }
     const demoAuthor = await upsertUser({
       email: "author@example.com",
       phone: "+998900000004",

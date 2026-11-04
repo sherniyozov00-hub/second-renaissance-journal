@@ -89,26 +89,41 @@ export function SubmissionForm({
   const [paying, startPay] = useTransition();
 
   // ── Autosave ─────────────────────────────────────────────────────────────
-  const save = useCallback(async () => {
-    if (!formRef.current) return articleId;
-    const data = new FormData(formRef.current);
-    if (!articleId && !String(data.get("titleUz") ?? "").trim()) return null;
-    setSaveState("saving");
-    const res = await saveDraftAction(data);
-    dirty.current = false;
-    if ("id" in res) {
-      setSaveState("saved");
-      if (res.id !== articleId) {
-        setArticleId(res.id);
-        const url = new URL(window.location.href);
-        url.searchParams.set("maqola", res.id);
-        window.history.replaceState(null, "", url);
+  // Saves run one at a time and always use the latest id: two saves started
+  // together (a blur and the upload, say) must not create the draft twice.
+  const idRef = useRef(initial.articleId);
+  const inflight = useRef<Promise<string | null> | null>(null);
+  const save = useCallback(async (): Promise<string | null> => {
+    while (inflight.current) await inflight.current;
+    const run = (async () => {
+      if (!formRef.current) return idRef.current;
+      const data = new FormData(formRef.current);
+      data.set("articleId", idRef.current ?? "");
+      if (!idRef.current && !String(data.get("titleUz") ?? "").trim()) return null;
+      setSaveState("saving");
+      const res = await saveDraftAction(data);
+      dirty.current = false;
+      if ("id" in res) {
+        setSaveState("saved");
+        if (res.id !== idRef.current) {
+          idRef.current = res.id;
+          setArticleId(res.id);
+          const url = new URL(window.location.href);
+          url.searchParams.set("maqola", res.id);
+          window.history.replaceState(null, "", url);
+        }
+        return res.id;
       }
-      return res.id;
+      setSaveState("idle");
+      return null;
+    })();
+    inflight.current = run;
+    try {
+      return await run;
+    } finally {
+      if (inflight.current === run) inflight.current = null;
     }
-    setSaveState("idle");
-    return null;
-  }, [articleId]);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => dirty.current && void save(), 10_000);

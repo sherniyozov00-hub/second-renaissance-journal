@@ -39,3 +39,13 @@ export function requireCabinetUser(locale: string, path = "/kabinet") {
   const l = locale as AppLocale;
   return requireUser(l, getPathname({ href: path, locale: l }));
 }
+
+/**
+ * The session signed in with an emailed code in the last 15 minutes: the
+ * author just proved the email, so a password may be set without the old one.
+ */
+export async function recentCodeSignIn(): Promise<boolean> {
+  const session = await auth();
+  const s = session?.signedIn;
+  return s?.method === "otp" && typeof s.at === "number" && Date.now() - s.at < 15 * 60 * 1000;
+}

@@ -27,6 +27,66 @@ export function LoginForm({
   });
   const error = state.error ?? null;
 
+  if (state.step === "password") {
+    return (
+      <form action={action} className="mt-6 space-y-4" key="password">
+        <input type="hidden" name="next" value={next} />
+        <input
+          type="email"
+          name="email"
+          value={state.target}
+          autoComplete="username"
+          readOnly
+          hidden
+        />
+        <p className="rounded-control bg-blue-50 px-3.5 py-3 text-sm text-ink" role="status">
+          {t("welcomeBack", { target: state.target })}
+        </p>
+        <label className="block text-sm font-semibold text-ink">
+          {t("passwordLabel")}
+          <input
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            autoFocus
+            className={INPUT}
+          />
+        </label>
+        {error ? <ErrorText code={error} /> : null}
+        <button
+          type="submit"
+          name="intent"
+          value="password"
+          disabled={pending}
+          className={buttonClass("primary", "lg", "w-full")}
+        >
+          {t("signIn")}
+        </button>
+        <div className="flex justify-between text-sm font-semibold text-blue-800">
+          <button
+            type="submit"
+            name="intent"
+            value="forgot"
+            formNoValidate
+            className="hover:underline"
+          >
+            {t("forgot")}
+          </button>
+          <button
+            type="submit"
+            name="intent"
+            value="restart"
+            formNoValidate
+            className="hover:underline"
+          >
+            {t("notYou")}
+          </button>
+        </div>
+      </form>
+    );
+  }
+
   if (state.step === "verify") {
     const shown = state.channel === "PHONE" ? maskPhone(state.target) : state.target;
     return (
@@ -35,7 +95,9 @@ export function LoginForm({
         <p className="rounded-control bg-blue-50 px-3.5 py-3 text-sm text-ink" role="status">
           {state.channel === "PHONE"
             ? t("codeSentPhone", { target: shown })
-            : t("codeSentEmail", { target: shown })}
+            : state.isNew
+              ? t("newAccount")
+              : t("codeSentEmail", { target: shown })}
         </p>
         <label className="block text-sm font-semibold text-ink">
           {t("codeLabel")}
@@ -50,6 +112,7 @@ export function LoginForm({
             className={cn(INPUT, "text-center font-mono text-2xl tracking-[0.4em]")}
           />
         </label>
+        {state.isNew ? <ConsentBox /> : null}
         {error ? <ErrorText code={error} /> : null}
         <button
           type="submit"
@@ -67,7 +130,7 @@ export function LoginForm({
           formNoValidate
           className="w-full text-sm font-semibold text-blue-800 hover:underline"
         >
-          {t("change")}
+          {state.channel === "PHONE" ? t("change") : t("notYou")}
         </button>
       </form>
     );
@@ -142,7 +205,8 @@ export function LoginForm({
             <input
               name="target"
               type="email"
-              autoComplete="email"
+              autoComplete="username"
+              defaultValue={state.step === "identify" ? state.email : undefined}
               placeholder={t("emailPlaceholder")}
               required
               className={INPUT}
@@ -150,24 +214,7 @@ export function LoginForm({
           </label>
         )}
 
-        <label className="flex items-start gap-3 text-sm text-text-2">
-          <input
-            type="checkbox"
-            name="consent"
-            value="1"
-            required
-            className="mt-0.5 size-[18px] accent-blue-800"
-          />
-          <span>
-            {t.rich("consent", {
-              privacy: (chunks) => (
-                <Link href="/maxfiylik" className="text-blue-800 underline" target="_blank">
-                  {chunks}
-                </Link>
-              ),
-            })}
-          </span>
-        </label>
+        {channel === "PHONE" ? <ConsentBox /> : null}
 
         {error ? <ErrorText code={error} /> : null}
         <button
@@ -177,7 +224,7 @@ export function LoginForm({
           disabled={pending}
           className={buttonClass("primary", "lg", "w-full")}
         >
-          {t("sendCode")}
+          {channel === "PHONE" ? t("sendCode") : t("continue")}
         </button>
       </form>
     </div>
@@ -213,5 +260,29 @@ function GoogleIcon() {
         d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"
       />
     </svg>
+  );
+}
+
+function ConsentBox() {
+  const t = useTranslations("auth");
+  return (
+    <label className="flex items-start gap-3 text-sm text-text-2">
+      <input
+        type="checkbox"
+        name="consent"
+        value="1"
+        required
+        className="mt-0.5 size-[18px] accent-blue-800"
+      />
+      <span>
+        {t.rich("consent", {
+          privacy: (chunks) => (
+            <Link href="/maxfiylik" className="text-blue-800 underline" target="_blank">
+              {chunks}
+            </Link>
+          ),
+        })}
+      </span>
+    </label>
   );
 }

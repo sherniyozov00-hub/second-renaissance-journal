@@ -106,28 +106,38 @@ enum AiKnowledgeKind {
 // ─── Users ──────────────────────────────────────────────────────────────────
 
 model User {
-  id                String        @id @default(cuid())
-  phone             String?       @unique
-  email             String?       @unique
-  name              String?
-  locale            Locale        @default(uz)
-  roles             Role[]        @default([AUTHOR])
-  telegramChatId    String?       @unique
+  id                   String        @id @default(cuid())
+  phone                String?       @unique
+  email                String?       @unique
+  name                 String?
+  locale               Locale        @default(uz)
+  roles                Role[]        @default([AUTHOR])
+  telegramChatId       String?       @unique
   /// Per-user override of the monthly AI check quota; null = use Settings.
-  aiQuota           Int?
+  aiQuota              Int?
   /// Purchased Xorazmiy AI checks (TZ 10.4 "Limitni oshirish"); used after the monthly free ones.
+  /// Site sign-in password (scrypt), set after the first email-code sign-in.
+  passwordHash         String?
+  /// Admin panel password, separate from the site one, so a site session
+  /// never opens /admin (lib/admin/session.ts).
+  staffPasswordHash    String?
+  /// Changes when the staff password changes: old admin sessions stop working.
+  staffPasswordVersion Int           @default(0)
+  /// Failed password attempts in a row; reaching the limit locks for a while.
+  failedLogins         Int           @default(0)
+  lockedUntil          DateTime?
   /// Xorazmiy AI Premium is active until this moment (bought for a month at a time).
-  premiumUntil      DateTime?
-  premiumWorks      PremiumWork[]
-  aiCredits         Int           @default(0)
-  isBlocked         Boolean       @default(false)
+  premiumUntil         DateTime?
+  premiumWorks         PremiumWork[]
+  aiCredits            Int           @default(0)
+  isBlocked            Boolean       @default(false)
   /// When the user accepted the privacy policy and personal-data processing (TZ 17).
-  consentAt         DateTime?
+  consentAt            DateTime?
   /// One-time token for the Telegram deep link (t.me/<bot>?start=<token>).
-  telegramLinkToken String?       @unique
-  lastLoginAt       DateTime?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  telegramLinkToken    String?       @unique
+  lastLoginAt          DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
   profile           AuthorProfile?
   submittedArticles Article[]        @relation("ArticleSubmitter")
