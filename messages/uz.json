@@ -1099,6 +1099,7 @@
       "ai_maxClaimsPerCheck": "Bitta fakt tekshiruvida internetda tekshiriladigan da’volar chegarasi (xarajat nazorati)",
       "ai_requestsPerMinute": "Rate limit: foydalanuvchi (yoki mehmon) uchun daqiqasiga AI so‘rovlari",
       "ai_model": "Barcha Xorazmiy AI funksiyalari uchun Claude modeli",
+      "ai_factcheckModel": "Fakt tekshiruvi uchun model (arzon: claude-haiku-5-5; aniqroq: claude-sonnet-5-5)",
       "telegram_botName": "Telegram-bot nomi (username)",
       "seo_googleVerification": "Google Search Console tasdiqlash kodi",
       "seo_bingVerification": "Bing Webmaster tasdiqlash kodi",

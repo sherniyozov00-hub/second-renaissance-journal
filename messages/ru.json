@@ -1099,6 +1099,7 @@
       "ai_maxClaimsPerCheck": "Лимит утверждений, проверяемых в интернете за одну проверку (контроль расходов)",
       "ai_requestsPerMinute": "Rate limit: запросов к ИИ в минуту на пользователя (или гостя)",
       "ai_model": "Модель Claude для всех функций Xorazmiy AI",
+      "ai_factcheckModel": "Модель для проверки фактов (дешевле: claude-haiku-5-5; точнее: claude-sonnet-5-5)",
       "telegram_botName": "Имя Telegram-бота (username)",
       "seo_googleVerification": "Код подтверждения Google Search Console",
       "seo_bingVerification": "Код подтверждения Bing Webmaster",
