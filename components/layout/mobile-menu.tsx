@@ -3,12 +3,13 @@
 import { Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Suspense, useState } from "react";
+import { signOutAction } from "@/app/[locale]/kirish/actions";
 import { Link } from "@/i18n/navigation";
 import { buttonClass } from "@/components/ui/styles";
 import { LocaleSwitcher } from "./locale-switcher";
 import { NAV_ITEMS } from "./nav-items";
 
-export function MobileMenu() {
+export function MobileMenu({ signedIn = false }: { signedIn?: boolean }) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
@@ -49,9 +50,25 @@ export function MobileMenu() {
               <Link href="/kabinet/yuborish" className={buttonClass("primary", "lg")}>
                 {t("common.submit")}
               </Link>
-              <Link href="/kirish" className={buttonClass("secondary", "lg")}>
-                {t("common.login")}
-              </Link>
+              {signedIn ? (
+                <>
+                  <Link href="/kabinet" className={buttonClass("secondary", "lg")}>
+                    {t("nav.cabinet")}
+                  </Link>
+                  <form action={signOutAction}>
+                    <button
+                      type="submit"
+                      className={buttonClass("secondary", "lg", "w-full text-danger")}
+                    >
+                      {t("auth.logout")}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <Link href="/kirish" className={buttonClass("secondary", "lg")}>
+                  {t("common.login")}
+                </Link>
+              )}
               <Suspense>
                 <LocaleSwitcher tone="light" className="justify-center pt-2 text-sm" />
               </Suspense>

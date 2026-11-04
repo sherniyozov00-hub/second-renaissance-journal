@@ -17,6 +17,18 @@ export default async function AdminDashboard() {
   const monthStart = new Date();
   monthStart.setUTCDate(1);
   monthStart.setUTCHours(0, 0, 0, 0);
+  const now = new Date();
+  const [todoPayments, todoNoReviewer, todoOverdue, todoRevised] = await Promise.all([
+    db.payment.count({ where: { provider: "CLICK_QR", status: "PENDING" } }),
+    db.article.count({ where: { status: "UNDER_REVIEW", reviews: { none: {} } } }),
+    db.review.count({ where: { submittedAt: null, dueAt: { lt: now } } }),
+    db.article.count({
+      where: {
+        status: "UNDER_REVIEW",
+        reviews: { some: {}, every: { submittedAt: { not: null } } },
+      },
+    }),
+  ]);
   const [byStatus, revenue, users, ai, top] = await Promise.all([
     db.article.groupBy({ by: ["status"], _count: true }),
     db.payment.aggregate({
@@ -46,6 +58,47 @@ export default async function AdminDashboard() {
   return (
     <>
       <PageTitle title={t("title")} />
+      <section className={cn(panel, "mt-6 p-5")} aria-labelledby="todo">
+        <h2 id="todo" className="font-sans text-lg font-semibold">
+          {t("todoTitle")}
+        </h2>
+        {todoPayments + todoNoReviewer + todoOverdue + todoRevised === 0 ? (
+          <p className="mt-2 text-sm text-success">{t("todoNone")}</p>
+        ) : (
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { n: todoPayments, label: t("todoPayments"), href: "/admin/tolovlar" },
+              {
+                n: todoNoReviewer,
+                label: t("todoNoReviewer"),
+                href: "/admin/maqolalar?holat=UNDER_REVIEW",
+              },
+              {
+                n: todoOverdue,
+                label: t("todoOverdue"),
+                href: "/admin/maqolalar?holat=UNDER_REVIEW",
+              },
+              {
+                n: todoRevised,
+                label: t("todoDecide"),
+                href: "/admin/maqolalar?holat=UNDER_REVIEW",
+              },
+            ]
+              .filter((x) => x.n > 0)
+              .map((x) => (
+                <li key={x.label}>
+                  <Link
+                    href={x.href}
+                    className="flex items-center gap-3 rounded-control border border-l-4 border-gold/60 border-l-gold px-4 py-3 hover:bg-blue-50"
+                  >
+                    <span className="font-serif text-2xl font-bold text-ink">{x.n}</span>
+                    <span className="text-sm text-ink">{x.label}</span>
+                  </Link>
+                </li>
+              ))}
+          </ul>
+        )}
+      </section>
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           label={t("revenue")}
