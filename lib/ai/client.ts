@@ -38,6 +38,19 @@ export async function aiModel(): Promise<string> {
   return String(s["ai.model"] || "claude-opus-5-5");
 }
 
+/** Model for the fact check: searching and comparing numbers needs no large model. */
+export async function factCheckModel(): Promise<string> {
+  const s = await getSettings();
+  return String(s["ai.factcheckModel"] || (await aiModel()));
+}
+
+/** Web search tool: dynamic filtering (fewer tokens) where the model supports it. */
+export function webSearchTool(model: string, maxUses: number): Anthropic.Beta.BetaToolUnion {
+  return model.startsWith("claude-haiku")
+    ? { type: "web_search_20250305", name: "web_search", max_uses: maxUses }
+    : { type: "web_search_20260209", name: "web_search", max_uses: maxUses };
+}
+
 /**
  * Server-side refusal fallback: if the model declines for policy reasons, the
  * API reruns the request on the model's default fallback. Models without
@@ -62,8 +75,10 @@ export async function structured<S extends z.ZodType>(opts: {
   schema: S;
   effort: Effort;
   maxTokens?: number;
+  /** Defaults to the "ai.model" setting. */
+  model?: string;
 }): Promise<{ data: z.infer<S>; spend: Spend; model: string }> {
-  const model = await aiModel();
+  const model = opts.model ?? (await aiModel());
   try {
     const res = await (
       await anthropic()

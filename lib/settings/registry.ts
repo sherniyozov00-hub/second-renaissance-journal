@@ -175,6 +175,12 @@ export const SETTINGS: readonly SettingDefinition[] = [
     defaultValue: "claude-opus-5-5",
     description: "Claude model for all Xorazmiy AI features",
   },
+  {
+    key: "ai.factcheckModel",
+    group: "ai",
+    defaultValue: "claude-haiku-5-5",
+    description: "Claude model for the fact check (searching and comparing numbers)",
+  },
 
   // Integrations
   {

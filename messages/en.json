@@ -1099,6 +1099,7 @@
       "ai_maxClaimsPerCheck": "Max claims verified on the web in one fact check (cost cap)",
       "ai_requestsPerMinute": "Rate limit: AI requests per user (or guest) per minute",
       "ai_model": "Claude model for all Xorazmiy AI features",
+      "ai_factcheckModel": "Model for the fact check (cheaper: claude-haiku-5-5; more careful: claude-sonnet-5-5)",
       "telegram_botName": "Telegram bot username",
       "seo_googleVerification": "Google Search Console verification code",
       "seo_bingVerification": "Bing Webmaster verification code",

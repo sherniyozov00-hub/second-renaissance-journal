@@ -6,12 +6,13 @@ import { db } from "@/lib/db";
 import {
   AiError,
   aiMode,
-  aiModel,
   anthropic,
   FALLBACK_BETA,
+  factCheckModel,
   structured,
   systemBlocks,
   toAiError,
+  webSearchTool,
 } from "./client";
 import { MOCK_RETRIEVED, mockClaims, mockVerdict } from "./mock";
 import { addSpend, NO_SPEND, spendOf, type Spend } from "./pricing";
@@ -77,6 +78,7 @@ async function extractClaims(
   for (let i = 0; i < items.length; i += 4) {
     const chunk = items.slice(i, i + 4);
     const res = await structured({
+      model: await factCheckModel(),
       system,
       effort: "low",
       maxTokens: 4000,
@@ -131,19 +133,15 @@ const VERDICT_TOOL_SCHEMA = betaZodOutputFormat(VerdictsSchema)
 
 async function verifyLive(
   system: string,
-  paragraph: string,
-  claims: Claim[],
+  items: { index: number; text: string; claims: Claim[] }[],
   lang: AiLang,
 ): Promise<{ verdicts: ModelVerdict[]; retrieved: Set<string>; spend: Spend; model: string }> {
-  const model = await aiModel();
+  const model = await factCheckModel();
+  const claims = items.flatMap((i) => i.claims);
   const tools: Anthropic.Beta.BetaToolUnion[] = [
-    {
-      type: "web_search_20260209",
-      name: "web_search",
-      // About one search per claim: each search is billed and its pages are
-      // read as input tokens, so searches are most of a check's cost.
-      max_uses: Math.min(claims.length + 1, 6),
-    },
+    // Searches are most of a check's cost (each is billed and its pages are read
+    // as input), so claims on one topic share a search: about one per two claims.
+    webSearchTool(model, Math.min(Math.ceil(claims.length / 2) + 1, 5)),
     {
       name: "submit_verdicts",
       description:
@@ -155,12 +153,12 @@ async function verifyLive(
   const messages: Anthropic.Beta.BetaMessageParam[] = [
     {
       role: "user",
-      content: `Vazifa: quyidagi da’volarni internetdan mustaqil tekshir. Har da’vo uchun odatda BITTA aniq qidiruv yetadi (bir mavzudagi da’volarni bitta qidiruvda tekshir); birinchi qidiruv natija bermasagina boshqa tilda qayta qidir. Ishonchli manbani o‘qi, keyin submit_verdicts vositasini BIR marta chaqir.
+      content: `Vazifa: quyidagi da’volarni internetdan mustaqil tekshir. Avval da’volarni mavzu bo‘yicha guruhla: bir manbada (masalan, bitta kompaniya hisoboti yoki bitta statistika sahifasi) bo‘lishi mumkin bo‘lgan da’volarni BITTA qidiruv bilan tekshir. Natija chiqmasagina boshqa so‘z yoki tilda qayta qidir. Ishonchli manbani o‘qi, keyin submit_verdicts vositasini BIR marta chaqir.
 Xulosalar: correct — manba tasdiqlaydi; incorrect — manba boshqacha ma’lumot beradi (correction da to‘g‘risini muallif jumlasiga qo‘yiladigan shaklda yoz); needs_source — topilmadi yoki manbalar zid.
 explanation — 1–3 jumla, nima topilgani va qaysi manbada.
 ${languageLine(lang)}
 
-${wrapText(paragraph, "xatboshi")}
+${items.map((i) => wrapText(i.text, `xatboshi_${i.index}`)).join("\n\n")}
 
 <dalvolar>
 ${claims.map((c) => `${c.id}: ${c.text}`).join("\n")}
@@ -218,15 +216,18 @@ ${claims.map((c) => `${c.id}: ${c.text}`).join("\n")}
   throw new AiError("unavailable");
 }
 
-async function checkParagraph(
+/** Verifies several paragraphs in one agent run and splits the verdicts back per paragraph. */
+async function checkBatch(
   system: string,
-  index: number,
-  paragraph: string,
-  claims: Claim[],
+  items: { index: number; text: string; claims: Claim[] }[],
   lang: AiLang,
-): Promise<ParagraphResult> {
+): Promise<{ perParagraph: ParagraphResult[]; spend: Spend }> {
+  const claims = items.flatMap((i) => i.claims);
   if (!claims.length)
-    return { results: [], spend: NO_SPEND, model: (await aiMode()) === "mock" ? "mock" : "" };
+    return {
+      perParagraph: items.map(() => ({ results: [], spend: NO_SPEND, model: "" })),
+      spend: NO_SPEND,
+    };
   let verdicts: ModelVerdict[];
   let retrieved: Set<string>;
   let spend = NO_SPEND;
@@ -235,34 +236,52 @@ async function checkParagraph(
     verdicts = claims.map((c) => mockVerdict(c.id, c.text, lang));
     retrieved = new Set(MOCK_RETRIEVED.map((u) => normalizeUrl(u)!));
   } else {
-    ({ verdicts, retrieved, spend, model } = await verifyLive(system, paragraph, claims, lang));
+    ({ verdicts, retrieved, spend, model } = await verifyLive(
+      system,
+      items.filter((i) => i.claims.length),
+      lang,
+    ));
   }
-  const results: FactResult[] = claims.map((c) => {
-    const v = verdicts.find((x) => x.id === c.id) ?? {
-      id: c.id,
-      verdict: "needs_source" as const,
-      explanation: {
-        uz: "Bu da’vo bo‘yicha xulosa olinmadi; manba ko‘rsating.",
-        ru: "По этому утверждению вывод не получен; укажите источник.",
-        en: "No verdict was returned for this claim; cite a source.",
-      }[lang],
-      correction: null,
-      sources: [],
+  const perParagraph = items.map((item) => {
+    const results: FactResult[] = item.claims.map((c) => {
+      const v = verdicts.find((x) => x.id === c.id) ?? {
+        id: c.id,
+        verdict: "needs_source" as const,
+        explanation: {
+          uz: "Bu da’vo bo‘yicha xulosa olinmadi; manba ko‘rsating.",
+          ru: "По этому утверждению вывод не получен; укажите источник.",
+          en: "No verdict was returned for this claim; cite a source.",
+        }[lang],
+        correction: null,
+        sources: [],
+      };
+      const enforced = enforceVerdict(v, retrieved);
+      return {
+        id: c.id,
+        paragraph: item.index,
+        text: c.text,
+        verdict: enforced.verdict,
+        explanation: v.explanation,
+        correction: enforced.correction,
+        sources: enforced.sources,
+        ...(enforced.downgraded ? { downgraded: enforced.downgraded } : {}),
+      };
+    });
+    // The run's cost is shared by the paragraphs in proportion to their claims.
+    const share = claims.length ? item.claims.length / claims.length : 0;
+    const part: Spend = {
+      tokensIn: Math.round(spend.tokensIn * share),
+      tokensOut: Math.round(spend.tokensOut * share),
+      cost: Math.round(spend.cost * share * 1e6) / 1e6,
+      searches: Math.round(spend.searches * share),
     };
-    const enforced = enforceVerdict(v, retrieved);
-    return {
-      id: c.id,
-      paragraph: index,
-      text: c.text,
-      verdict: enforced.verdict,
-      explanation: v.explanation,
-      correction: enforced.correction,
-      sources: enforced.sources,
-      ...(enforced.downgraded ? { downgraded: enforced.downgraded } : {}),
-    };
+    return { results, spend: part, model };
   });
-  return { results, spend, model };
+  return { perParagraph, spend };
 }
+
+/** Up to this many claims are verified in one agent run. */
+const BATCH_CLAIMS = 8;
 
 /** Runs the check and reports progress through `emit` (streamed to the browser). */
 export async function runFactCheck(
@@ -274,7 +293,7 @@ export async function runFactCheck(
   const mock = (await aiMode()) === "mock";
   emit({ type: "start", paragraphs: paragraphs.length, mock });
 
-  const model = mock ? "mock" : await aiModel();
+  const model = mock ? "mock" : await factCheckModel();
   const since = new Date(Date.now() - CACHE_DAYS * 864e5);
   const keyOf = (p: string) => hashText(CACHE_VERSION, model, ctx.articleType, ctx.lang, p);
 
@@ -320,40 +339,60 @@ export async function runFactCheck(
         return { ...item, claims: allowed, complete: allowed.length === claims.length };
       });
 
-      const run = async (item: (typeof queue)[number]) => {
-        emit({
-          type: "progress",
-          paragraph: item.index,
-          claims: item.claims.length,
-          cached: false,
-        });
-        const r = await checkParagraph(system, item.index, item.text, item.claims, ctx.lang);
-        for (const res of r.results) emit({ type: "result", result: res });
-        all.push(...r.results);
-        spend = addSpend(spend, r.spend);
-        // Only complete paragraphs are cached, so a cut-off one is checked in full next time.
-        if (item.complete) {
-          await db.aiCheck.create({
-            data: {
-              type: "FACTCHECK",
-              inputHash: item.key,
-              userId: ctx.userId,
-              draftId: ctx.draftId,
-              articleId: ctx.articleId,
-              model: r.model || model,
-              result: {
-                paragraph: item.text,
-                results: r.results,
-              } as unknown as Prisma.InputJsonValue,
-              tokensIn: r.spend.tokensIn,
-              tokensOut: r.spend.tokensOut,
-              cost: r.spend.cost,
-            },
+      // Paragraphs without claims are cached as "nothing to check"; the rest are
+      // verified in batches, so claims on one topic can share a search.
+      const batches: (typeof queue)[] = [];
+      let current: typeof queue = [];
+      let size = 0;
+      for (const item of queue) {
+        if (current.length && size + item.claims.length > BATCH_CLAIMS) {
+          batches.push(current);
+          current = [];
+          size = 0;
+        }
+        current.push(item);
+        size += item.claims.length;
+      }
+      if (current.length) batches.push(current);
+
+      const runBatch = async (batch: typeof queue) => {
+        for (const item of batch)
+          emit({
+            type: "progress",
+            paragraph: item.index,
+            claims: item.claims.length,
+            cached: false,
           });
+        const r = await checkBatch(system, batch, ctx.lang);
+        spend = addSpend(spend, r.spend);
+        for (const [i, item] of batch.entries()) {
+          const pr = r.perParagraph[i]!;
+          for (const res of pr.results) emit({ type: "result", result: res });
+          all.push(...pr.results);
+          // Only complete paragraphs are cached, so a cut-off one is checked in full next time.
+          if (item.complete) {
+            await db.aiCheck.create({
+              data: {
+                type: "FACTCHECK",
+                inputHash: item.key,
+                userId: ctx.userId,
+                draftId: ctx.draftId,
+                articleId: ctx.articleId,
+                model: pr.model || model,
+                result: {
+                  paragraph: item.text,
+                  results: pr.results,
+                } as unknown as Prisma.InputJsonValue,
+                tokensIn: pr.spend.tokensIn,
+                tokensOut: pr.spend.tokensOut,
+                cost: pr.spend.cost,
+              },
+            });
+          }
         }
       };
-      for (let i = 0; i < queue.length; i += PARALLEL) {
-        await Promise.all(queue.slice(i, i + PARALLEL).map(run));
+      for (let i = 0; i < batches.length; i += PARALLEL) {
+        await Promise.all(batches.slice(i, i + PARALLEL).map(runBatch));
       }
       // Claim extraction cost is not tied to a paragraph; record it once.
       if (extracted.spend.cost > 0) {
