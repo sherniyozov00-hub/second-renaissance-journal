@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
-import { initials } from "@/lib/l10n";
+import { Avatar } from "@/components/ui/avatar";
 import { cardClass } from "@/components/ui/styles";
 import { cn } from "@/lib/utils";
 import { CabinetNav } from "./nav";
@@ -19,6 +19,9 @@ type SidebarUser = {
     affiliation: string | null;
     position: string | null;
     orcid: string | null;
+    phone: string | null;
+    interests: string | null;
+    avatarUrl: string | null;
     isPublic: boolean;
   } | null;
 };
@@ -35,6 +38,16 @@ export async function CabinetSidebar({
 }) {
   const t = await getTranslations("cabinet");
   const name = user.profile?.fullName ?? user.name ?? user.phone ?? user.email ?? "";
+  const p = user.profile;
+  const steps = [
+    p,
+    p?.avatarUrl,
+    p?.affiliation,
+    p?.position,
+    p?.phone || user.phone,
+    p?.interests,
+  ];
+  const done = steps.filter(Boolean).length;
   const meta = [user.profile?.affiliation, user.profile?.position].filter(Boolean).join(" · ");
   const premium = Boolean(quota.premiumUntil);
   const percent = premium
@@ -46,13 +59,10 @@ export async function CabinetSidebar({
   return (
     <aside className="space-y-4">
       <section className={cn(cardClass, "p-6")}>
-        <span
-          aria-hidden
-          className="flex size-[72px] items-center justify-center rounded-full bg-info-bg font-serif text-[28px] font-bold text-blue-800"
-        >
-          {initials(name) || "?"}
-        </span>
-        <h2 className="mt-3 font-sans text-xl font-semibold text-ink">{name}</h2>
+        <Avatar name={name} src={p?.avatarUrl} className="size-[72px] text-[28px]" />
+        <h2 className="mt-3 font-sans text-xl font-semibold [overflow-wrap:anywhere] break-words text-ink">
+          {name}
+        </h2>
         {meta ? <p className="mt-2 text-sm text-text-2">{meta}</p> : null}
         {user.profile?.orcid ? (
           <p className="mt-0.5 text-sm text-text-2">ORCID: {user.profile.orcid}</p>
@@ -67,6 +77,32 @@ export async function CabinetSidebar({
             {domain}/muallif/{user.profile.slug}
           </Link>
         ) : null}
+        {done < steps.length ? (
+          <div className="mt-4 border-t border-border pt-4">
+            <p className="text-[13px] text-text-2">
+              {t("profileProgress", { done, total: steps.length })}
+            </p>
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-blue-50" aria-hidden>
+              <div
+                className="h-full rounded-full bg-blue-800"
+                style={{ width: `${Math.round((done / steps.length) * 100)}%` }}
+              />
+            </div>
+            <Link
+              href="/kabinet/profil"
+              className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-800 hover:underline"
+            >
+              {t("completeProfile")} <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </div>
+        ) : (
+          <Link
+            href="/kabinet/profil"
+            className="mt-3 inline-block text-sm text-text-2 hover:text-blue-800 hover:underline"
+          >
+            {t("editProfile")}
+          </Link>
+        )}
       </section>
 
       <CabinetNav />

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArticleList, parsePage } from "@/components/article/article-list";
 import { PageShell } from "@/components/layout/page-shell";
 import { cardClass } from "@/components/ui/styles";
-import { initials } from "@/lib/l10n";
+import { Avatar } from "@/components/ui/avatar";
 import { listArticles } from "@/lib/queries/articles";
 import { getAuthorBySlug } from "@/lib/queries/catalog";
 import { cn } from "@/lib/utils";
@@ -57,12 +57,7 @@ export default async function AuthorPage({ params, searchParams }: Props) {
       <div className="bg-blue-50">
         <div className="container-site grid gap-8 py-8 md:py-12 lg:grid-cols-[300px_1fr]">
           <aside className={cn(cardClass, "h-fit p-6")}>
-            <span
-              aria-hidden
-              className="flex size-16 items-center justify-center rounded-full bg-blue-50 font-serif text-2xl font-bold text-blue-800"
-            >
-              {initials(author.fullName)}
-            </span>
+            <Avatar name={author.fullName} src={author.avatarUrl} className="size-20 text-2xl" />
             <p className="eyebrow mt-4">{t("profile")}</p>
             <h1 className="mt-1 font-serif text-2xl font-bold text-ink">{author.fullName}</h1>
             <ul className="mt-2 space-y-0.5 text-sm text-text-2">
@@ -72,6 +67,11 @@ export default async function AuthorPage({ params, searchParams }: Props) {
             </ul>
             {author.bio ? (
               <p className="mt-4 text-sm leading-relaxed text-text-2">{author.bio}</p>
+            ) : null}
+            {author.interests ? (
+              <p className="mt-4 text-sm text-text-2">
+                <span className="font-semibold text-ink">{t("interests")}:</span> {author.interests}
+              </p>
             ) : null}
           </aside>
           <section className={cn(cardClass, "p-6")}>

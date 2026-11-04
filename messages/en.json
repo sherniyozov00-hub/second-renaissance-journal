@@ -230,7 +230,8 @@
     "authorArticles": "Published articles",
     "searchResults": "Results for “{q}”",
     "position": "Position",
-    "profile": "Author profile"
+    "profile": "Author profile",
+    "interests": "Interests"
   },
   "academy": {
     "title": "Academy",
@@ -458,7 +459,7 @@
       "REFUNDED": "Refunded"
     },
     "lessonsLead": "Academy lessons. Progress tracking arrives in a later stage.",
-    "profileLead": "This information appears on your public profile and your articles.",
+    "profileLead": "Your name, institution and interests appear on your public profile and articles. Your phone number is visible only to the editors.",
     "fullName": "Full name",
     "affiliation": "Institution (university or organisation)",
     "position": "Position or year of study",
@@ -472,7 +473,8 @@
     "consentMissing": "Consent to personal data processing",
     "errors": {
       "name": "Enter your full name (at least 3 characters).",
-      "orcid": "Invalid ORCID format."
+      "orcid": "Invalid ORCID format.",
+      "phone": "Invalid phone number. For example: +998 90 123 45 67"
     },
     "writing": "Write with Xorazmiy AI",
     "aiPackageTitle": "Xorazmiy AI Premium",
@@ -489,7 +491,28 @@
     "premiumManage": "Premium",
     "aiPackageFeatures": "Writing help, outline and edit variants|Numeric data checked on the web, with sources|International sources, citations, translation|{articles} articles a month",
     "premiumStatus": "Premium is active until {date}. Articles used in 30 days: {used} / {limit}.",
-    "premiumExtend": "Extend for 1 more month"
+    "premiumExtend": "Extend for 1 more month",
+    "phone": "Phone number",
+    "phoneHint": "Only the editorial office sees it; it is not shown on the public profile.",
+    "interests": "Interests and hobbies",
+    "interestsPlaceholder": "For example: artificial intelligence, history, chess",
+    "affiliationPlaceholder": "Where you study or work",
+    "positionPlaceholder": "For example: 3rd-year student, associate professor",
+    "profileProgress": "Profile completed: {done}/{total}",
+    "completeProfile": "Complete your profile",
+    "editProfile": "Edit profile",
+    "avatar": {
+      "title": "Profile photo",
+      "upload": "Upload photo",
+      "change": "Change photo",
+      "remove": "Remove",
+      "uploading": "Uploading…",
+      "saveFirst": "To add a photo, first save the details below.",
+      "hint": "JPG, PNG or WEBP. The photo is cropped to a square and resized automatically.",
+      "err_no_profile": "Save your profile details first.",
+      "err_bad_file": "This file could not be read as an image.",
+      "err_too_big": "The image is too large."
+    }
   },
   "certificate": {
     "title": "Certificate {id}",

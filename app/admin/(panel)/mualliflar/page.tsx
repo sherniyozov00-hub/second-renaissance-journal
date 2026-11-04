@@ -63,7 +63,9 @@ export default async function AuthorsAdminPage({
                 <td className={td}>{a.affiliation ?? "—"}</td>
                 <td className={td}>{a.orcid ?? "—"}</td>
                 <td className={td}>{a._count.articles}</td>
-                <td className={cn(td, "text-text-2")}>{a.user?.phone ?? a.user?.email ?? "—"}</td>
+                <td className={cn(td, "text-text-2")}>
+                  {[a.phone ?? a.user?.phone, a.user?.email].filter(Boolean).join(" · ") || "—"}
+                </td>
                 <td className={td}>
                   {a.isPublic ? (
                     <Link

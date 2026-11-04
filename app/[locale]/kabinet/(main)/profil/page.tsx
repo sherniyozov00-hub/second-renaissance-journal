@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { signOutAction } from "@/app/[locale]/kirish/actions";
+import { AvatarForm } from "@/components/cabinet/avatar-form";
 import { ProfileForm } from "@/components/cabinet/profile-form";
 import { buttonClass, cardClass } from "@/components/ui/styles";
 import { requireCabinetUser } from "@/lib/auth/session";
@@ -30,6 +31,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ locale
       <h1 className="text-[28px] leading-tight md:text-section">{t("cabinet.profile")}</h1>
       <p className="mt-2 text-text-2">{t("cabinet.profileLead")}</p>
       <section className={cn(cardClass, "mt-5 p-6")}>
+        <AvatarForm
+          name={p?.fullName ?? user.name ?? user.email ?? ""}
+          src={p?.avatarUrl ?? null}
+          hasProfile={Boolean(p)}
+        />
+      </section>
+      <section className={cn(cardClass, "mt-4 p-6")}>
         <ProfileForm
           initial={{
             fullName: p?.fullName ?? user.name ?? "",
@@ -37,6 +45,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ locale
             position: p?.position ?? "",
             orcid: p?.orcid && /^\d{4}-/.test(p.orcid) ? p.orcid : "",
             bio: p?.bio ?? "",
+            interests: p?.interests ?? "",
+            phone: p?.phone ?? user.phone ?? "",
             isPublic: p?.isPublic ?? true,
             needsConsent: !user.consentAt,
           }}
