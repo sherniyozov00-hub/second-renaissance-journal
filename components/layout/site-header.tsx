@@ -8,6 +8,7 @@ import { currentUser } from "@/lib/auth/session";
 import { initials } from "@/lib/l10n";
 import { getSetting } from "@/lib/settings/get";
 import { cn } from "@/lib/utils";
+import { signOutAction } from "@/app/[locale]/kirish/actions";
 import { LocaleSwitcher } from "./locale-switcher";
 import { MobileMenu } from "./mobile-menu";
 import { COMPACT_NAV_ITEMS, NAV_ITEMS } from "./nav-items";
@@ -45,6 +46,16 @@ export async function SiteHeader({
               >
                 {user ? t("nav.cabinet") : t("common.login")}
               </Link>
+              {user ? (
+                <form action={signOutAction}>
+                  <button
+                    type="submit"
+                    className="text-blue-50/80 hover:text-white hover:underline"
+                  >
+                    {t("auth.logout")}
+                  </button>
+                </form>
+              ) : null}
             </div>
           </div>
         </div>
@@ -104,16 +115,36 @@ export async function SiteHeader({
                 <Link href="/kabinet/yuborish" className={buttonClass("primary", "md")}>
                   {t("cabinet.newArticle")}
                 </Link>
+                <form action={signOutAction}>
+                  <button
+                    type="submit"
+                    className="px-2 text-[15px] text-text-2 hover:text-danger hover:underline"
+                  >
+                    {t("auth.logout")}
+                  </button>
+                </form>
               </>
             ) : (
               <>
                 {variant !== "home" ? (
-                  <Link
-                    href={user ? "/kabinet" : "/kirish"}
-                    className="px-2 text-[15px] font-semibold text-blue-800 hover:underline"
-                  >
-                    {user ? t("nav.cabinet") : t("common.login")}
-                  </Link>
+                  <>
+                    <Link
+                      href={user ? "/kabinet" : "/kirish"}
+                      className="px-2 text-[15px] font-semibold text-blue-800 hover:underline"
+                    >
+                      {user ? t("nav.cabinet") : t("common.login")}
+                    </Link>
+                    {user ? (
+                      <form action={signOutAction}>
+                        <button
+                          type="submit"
+                          className="px-2 text-[15px] text-text-2 hover:text-danger hover:underline"
+                        >
+                          {t("auth.logout")}
+                        </button>
+                      </form>
+                    ) : null}
+                  </>
                 ) : null}
                 <Link href="/kabinet/yuborish" className={buttonClass("primary", "md")}>
                   {t("common.submit")}
@@ -122,7 +153,7 @@ export async function SiteHeader({
             )}
           </div>
 
-          <MobileMenu />
+          <MobileMenu signedIn={Boolean(user)} />
         </div>
       </header>
     </>

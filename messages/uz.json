@@ -424,7 +424,10 @@
       "REVISION_REQUESTED": "Tuzatish kerak",
       "ACCEPTED": "Qabul qilindi",
       "PUBLISHED": "Nashr qilindi",
-      "REJECTED": "Rad etildi"
+      "REJECTED": "Rad etildi",
+      "continueDraft": "Yuborishni davom ettirish",
+      "underReviewNext": "Muharrir taqrizchi tayinlaydi; javob odatda 2–4 hafta ichida.",
+      "acceptedNext": "Maqola qabul qilindi — yaqin sonda nashr qilinadi."
     },
     "expected": "Taxminiy javob: {date} gacha",
     "editorNote": "Muharrir izohi:",
@@ -877,7 +880,13 @@
       "aiChecks": "AI tekshiruvlar (oy)",
       "aiCost": "AI xarajati (oy)",
       "statuses": "Maqolalar holati",
-      "mostRead": "Eng ko‘p o‘qilgan"
+      "mostRead": "Eng ko‘p o‘qilgan",
+      "todoTitle": "Bugun nima qilish kerak",
+      "todoNone": "Hammasi joyida — kutayotgan ish yo‘q.",
+      "todoPayments": "Click to‘lovi tasdiqlanishini kutmoqda",
+      "todoNoReviewer": "maqolaga taqrizchi tayinlanmagan",
+      "todoOverdue": "taqriz muddati o‘tgan",
+      "todoDecide": "maqola taqrizdan o‘tdi — qaror kerak"
     },
     "articles": {
       "title": "Maqolalar",

@@ -424,7 +424,10 @@
       "REVISION_REQUESTED": "Revision needed",
       "ACCEPTED": "Accepted",
       "PUBLISHED": "Published",
-      "REJECTED": "Rejected"
+      "REJECTED": "Rejected",
+      "continueDraft": "Continue the submission",
+      "underReviewNext": "The editor assigns a reviewer; the answer usually takes 2–4 weeks.",
+      "acceptedNext": "Accepted — it will appear in an upcoming issue."
     },
     "expected": "Expected response by {date}",
     "editorNote": "Editor’s note:",
@@ -877,7 +880,13 @@
       "aiChecks": "AI checks (month)",
       "aiCost": "AI cost (month)",
       "statuses": "Articles by status",
-      "mostRead": "Most read"
+      "mostRead": "Most read",
+      "todoTitle": "To do today",
+      "todoNone": "All clear — nothing is waiting.",
+      "todoPayments": "Click payments waiting for confirmation",
+      "todoNoReviewer": "articles without a reviewer",
+      "todoOverdue": "reviews overdue",
+      "todoDecide": "articles reviewed — a decision is needed"
     },
     "articles": {
       "title": "Articles",
