@@ -396,7 +396,9 @@
     "forgot": "Forgot password?",
     "notYou": "Another email",
     "welcomeBack": "{target} — enter your password.",
-    "newAccount": "No account with this email yet — we sent a code; enter it to sign up."
+    "newAccount": "No account with this email yet — we sent a code; enter it to sign up.",
+    "oauthFailed": "Google sign-in failed. Please try again a little later or sign in with email.",
+    "oauthDenied": "Sign-in with this Google account is not allowed."
   },
   "cabinet": {
     "title": "Account",

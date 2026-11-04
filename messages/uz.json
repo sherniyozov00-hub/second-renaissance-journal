@@ -396,7 +396,9 @@
     "forgot": "Parolni unutdim",
     "notYou": "Boshqa email",
     "welcomeBack": "{target} — parolingizni kiriting.",
-    "newAccount": "Bu email bilan hisob yo‘q — kod yuborildi, kodni kiritib ro‘yxatdan o‘tasiz."
+    "newAccount": "Bu email bilan hisob yo‘q — kod yuborildi, kodni kiritib ro‘yxatdan o‘tasiz.",
+    "oauthFailed": "Google orqali kirib bo‘lmadi. Birozdan keyin qayta urinib ko‘ring yoki email bilan kiring.",
+    "oauthDenied": "Bu Google hisobi bilan kirishga ruxsat berilmadi."
   },
   "cabinet": {
     "title": "Kabinet",
