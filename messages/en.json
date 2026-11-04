@@ -196,9 +196,11 @@
     "author": "Author",
     "allByAuthor": "All articles by this author",
     "related": "Related articles",
-    "license": "Licence:",
+    "license": "Licensed under CC BY 4.0",
     "viewsCount": "{count} views",
-    "cites": "Cite"
+    "cites": "Cite",
+    "close": "Close",
+    "licenseLabel": "Licence:"
   },
   "footer": {
     "journal": "Journal",
@@ -253,7 +255,23 @@
   },
   "aiLanding": {
     "title": "Xorazmiy AI — research assistant",
-    "lead": "Named after al-Khwarizmi, whose name gave us the word “algorithm”. It teaches you to write, edits your text, finds international sources and checks facts — but it does not write your paper for you."
+    "lead": "Named after al-Khwarizmi, whose name gave us the word “algorithm”. It teaches you to write, edits your text, finds international sources and checks facts — but it does not write your paper for you.",
+    "plans": {
+      "eyebrow": "Pricing",
+      "title": "Free and Premium",
+      "lead": "Submitting and publishing a finished article costs {publication} UZS. Writing and checking with Xorazmiy AI is a separate, optional subscription.",
+      "feature": "Feature",
+      "free": "Free",
+      "perMonth": "UZS / month",
+      "r1": "Submission, originality and template check",
+      "r2": "Numeric data checked on the web",
+      "r3": "Edits, outline and writing help",
+      "r4": "Unlimited work on {articles} articles a month",
+      "r5": "Explanations in three languages",
+      "freeTrial": "{count} trial checks a month",
+      "cta": "Get Premium",
+      "submit": "Submit an article · {publication} UZS"
+    }
   },
   "notFound": {
     "title": "Page not found",
@@ -793,7 +811,10 @@
     "kind_meaning": "meaning",
     "kind_logic": "logic",
     "error_premium_limit": "This month’s Premium article limit is reached. Wait for next month or extend Premium.",
-    "premiumLink": "Premium →"
+    "premiumLink": "About Premium",
+    "premiumPoint1": "Write with AI, outline and edit variants",
+    "premiumPoint2": "Numeric data checked on the web, with sources",
+    "premiumPoint3": "4 articles a month · 39 990 UZS"
   },
   "ranking": {
     "title": "University ranking",

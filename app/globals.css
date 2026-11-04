@@ -124,17 +124,34 @@
     @apply text-blue-800 underline;
   }
   .article-body figure {
-    @apply my-8 overflow-hidden rounded-card border border-border;
+    @apply my-8 overflow-hidden rounded-card border border-border bg-white;
+  }
+  .article-body figure img {
+    @apply mx-auto;
   }
   .article-body figcaption {
-    @apply px-4 py-3 font-sans text-sm text-text-2;
+    @apply border-t border-border px-4 py-3 font-sans text-sm leading-relaxed text-text-2;
   }
   .article-body table {
     @apply my-6 block w-full overflow-x-auto font-sans text-sm;
   }
   .article-body th,
   .article-body td {
-    @apply border border-border px-3 py-2 text-left;
+    @apply border border-border px-3 py-2 text-left align-top;
+  }
+  .article-body thead th,
+  .article-body tr:first-child th {
+    @apply bg-blue-50 font-semibold text-ink;
+  }
+  .article-body tbody tr:nth-child(even) td {
+    @apply bg-blue-50/40;
+  }
+  .article-body blockquote {
+    @apply my-6 border-l-4 border-gold bg-blue-50/50 px-5 py-3 italic;
+  }
+  /* In-text citations linked to the reference list (lib/article-html.ts). */
+  .article-body a.cite {
+    @apply font-sans text-[0.85em] font-semibold text-blue-800 no-underline hover:underline;
   }
 }
 

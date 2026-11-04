@@ -71,3 +71,23 @@ export function prepareArticleHtml(raw: string): { html: string; toc: TocItem[] 
   });
   return { html, toc };
 }
+
+/**
+ * Turns in-text citations "[3]" or "[2, 5]" into links to the reference list
+ * (#ref-3) with the reference as a tooltip, as journal sites do. Only numbers
+ * that exist in the list are linked; text inside tags is left alone.
+ */
+export function linkCitations(html: string, references: string[]): string {
+  if (!references.length) return html;
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return html.replace(/(>[^<]*)/g, (segment) =>
+    segment.replace(/\[(\d{1,3}(?:\s*[,–-]\s*\d{1,3})*)\]/g, (match, inner: string) => {
+      const nums = inner.split(/\s*[,–-]\s*/).map(Number);
+      if (!nums.every((n) => n >= 1 && n <= references.length)) return match;
+      const first = nums[0]!;
+      const title = esc(references[first - 1]!.slice(0, 300));
+      return `<a class="cite" href="#ref-${first}" title="${title}">[${inner}]</a>`;
+    }),
+  );
+}

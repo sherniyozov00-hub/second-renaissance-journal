@@ -75,3 +75,22 @@ describe("cn", () => {
     expect(cn("rounded-card", "rounded-ai")).toBe("rounded-ai");
   });
 });
+
+describe("in-text citations", () => {
+  it("links [n] and [n, m] to the reference list, only for existing numbers", async () => {
+    const { linkCitations } = await import("@/lib/article-html");
+    const refs = ["Karimov, B. (2020). Drip irrigation.", "Smith, J. (2019). Water & soil."];
+    const html = linkCitations(
+      '<p>Usul samarali [1]. Boshqalar [1, 2] va [7].</p><p data-x="[2]">x</p>',
+      refs,
+    );
+    expect(html).toContain(
+      '<a class="cite" href="#ref-1" title="Karimov, B. (2020). Drip irrigation.">[1]</a>',
+    );
+    expect(html).toContain('href="#ref-1" title="Karimov');
+    expect(html).toContain(">[1, 2]</a>");
+    expect(html).toContain("va [7].");
+    expect(html).toContain('data-x="[2]"');
+    expect(linkCitations("<p>[1]</p>", [])).toBe("<p>[1]</p>");
+  });
+});
