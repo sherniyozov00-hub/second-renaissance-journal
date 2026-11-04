@@ -5,6 +5,8 @@ import { Workspace } from "@/components/ai/workspace";
 import { aiMode } from "@/lib/ai/client";
 import { EMPTY_DOC, isDoc } from "@/lib/ai/doc";
 import { getOwnDraft, lastResults, parseReferences } from "@/lib/ai/drafts";
+import { mentorHistory } from "@/lib/ai/mentor";
+import { premiumUntil } from "@/lib/ai/quota";
 import { requireCabinetUser } from "@/lib/auth/session";
 
 type Props = { params: Promise<{ locale: string; draftId: string }> };
@@ -21,7 +23,12 @@ export default async function WorkspacePage({ params }: Props) {
   const user = await requireCabinetUser(locale, `/kabinet/yozish/${draftId}`);
   const draft = await getOwnDraft(user.id, draftId);
   if (!draft) notFound();
-  const [ta, last] = await Promise.all([getTranslations("article"), lastResults(draft.id)]);
+  const [ta, last, mentor, premium] = await Promise.all([
+    getTranslations("article"),
+    lastResults(draft.id),
+    mentorHistory(draft.id),
+    premiumUntil(user.id),
+  ]);
 
   return (
     <Workspace
@@ -36,6 +43,9 @@ export default async function WorkspacePage({ params }: Props) {
       initialFacts={last.facts}
       initialEdits={last.edits}
       mock={(await aiMode()) === "mock"}
+      premium={Boolean(premium)}
+      mentorMessages={mentor}
+      mentorStage={draft.mentorStage}
     />
   );
 }

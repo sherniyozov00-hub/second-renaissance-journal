@@ -55,6 +55,19 @@ test.describe("Xorazmiy AI (Ekran 3)", () => {
       await expect(editor).not.toContainText("biz shuni ko‘rib chiqamizki");
     });
 
+    test("Xorazmiy Ustoz is offered with a Premium button to an author without Premium", async ({
+      page,
+    }) => {
+      await page.goto("/kabinet/yozish");
+      await page.getByLabel("Maqola mavzusi").fill("E2E: ustoz");
+      await page.getByRole("button", { name: "Yaratish" }).click();
+      await page.waitForURL(/\/kabinet\/yozish\/.+/);
+      await page.getByRole("tab", { name: "Ustoz" }).click();
+      await expect(page.getByText("Ustoz maqolangizni boshidan oxirigacha")).toBeVisible();
+      const cta = page.getByRole("link", { name: "Premium olish — oyiga 39 990 so‘m" });
+      await expect(cta).toHaveAttribute("href", "/kabinet/ai-paket");
+    });
+
     test("“Tekshirib ber” finds a percentage that the sample cannot give", async ({ page }) => {
       await page.goto("/kabinet/yozish");
       await page.getByLabel("Maqola mavzusi").fill("E2E: so‘rovnoma tekshiruvi");

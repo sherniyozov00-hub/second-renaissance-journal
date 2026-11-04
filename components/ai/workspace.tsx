@@ -20,6 +20,7 @@ import type { DraftReference, EditSuggestion, FactResult } from "@/lib/ai/schema
 import { cn } from "@/lib/utils";
 import { aiText } from "./editor-ops";
 import { DeletionMark, FactMark, InsertionMark } from "./marks";
+import type { MentorMessage } from "./mentor";
 import { Panel, type PanelView, type ToolName } from "./panels";
 
 export type WorkspaceDraft = {
@@ -142,11 +143,17 @@ export function Workspace({
   initialFacts,
   initialEdits,
   mock,
+  premium,
+  mentorMessages,
+  mentorStage,
 }: {
   draft: WorkspaceDraft;
   initialFacts: FactResult[];
   initialEdits: EditSuggestion[];
   mock: boolean;
+  premium: boolean;
+  mentorMessages: MentorMessage[];
+  mentorStage: number;
 }) {
   const t = useTranslations("ai");
   const [title, setTitle] = useState(draft.title);
@@ -157,7 +164,8 @@ export function Workspace({
   const [references, setReferences] = useState(draft.references);
   const [view, setView] = useState<PanelView>({
     kind: "tab",
-    tab: initialFacts.length ? "check" : "chat",
+    // A Premium author lands in Xorazmiy Ustoz, where the stored chat continues.
+    tab: premium || mentorMessages.length ? "mentor" : initialFacts.length ? "check" : "chat",
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, startSubmit] = useTransition();
@@ -405,6 +413,9 @@ export function Workspace({
               initialFacts={initialFacts}
               initialEdits={initialEdits}
               mock={mock}
+              premium={premium}
+              mentorMessages={mentorMessages}
+              mentorStage={mentorStage}
             />
           ) : null}
         </aside>
