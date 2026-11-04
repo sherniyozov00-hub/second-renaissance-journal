@@ -51,15 +51,16 @@ describe("settings registry", () => {
   });
 
   it("keeps customer-provided values as placeholders (TZ section 19)", () => {
-    for (const key of [
-      "journal.issn",
-      "pricing.publication",
-      "contacts.email",
-      "telegram.botName",
-    ]) {
+    for (const key of ["journal.issn", "contacts.email", "telegram.botName"]) {
       const s = SETTINGS.find((x) => x.key === key);
       expect(isPlaceholder(s?.defaultValue), key).toBe(true);
     }
+  });
+
+  it("has the prices the customer set: publication 44 444, Premium 39 990 so‘m", () => {
+    const price = (key: string) => SETTINGS.find((x) => x.key === key)?.defaultValue;
+    expect(price("pricing.publication")).toBe(44444);
+    expect(price("pricing.premium")).toBe(39990);
   });
 
   it("starts payments in sandbox mode", () => {

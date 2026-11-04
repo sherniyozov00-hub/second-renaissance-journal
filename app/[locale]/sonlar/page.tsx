@@ -24,13 +24,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function IssuesPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("lists");
+  const [t, th] = await Promise.all([getTranslations("lists"), getTranslations("home")]);
   const issues = await getPublishedIssues();
 
   return (
     <PageShell>
       <ListHeader title={t("issuesTitle")} lead={t("issuesLead")} />
       <div className="container-site py-8 md:py-12">
+        {!issues.length ? (
+          <p className="rounded-card border border-dashed border-border-strong bg-white p-8 text-text-2">
+            {th("issuesEmpty")}
+          </p>
+        ) : null}
         <ul className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
           {issues.map((issue) => (
             <li key={issue.id}>

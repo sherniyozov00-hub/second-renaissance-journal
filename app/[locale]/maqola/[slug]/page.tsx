@@ -271,19 +271,30 @@ export default async function ArticlePage({ params }: Props) {
                   </dd>
                 </div>
               ) : null}
-              <div className="flex gap-1">
-                <dt className="font-semibold text-ink">{t("article.doi")}</dt>
-                <dd className="text-text-2">
-                  {article.doi ? (
+              {article.doi ? (
+                <div className="flex gap-1">
+                  <dt className="font-semibold text-ink">{t("article.doi")}</dt>
+                  <dd className="text-text-2">
                     <a
                       href={`https://doi.org/${article.doi}`}
                       className="text-blue-800 hover:underline"
                     >
                       {article.doi}
                     </a>
-                  ) : (
-                    t("article.doiPending")
-                  )}
+                  </dd>
+                </div>
+              ) : null}
+              <div className="flex gap-1">
+                <dt className="font-semibold text-ink">{t("article.license")}</dt>
+                <dd className="text-text-2">
+                  <a
+                    href="https://creativecommons.org/licenses/by/4.0/"
+                    rel="license noopener"
+                    target="_blank"
+                    className="text-blue-800 hover:underline"
+                  >
+                    CC BY 4.0
+                  </a>
                 </dd>
               </div>
             </dl>
