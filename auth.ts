@@ -96,6 +96,15 @@ export async function isGoogleEnabled(): Promise<boolean> {
   return (await googleKeys()) !== null;
 }
 
+// Behind Caddy the Node server sees its own address (http://0.0.0.0:3000), so
+// OAuth callback and error redirects would point there. Auth.js builds every
+// URL from AUTH_URL when it is set; default it to the public site address.
+// (A computed key, so the build does not inline the build-time value.)
+const SITE_URL_KEY = "NEXT_PUBLIC_SITE_URL";
+if (!process.env.AUTH_URL && !process.env.NEXTAUTH_URL && process.env[SITE_URL_KEY]) {
+  process.env.AUTH_URL = process.env[SITE_URL_KEY];
+}
+
 // Lazy config: providers are read per request, so keys pasted in the admin
 // panel work without a restart.
 export const { handlers, auth, signIn, signOut } = NextAuth(async () => {

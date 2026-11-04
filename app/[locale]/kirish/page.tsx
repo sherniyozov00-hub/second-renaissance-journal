@@ -12,7 +12,7 @@ import { pageMetadata } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; error?: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -29,10 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function LoginPage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const next = safeNext(
-    (await searchParams).next,
-    getPathname({ href: "/kabinet", locale: locale as AppLocale }),
-  );
+  const { next: nextParam, error } = await searchParams;
+  const next = safeNext(nextParam, getPathname({ href: "/kabinet", locale: locale as AppLocale }));
   // `next` is already a full (locale-prefixed) path.
   if (await currentUser()) redirect({ href: next, locale: "uz" as AppLocale });
   const t = await getTranslations("auth");
@@ -46,6 +44,14 @@ export default async function LoginPage({ params, searchParams }: Props) {
           <div className="w-full max-w-[440px] rounded-card border border-border bg-white p-6 md:p-8">
             <h1 className="text-[28px] leading-tight">{t("title")}</h1>
             <p className="mt-2 text-[15px] text-text-2">{t(phoneEnabled ? "lead" : "leadEmail")}</p>
+            {error ? (
+              <p
+                role="alert"
+                className="mt-4 rounded-control bg-danger-bg px-3.5 py-2.5 text-sm text-danger"
+              >
+                {t(error === "AccessDenied" ? "oauthDenied" : "oauthFailed")}
+              </p>
+            ) : null}
             <LoginForm next={next} googleEnabled={googleEnabled} phoneEnabled={phoneEnabled} />
           </div>
         </div>
