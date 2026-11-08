@@ -15,7 +15,7 @@ import {
 import { record, type FeatureContext } from "./features";
 import { examplesBlock, pickExamples } from "./examples";
 import { auditNote } from "./number-audit";
-import { lintNote } from "./uz-lint";
+import { autofixUzbek, lintNote } from "./uz-lint";
 import { NO_SPEND, spendOf, type Spend } from "./pricing";
 import { languageLine, systemPrompt, wrapText } from "./prompts";
 
@@ -192,7 +192,9 @@ ${message}`;
     if (res.stop_reason === "refusal") throw new AiError("refused");
     const parsed = ReplySchema.safeParse(res.parsed_output);
     if (!parsed.success) throw new AiError("unavailable");
-    return { out: parsed.data, spend, model: res.model ?? model };
+    // The mentor's own text never carries a mechanical spelling error.
+    const out = { ...parsed.data, reply: autofixUzbek(parsed.data.reply) };
+    return { out, spend, model: res.model ?? model };
   } catch (e) {
     throw toAiError(e);
   }

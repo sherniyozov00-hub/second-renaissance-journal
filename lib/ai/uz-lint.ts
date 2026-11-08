@@ -471,3 +471,44 @@ export function lintNote(text: string, perKind = 3): string {
 }
 
 export const OKINA_CHARS = OKINA;
+
+/** Fixes that are always safe to apply to text the AI wrote itself. */
+const AUTOFIX = new Set([
+  "mixed-script",
+  "okina-shape",
+  "space-before-punct",
+  "space-after-punct",
+  "ordinal-year",
+  "ordinal-date",
+  "roman-hyphen",
+  "month-spelling",
+  "missing-tutuq",
+  "mi-particle",
+  "separate-words",
+]);
+
+/** Quoted passages (“…”, «…», "…"): the AI quotes the author's errors there, so they are kept. */
+function quoteSpans(text: string): [number, number][] {
+  return all(/“[^”]*”|«[^»]*»|"[^"]*"/u, text).map((m) => [m.index, m.index + m[0].length]);
+}
+
+/**
+ * Applies the exact fixes to AI-written text outside quotations, so Xorazmiy
+ * Ustoz never shows a mechanical spelling error of its own.
+ */
+export function autofixUzbek(text: string): string {
+  const quotes = quoteSpans(text);
+  const fixes = lintUzbek(text)
+    .filter((i) => AUTOFIX.has(i.id) && i.suggestion !== null)
+    .filter((i) => !quotes.some(([a, b]) => i.index >= a && i.index < b))
+    .sort((a, b) => b.index - a.index);
+  let out = text;
+  let limit = Infinity;
+  for (const f of fixes) {
+    // Overlapping fixes: keep the first applied (rightmost), skip the rest.
+    if (f.index + f.match.length > limit) continue;
+    out = out.slice(0, f.index) + f.suggestion + out.slice(f.index + f.match.length);
+    limit = f.index;
+  }
+  return out;
+}

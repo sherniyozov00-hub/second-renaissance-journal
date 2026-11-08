@@ -74,6 +74,20 @@ describe("Uzbek text checks (code, exact rules)", () => {
     expect(ids("«Navbahor» bentoniti (namuna)")).toEqual([]);
   });
 
+  it("fixes AI-written text outside quotations", async () => {
+    const { autofixUzbek } = await import("@/lib/ai/uz-lint");
+    expect(autofixUzbek("Tadqiqot 2018 yilda boshlangan , malumotlar 5 sentyabrda yig‘ildi.")).toBe(
+      "Tadqiqot 2018-yilda boshlangan, maʼlumotlar 5-sentabrda yig‘ildi.",
+    );
+    // A quoted error stays as the author wrote it.
+    expect(autofixUzbek("Siz “2018 yilda” deb yozgansiz; to‘g‘risi 2018-yilda.")).toBe(
+      "Siz “2018 yilda” deb yozgansiz; to‘g‘risi 2018-yilda.",
+    );
+    expect(autofixUzbek("Har bir talaba o’z fikrini aytdi mi?")).toBe(
+      "Har bir talaba oʻz fikrini aytdimi?",
+    );
+  });
+
   it("summarises issues for the AI prompt", () => {
     expect(lintNote("Toza matn.")).toContain("mexanik xato topilmadi");
     const note = lintNote("2018 yilda va 2019 yilda malumot");
