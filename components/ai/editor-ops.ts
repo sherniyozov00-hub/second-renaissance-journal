@@ -1,6 +1,7 @@
 import type { Editor } from "@tiptap/core";
 import type { Node as PMNode } from "@tiptap/pm/model";
 import { quoteRegExp } from "@/lib/ai/doc";
+import { lintUzbek, type LintIssue } from "@/lib/ai/uz-lint";
 
 /**
  * Operations on the workspace editor. Paragraph numbers match the text the
@@ -205,4 +206,35 @@ export function selectQuote(editor: Editor, quote: string): boolean {
     }
   }
   return false;
+}
+
+export type EditorLintIssue = LintIssue & { from: number; to: number; block: number };
+
+/** Runs the exact Uzbek text checks on every block and maps issues to document ranges. */
+export function lintEditor(editor: Editor): EditorLintIssue[] {
+  return blocks(editor.state.doc).flatMap((b, block) =>
+    lintUzbek(b.text).flatMap((i) => {
+      const from = b.map[i.index];
+      const last = b.map[i.index + i.match.length - 1];
+      return from === undefined || last === undefined ? [] : [{ ...i, from, to: last + 1, block }];
+    }),
+  );
+}
+
+/** Applies one suggestion if the text there is still what was checked. */
+export function applyLintFix(editor: Editor, issue: EditorLintIssue): boolean {
+  if (issue.suggestion === null) return false;
+  const current = editor.state.doc.textBetween(issue.from, issue.to);
+  if (current !== issue.match) return false;
+  editor
+    .chain()
+    .focus()
+    .insertContentAt({ from: issue.from, to: issue.to }, issue.suggestion)
+    .run();
+  return true;
+}
+
+/** Selects an issue's text in the editor. */
+export function selectRange(editor: Editor, from: number, to: number) {
+  editor.chain().focus().setTextSelection({ from, to }).scrollIntoView().run();
 }

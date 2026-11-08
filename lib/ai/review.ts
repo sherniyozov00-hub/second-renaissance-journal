@@ -5,6 +5,7 @@ import { z } from "zod";
 import { AiError, aiMode, aiModel, anthropic, FALLBACK_BETA, systemBlocks } from "./client";
 import { record, type FeatureContext } from "./features";
 import { auditNote, checkPercent } from "./number-audit";
+import { lintNote } from "./uz-lint";
 import { addSpend, NO_SPEND, spendOf } from "./pricing";
 import { languageLine, systemPrompt, wrapText } from "./prompts";
 import { type Review, type ReviewIssue, ReviewSchema } from "./schemas";
@@ -94,6 +95,8 @@ Qoidalar: issues — muhimligi bo‘yicha tartiblangan, ko‘pi bilan 12 ta; quo
 Oxirida submit_review vositasini BIR marta chaqir.
 ${languageLine(ctx.lang)}
 ${auditLine}
+${lintNote(text)}
+Kod topgan imlo va tinish belgisi xatolari muallifga alohida “Imlo va tinish belgilari” asbobida ko‘rsatiladi — ularni issues ga takrorlama; faqat kod ko‘ra olmaydigan til masalalarini (kelishik qo‘shimchalari, so‘z tartibi, uslub, ma’no, vergul o‘rni) yoz.
 
 ${wrapText(`Sarlavha: ${title}\n\n${text}`, "maqola")}`;
 }

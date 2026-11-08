@@ -13,8 +13,10 @@ import {
   toAiError,
 } from "./client";
 import { record, type FeatureContext } from "./features";
+import { examplesBlock, pickExamples } from "./examples";
 import { auditNote } from "./number-audit";
-import { NO_SPEND, spendOf } from "./pricing";
+import { lintNote } from "./uz-lint";
+import { NO_SPEND, spendOf, type Spend } from "./pricing";
 import { languageLine, systemPrompt, wrapText } from "./prompts";
 
 /**
@@ -67,6 +69,8 @@ Ishlash usuli:
 - Muallif matn yozib yuborsa yoki maqolasidagi bo‘limni ko‘rib chiqishni so‘rasa — avval kuchli tomonini ayt, keyin eng muhim 1–3 kamchilikni va qanday tuzatishni.
 - Bo‘limni muallif o‘rniga yozib berma. So‘rasa ham: reja, tuzilma, savollar va bitta namuna jumla ber, “endi o‘zingiz yozib ko‘ring, men tekshiraman” de.
 - Bosqich vazifasi bajarilgach, muallifni maqtab, keyingi bosqichga o‘tishni taklif qil; muallif boshqa bosqichga o‘tmoqchi bo‘lsa — o‘t.
+- Har xabarda bosqichga mos real jurnal namunalari (<jurnal_namunalari>) beriladi. Foydali bo‘lsa, ulardan birini ko‘rsat: nimasi yaxshi yoki nimasi kuchsizligini tushuntir va manbasini (muallif, jurnal, yil) ayt. Har xabarda namuna ko‘rsatish shart emas.
+- O‘zbek tili me’yorlariga (imlo, tinish belgilari, kelishiklar, uslub) e’tibor ber, lekin “Til xatolarini qanday o‘rgatish kerak” qoidasiga amal qil: avval ma’no, keyin grammatika, mexanik xatolar uchun “Imlo va tinish belgilari” asbobi.
 - O‘z ilmiy bilimingdan erkin foydalan; raqam, statistika yoki manbani xotiradan aytma — “Fakt tekshiruvi” yoki “Xalqaro manbalar” asbobini tavsiya qil.
 - Samimiy, rag‘batlantiruvchi, lekin talabchan bo‘l — yaxshi ustoz kabi.
 - notes — sening xotira daftaring: muallifning mavzusi, tadqiqot savoli, namunasi, qabul qilingan qarorlar, bajarilgan va qolgan vazifalar. Har safar uni to‘liq yangilab qaytar (eski muhim narsalarni o‘chirma), 1500 belgidan oshmasin.`;
@@ -141,6 +145,59 @@ function mockReply(stage: number, message: string) {
   };
 }
 
+export type MentorReply = z.infer<typeof ReplySchema>;
+
+/**
+ * The model call alone: no database. Used by every mentor turn and by the
+ * admin's mentor evaluation (lib/ai/mentor-eval.ts), so both test the same prompt.
+ */
+export async function mentorReply(
+  ctx: FeatureContext,
+  draft: { id: string; title: string; text: string; mentorNotes: string },
+  history: { role: "AUTHOR" | "MENTOR"; text: string }[],
+  message: string,
+  stage: number,
+): Promise<{ out: MentorReply; spend: Spend; model: string }> {
+  if ((await aiMode()) === "mock")
+    return { out: mockReply(stage, message), spend: NO_SPEND, model: "mock" };
+  const model = await aiModel();
+  const audit = auditNote(draft.text);
+  const context = `<ustoz_holati>
+Hozirgi bosqich: ${stage}. ${STAGES[stage - 1]!.title}
+Xotira daftaring (notes): ${draft.mentorNotes || "— (hali bo‘sh: suhbat yangi boshlandi)"}
+</ustoz_holati>
+${wrapText(`Sarlavha: ${draft.title}\n\n${draft.text.slice(0, 24000) || "(maqola hali bo‘sh)"}`, "maqola_hozirgi_holati")}
+${audit.misfits.length ? `Kod hisobi: n = ${audit.n} ga mos kelmaydigan foizlar: ${audit.misfits.map((m) => m.text).join(", ")}.` : ""}
+${draft.text.trim() ? lintNote(draft.text, 2) : ""}
+${examplesBlock(pickExamples(stage, `${draft.title} ${draft.mentorNotes}`, draft.id))}
+${languageLine(ctx.lang)}
+
+Muallifning xabari:
+${message}`;
+  try {
+    const res = await (
+      await anthropic()
+    ).beta.messages.parse({
+      model,
+      max_tokens: 6000,
+      betas: [FALLBACK_BETA],
+      fallbacks: "default",
+      system: systemBlocks(
+        `${await systemPrompt(ctx.articleType, ctx.categoryId)}\n\n${MENTOR_RULES}`,
+      ),
+      output_config: { effort: "low", format: betaZodOutputFormat(ReplySchema) },
+      messages: withTurn(alternate(history.slice(-HISTORY)), context),
+    });
+    const spend = spendOf(model, res.usage);
+    if (res.stop_reason === "refusal") throw new AiError("refused");
+    const parsed = ReplySchema.safeParse(res.parsed_output);
+    if (!parsed.success) throw new AiError("unavailable");
+    return { out: parsed.data, spend, model: res.model ?? model };
+  } catch (e) {
+    throw toAiError(e);
+  }
+}
+
 /** One mentor turn: stores the author's message, asks the model, stores and returns the reply. */
 export async function mentorTurn(
   ctx: FeatureContext,
@@ -158,49 +215,7 @@ export async function mentorTurn(
       select: { role: true, text: true },
     })
   ).reverse();
-
-  let out: z.infer<typeof ReplySchema>;
-  let spend = NO_SPEND;
-  let model = "mock";
-  if ((await aiMode()) === "mock") {
-    out = mockReply(stage, message);
-  } else {
-    model = await aiModel();
-    const audit = auditNote(draft.text);
-    const context = `<ustoz_holati>
-Hozirgi bosqich: ${stage}. ${STAGES[stage - 1]!.title}
-Xotira daftaring (notes): ${draft.mentorNotes || "— (hali bo‘sh: suhbat yangi boshlandi)"}
-</ustoz_holati>
-${wrapText(`Sarlavha: ${draft.title}\n\n${draft.text.slice(0, 24000) || "(maqola hali bo‘sh)"}`, "maqola_hozirgi_holati")}
-${audit.misfits.length ? `Kod hisobi: n = ${audit.n} ga mos kelmaydigan foizlar: ${audit.misfits.map((m) => m.text).join(", ")}.` : ""}
-${languageLine(ctx.lang)}
-
-Muallifning xabari:
-${message}`;
-    try {
-      const res = await (
-        await anthropic()
-      ).beta.messages.parse({
-        model,
-        max_tokens: 6000,
-        betas: [FALLBACK_BETA],
-        fallbacks: "default",
-        system: systemBlocks(
-          `${await systemPrompt(ctx.articleType, ctx.categoryId)}\n\n${MENTOR_RULES}`,
-        ),
-        output_config: { effort: "low", format: betaZodOutputFormat(ReplySchema) },
-        messages: withTurn(alternate(recent), context),
-      });
-      spend = spendOf(model, res.usage);
-      if (res.stop_reason === "refusal") throw new AiError("refused");
-      const parsed = ReplySchema.safeParse(res.parsed_output);
-      if (!parsed.success) throw new AiError("unavailable");
-      out = parsed.data;
-      model = res.model ?? model;
-    } catch (e) {
-      throw toAiError(e);
-    }
-  }
+  const { out, spend, model } = await mentorReply(ctx, draft, recent, message, stage);
 
   const nextStage = out.stage;
   // Explicit times: both rows are written in one transaction, where now() is equal.

@@ -34,6 +34,7 @@ export type WorkspaceDraft = {
 
 const TOOLS: { id: ToolName; label: string }[] = [
   { id: "review", label: "toolReview" },
+  { id: "spelling", label: "toolSpelling" },
   { id: "plan", label: "toolPlan" },
   { id: "assist", label: "toolAssist" },
   { id: "edit", label: "toolEdit" },

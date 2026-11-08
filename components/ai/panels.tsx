@@ -39,10 +39,12 @@ import {
   selectQuote,
   selectedOrAll,
 } from "./editor-ops";
+import { LintPanel } from "./lint-panel";
 import { MentorPanel, type MentorMessage } from "./mentor";
 import { AiErrorNote, Disclaimer, Feedback, MockNote, streamFactCheck, SummaryTiles } from "./ui";
 
 export type ToolName =
+  | "spelling"
   | "review"
   | "plan"
   | "assist"
@@ -57,7 +59,7 @@ export type PanelView =
   | { kind: "tab"; tab: Tab }
   | {
       kind: "tool";
-      tool: "review" | "plan" | "assist" | "originality" | "citations" | "translate";
+      tool: "spelling" | "review" | "plan" | "assist" | "originality" | "citations" | "translate";
     };
 
 type Ok<T extends string> = Extract<ToolResponse, { tool: T }>;
@@ -989,6 +991,10 @@ export function Panel({
                   />
                 ) : null}
               </>
+            ) : null}
+
+            {view.kind === "tool" && view.tool === "spelling" ? (
+              <LintPanel editor={editor} />
             ) : null}
 
             {view.kind === "tool" && view.tool === "review" ? (

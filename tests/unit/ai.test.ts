@@ -151,6 +151,19 @@ describe("cost (TZ 10.4)", () => {
     expect(s.tokensIn).toBe(2_000_000);
     expect(s.searches).toBe(10);
   });
+
+  it("prices cache writes by TTL (1-hour entries cost 2×, 5-minute 1.25×)", () => {
+    const s = spendOf("claude-sonnet-5-5", {
+      input_tokens: 0,
+      output_tokens: 0,
+      cache_creation_input_tokens: 2_000_000,
+      cache_creation: {
+        ephemeral_1h_input_tokens: 1_000_000,
+        ephemeral_5m_input_tokens: 1_000_000,
+      },
+    });
+    expect(s.cost).toBeCloseTo(2 * 2 + 2 * 1.25, 6);
+  });
 });
 
 describe("citations check", () => {

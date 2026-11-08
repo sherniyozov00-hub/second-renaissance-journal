@@ -60,9 +60,15 @@ export const FALLBACK_BETA = "server-side-fallback-2026-07-01";
 
 export type Effort = "low" | "medium" | "high";
 
-/** Stable instructions first, marked for prompt caching (tools → system → messages). */
+/**
+ * Stable instructions first, marked for prompt caching (tools → system → messages).
+ * One-hour TTL: the system prompt (persona + knowledge base, ~10k tokens) is
+ * shared by every author writing the same article type, and on a small site
+ * requests that share it are usually 5–60 minutes apart — the window where
+ * the 1-hour entry pays for its 2× write.
+ */
 export function systemBlocks(text: string): Anthropic.Beta.BetaTextBlockParam[] {
-  return [{ type: "text", text, cache_control: { type: "ephemeral" } }];
+  return [{ type: "text", text, cache_control: { type: "ephemeral", ttl: "1h" } }];
 }
 
 /**

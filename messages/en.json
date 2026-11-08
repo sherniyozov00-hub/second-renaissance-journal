@@ -904,6 +904,17 @@
         "next": "I think this stage is done. Let's move to the next one.",
         "example": "Show a short example for this stage, then I'll try writing it myself."
       }
+    },
+    "toolSpelling": "Spelling and punctuation",
+    "lint": {
+      "title": "Spelling and punctuation (Uzbek)",
+      "intro": "Code checks Uzbek text exactly against the official spelling rules (Cabinet resolution No. 339 of 1995) and punctuation rules: Cyrillic letters inside Latin words, the oʻ/gʻ mark, the tutuq belgisi, ordinal numbers (1991-yil, 1-sentabr), spaces, brackets and quotes. Free, no AI. Case endings, commas and style are reviewed by “Review my paper” and the Mentor.",
+      "recheck": "Check again",
+      "fixAll": "Fix exact errors ({count})",
+      "clean": "No mechanical errors found.",
+      "found": "Found: {count}",
+      "show": "Show in text",
+      "fix": "Fix"
     }
   },
   "ranking": {
@@ -1306,7 +1317,28 @@
       "colContent": "Content",
       "isExample": "example",
       "promote": "Make an example",
-      "noFeedback": "No feedback yet."
+      "noFeedback": "No feedback yet.",
+      "res_sinov": "Mentor evaluation started. Refresh the page in 3–6 minutes.",
+      "res_band": "An evaluation is already running — wait for it to finish.",
+      "eval": {
+        "title": "Xorazmiy Ustoz evaluation",
+        "lead": "20 fixed situations (a percentage error, “write my introduction”, the tutuq mark, commas, a template conclusion, the new alphabet, memory and more) are sent to the mentor and every reply is checked by code. Uses the real AI key; one run costs about $0.20–0.50.",
+        "mockNote": "No AI key — the run checks test-mode replies, so the result is not real.",
+        "run": "Run evaluation",
+        "running": "Running…",
+        "runningHint": "The evaluation runs in the background (3–6 minutes). Refresh later.",
+        "error": "The evaluation failed",
+        "summary": "Cases: {passed}/{total} fully passed · checks: {checks}/{checksTotal}",
+        "pass": "Passed",
+        "fail": "Failed",
+        "message": "Author",
+        "stage": "Stage",
+        "notes": "Mentor notes",
+        "never": "No evaluation yet."
+      },
+      "f_EDITOR_BRIEF": "Editor brief",
+      "f_REVIEW": "Paper review",
+      "f_MENTOR": "Xorazmiy Ustoz"
     },
     "review": {
       "mine": "Articles assigned to me",

@@ -169,7 +169,7 @@ export async function ArticleStatusCard({ article }: { article: MyArticle }) {
               href={{ pathname: "/kabinet/yuborish", query: { maqola: article.id } }}
               className={buttonClass("primary", "md", "mt-4")}
             >
-              {t("continueDraft")}
+              {t("status.continueDraft")}
             </Link>
           ) : article.status === "AWAITING_PAYMENT" ? (
             <Link
@@ -182,10 +182,10 @@ export async function ArticleStatusCard({ article }: { article: MyArticle }) {
             <p className="mt-3 text-sm text-text-2">
               {article.reviews[0]?.dueAt
                 ? t("expected", { date: formatDate(article.reviews[0].dueAt, locale) })
-                : t("underReviewNext")}
+                : t("status.underReviewNext")}
             </p>
           ) : article.status === "ACCEPTED" ? (
-            <p className="mt-3 text-sm text-text-2">{t("acceptedNext")}</p>
+            <p className="mt-3 text-sm text-text-2">{t("status.acceptedNext")}</p>
           ) : null}
         </>
       )}
