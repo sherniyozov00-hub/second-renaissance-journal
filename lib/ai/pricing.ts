@@ -16,6 +16,11 @@ export type UsageLike = {
   output_tokens?: number | null;
   cache_creation_input_tokens?: number | null;
   cache_read_input_tokens?: number | null;
+  /** Cache writes by TTL: 5-minute entries cost 1.25× input, 1-hour entries 2×. */
+  cache_creation?: {
+    ephemeral_5m_input_tokens?: number | null;
+    ephemeral_1h_input_tokens?: number | null;
+  } | null;
   server_tool_use?: { web_search_requests?: number | null } | null;
 };
 
@@ -28,11 +33,18 @@ export function spendOf(model: string, u: UsageLike | null | undefined): Spend {
   const p = PRICES[model] ?? PRICES["claude-opus-5-5"]!;
   const input = u.input_tokens ?? 0;
   const created = u.cache_creation_input_tokens ?? 0;
+  const created1h = u.cache_creation?.ephemeral_1h_input_tokens ?? 0;
+  const created5m = Math.max(0, created - created1h);
   const read = u.cache_read_input_tokens ?? 0;
   const output = u.output_tokens ?? 0;
   const searches = u.server_tool_use?.web_search_requests ?? 0;
   const cost =
-    (input * p.input + created * p.input * 1.25 + read * p.cacheRead + output * p.output) / 1e6 +
+    (input * p.input +
+      created5m * p.input * 1.25 +
+      created1h * p.input * 2 +
+      read * p.cacheRead +
+      output * p.output) /
+      1e6 +
     searches * WEB_SEARCH_PER_REQUEST;
   return {
     tokensIn: input + created + read,

@@ -8,6 +8,7 @@ import {
 import { Field, PageTitle, StatCard, input, panel, select, td, th } from "@/components/admin/ui";
 import { buttonClass } from "@/components/ui/styles";
 import type { AiKnowledge } from "@/generated/prisma/client";
+import { MentorEvalSection } from "@/components/admin/mentor-eval";
 import { requireEditor } from "@/lib/admin/auth";
 import { aiMode } from "@/lib/ai/client";
 import { db } from "@/lib/db";
@@ -107,7 +108,7 @@ export default async function AiAdminPage({
 }: {
   searchParams: Promise<{ natija?: string }>;
 }) {
-  await requireEditor("/admin/xorazmiy-ai");
+  const staff = await requireEditor("/admin/xorazmiy-ai");
   const { natija } = await searchParams;
   const monthStart = new Date();
   monthStart.setUTCDate(1);
@@ -146,7 +147,7 @@ export default async function AiAdminPage({
           )}
         >
           {t(
-            `res_${["xato", "namuna", "ochirildi"].includes(natija) ? natija : "saqlandi"}` as "res_saqlandi",
+            `res_${["xato", "namuna", "ochirildi", "sinov", "band"].includes(natija) ? natija : "saqlandi"}` as "res_saqlandi",
           )}
         </p>
       ) : null}
@@ -166,6 +167,11 @@ export default async function AiAdminPage({
         />
         <StatCard label={t("knowledgeCount")} value={knowledge.filter((k) => k.active).length} />
       </div>
+
+      <MentorEvalSection
+        live={(await aiMode()) === "live"}
+        isAdmin={staff.roles.includes("ADMIN")}
+      />
 
       <section className={cn(panel, "mt-6 overflow-x-auto")}>
         <table className="w-full min-w-[560px]">

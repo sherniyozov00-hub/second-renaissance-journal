@@ -68,6 +68,31 @@ test.describe("Xorazmiy AI (Ekran 3)", () => {
       await expect(cta).toHaveAttribute("href", "/kabinet/ai-paket");
     });
 
+    test("“Imlo va tinish belgilari” fixes exact errors in the editor (no AI)", async ({
+      page,
+    }) => {
+      await page.goto("/kabinet/yozish");
+      await page.getByLabel("Maqola mavzusi").fill("E2E: imlo tekshiruvi");
+      await page.getByRole("button", { name: "Yaratish" }).click();
+      await page.waitForURL(/\/kabinet\/yozish\/.+/);
+      const editor = page.locator(".ai-editor");
+      await editor.click();
+      await page.keyboard.press("Control+End");
+      await page.keyboard.type("Tadqiqot 2018 yilda boshlandi , malumotlar 5 sentyabrda yig‘ildi.");
+      await page.getByRole("button", { name: "Imlo va tinish belgilari" }).click();
+      await expect(
+        page
+          .getByText("“2018 yilda”")
+          .or(page.getByText("2018 yilda", { exact: true }))
+          .first(),
+      ).toBeVisible();
+      await page.getByRole("button", { name: /Aniq xatolarni tuzatish/ }).click();
+      await expect(editor).toContainText("2018-yilda boshlandi, maʼlumotlar 5-sentabrda");
+      await expect(
+        page.getByText("Mexanik imlo va tinish belgisi xatosi topilmadi."),
+      ).toBeVisible();
+    });
+
     test("“Tekshirib ber” finds a percentage that the sample cannot give", async ({ page }) => {
       await page.goto("/kabinet/yozish");
       await page.getByLabel("Maqola mavzusi").fill("E2E: so‘rovnoma tekshiruvi");

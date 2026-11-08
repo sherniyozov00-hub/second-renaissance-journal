@@ -110,3 +110,53 @@ export async function deleteKnowledgeAction(form: FormData) {
   });
   done("ochirildi");
 }
+
+/**
+ * Xorazmiy Ustoz evaluation (admin only): runs the fixed cases against the
+ * live model in the background and stores the run as an AiCheck (model
+ * "eval"), so its cost is counted with the month's AI spend.
+ */
+export async function startMentorEvalAction() {
+  const user = await staffOrThrow(["ADMIN"]);
+  // One run at a time; a run older than 20 minutes is treated as dead.
+  const running = await db.aiCheck.findFirst({
+    where: { type: "MENTOR", model: "eval", createdAt: { gt: new Date(Date.now() - 20 * 60_000) } },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, result: true },
+  });
+  if (running && (running.result as { status?: string } | null)?.status === "running") done("band");
+  const row = await db.aiCheck.create({
+    data: {
+      type: "MENTOR",
+      model: "eval",
+      inputHash: `eval-${Date.now()}`,
+      userId: user.id,
+      result: { status: "running", at: new Date().toISOString() },
+    },
+    select: { id: true },
+  });
+  void (async () => {
+    try {
+      const { runMentorEval } = await import("@/lib/ai/mentor-eval");
+      const run = await runMentorEval({
+        userId: user.id,
+        draftId: null,
+        articleId: null,
+        lang: "uz",
+      });
+      await db.aiCheck.update({
+        where: { id: row.id },
+        data: {
+          result: { status: "done", ...run } as unknown as Prisma.InputJsonValue,
+          cost: run.cost,
+        },
+      });
+    } catch (e) {
+      await db.aiCheck.update({
+        where: { id: row.id },
+        data: { result: { status: "error", error: e instanceof Error ? e.message : "error" } },
+      });
+    }
+  })();
+  done("sinov");
+}

@@ -904,6 +904,17 @@
         "next": "Bu bosqichni tugatdim deb o‘ylayman. Keyingi bosqichga o‘tamiz.",
         "example": "Shu bosqich uchun qisqa namuna ko‘rsating, keyin o‘zim yozib ko‘raman."
       }
+    },
+    "toolSpelling": "Imlo va tinish belgilari",
+    "lint": {
+      "title": "Imlo va tinish belgilari",
+      "intro": "Kod rasmiy imlo qoidalari (Vazirlar Mahkamasining 1995-yil 339-son qarori) va tinish belgilari qoidalari bo‘yicha aniq tekshiradi: lotin so‘z ichidagi kirill harflar, oʻ/gʻ belgisi, tutuq belgisi, tartib sonlar (1991-yil, 1-sentabr), bo‘sh joylar, qavs va qo‘shtirnoqlar. Bepul, AI ishlatilmaydi. Kelishik, vergul o‘rni va uslubni “Tekshirib ber” va Ustoz ko‘radi.",
+      "recheck": "Qayta tekshirish",
+      "fixAll": "Aniq xatolarni tuzatish ({count})",
+      "clean": "Mexanik imlo va tinish belgisi xatosi topilmadi.",
+      "found": "Topildi: {count}",
+      "show": "Matnda ko‘rsatish",
+      "fix": "Tuzatish"
     }
   },
   "ranking": {
@@ -1306,7 +1317,28 @@
       "colContent": "Mazmun",
       "isExample": "namuna",
       "promote": "Namunaga aylantirish",
-      "noFeedback": "Hali fikr yo‘q."
+      "noFeedback": "Hali fikr yo‘q.",
+      "res_sinov": "Ustoz sinovi boshlandi. 3–6 daqiqadan keyin sahifani yangilang.",
+      "res_band": "Sinov allaqachon ishlayapti — tugashini kuting.",
+      "eval": {
+        "title": "Xorazmiy Ustoz sinovi",
+        "lead": "20 ta tayyor vaziyat (foiz xatosi, “kirishni yozib bering”, tutuq belgisi, vergul, shablon xulosa, yangi alifbo, xotira va boshqalar) Ustozga yuboriladi va har bir javob kod bilan tekshiriladi. Haqiqiy AI kaliti bilan ishlaydi; bir sinov taxminan $0.20–0.50 turadi.",
+        "mockNote": "AI kaliti ulanmagan — sinov sinov rejimidagi javoblarni tekshiradi, natija haqiqiy emas.",
+        "run": "Sinovni boshlash",
+        "running": "Sinov ishlayapti…",
+        "runningHint": "Sinov orqa fonda ishlayapti (3–6 daqiqa). Sahifani keyinroq yangilang.",
+        "error": "Sinov xato bilan tugadi",
+        "summary": "Vaziyatlar: {passed}/{total} to‘liq o‘tdi · tekshiruvlar: {checks}/{checksTotal}",
+        "pass": "O‘tdi",
+        "fail": "O‘tmadi",
+        "message": "Muallif",
+        "stage": "Bosqich",
+        "notes": "Xotira daftari",
+        "never": "Sinov hali o‘tkazilmagan."
+      },
+      "f_EDITOR_BRIEF": "Muharrir brifi",
+      "f_REVIEW": "Tekshirib ber",
+      "f_MENTOR": "Xorazmiy Ustoz"
     },
     "review": {
       "mine": "Menga biriktirilgan maqolalar",

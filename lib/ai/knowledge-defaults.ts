@@ -1,5 +1,6 @@
 import type { AiKnowledgeKind, ArticleType } from "@/generated/prisma/client";
 import { KNOWLEDGE_GUIDES } from "./knowledge-guides";
+import { KNOWLEDGE_UZBEK } from "./knowledge-uzbek";
 
 /**
  * Starting knowledge base for Xorazmiy AI (stage 6 "training"). The seed writes
@@ -209,6 +210,7 @@ Reja:
 Namuna jumla (Kirish uchun): “O‘zbekistonda sug‘oriladigan yerlarning … foizida suv tanqisligi kuzatilmoqda [manba].” — raqamni manbadan o‘zingiz qo‘ying.`,
   },
   ...KNOWLEDGE_GUIDES,
+  ...KNOWLEDGE_UZBEK,
 ];
 
 /** Labels for the article types, used in prompts. */
