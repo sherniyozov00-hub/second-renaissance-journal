@@ -53,6 +53,18 @@ describe("Uzbek text checks (code, exact rules)", () => {
     expect(ids("Said Sanatovich sanatoriyda")).toEqual([]);
   });
 
+  it("follows rules 55 and 60: -mi together, hech/har/bir/u/bu/shu apart", () => {
+    expect(fix("Natija to‘g‘ri chiqdi mi?", "mi-particle")).toBe("mi");
+    expect(ids("Natija to‘g‘ri chiqdimi?")).toEqual([]);
+    expect(ids("keldi-mi")).toContain("mi-particle");
+    expect(fix("Harbir yosh uchun", "separate-words")).toBe("Har bir");
+    expect(fix("turistlar uyerga keladi", "separate-words")).toBe("u yerga");
+    expect(fix("hechqanday farq yo‘q", "separate-words")).toBe("hech qanday");
+    expect(fix("birxil natija", "separate-words")).toBe("bir xil");
+    // Written together by the rules: biroz, birmuncha, qayerda; harakat is another word.
+    expect(ids("biroz, birmuncha, qayerda, harakat, harbiy, bunday, shunday")).toEqual([]);
+  });
+
   it("flags repeated words, dashes and unbalanced pairs", () => {
     expect(fix("Shu o‘rinda o‘rinda muhim", "repeated-word")).toBe("o‘rinda");
     expect(ids("tez-tez va asta-sekin")).toEqual([]);

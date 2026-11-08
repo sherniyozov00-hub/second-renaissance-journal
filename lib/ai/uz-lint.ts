@@ -359,6 +359,44 @@ function pairs(text: string): LintIssue[] {
   return out;
 }
 
+/** -mi is written together with the word before it: keldimi? (rule 55). */
+const miParticle: Check = (text) =>
+  all(/(?<=\p{L})(?:-| )mi(?=[?\s.,!]|$)/u, text)
+    // " mi " between words can be a plain word in other languages; only before "?".
+    .filter((m) => m[0].startsWith("-") || text[m.index + m[0].length] === "?")
+    .map((m) =>
+      issue(
+        "mi-particle",
+        "error",
+        m,
+        "-mi yuklamasi oldingi so‘zga qo‘shib yoziladi: “keldimi?”.",
+        "mi",
+        "Imlo qoidalari, 55-band",
+      ),
+    );
+
+/** hech, har, bir, u, bu, shu are written apart from the next word (rule 60). */
+const SEPARATE: [RegExp, string][] = [
+  [/\b(hech)(kim|nima|narsa|qanday|qaysi|qachon|qayer|bir)(\p{L}*)/iu, "$1 $2$3"],
+  [/\b(har)(kim|bir|qanday|qaysi|doim|xil|tomon)(\p{L}*)/iu, "$1 $2$3"],
+  [/\b(hamma)(vaqt|joy)(\p{L}*)/iu, "$1 $2$3"],
+  [/\b(bir)(xil|necha)(\p{L}*)/iu, "$1 $2$3"],
+  [/\b(u|bu|shu|o[‘ʻ']sha)(yer|yoq)(da|dan|ga|gacha|dagi|ni|ning)?\b/iu, "$1 $2$3"],
+];
+const separateWords: Check = (text) =>
+  SEPARATE.flatMap(([re, rep]) =>
+    all(re, text).map((m) =>
+      issue(
+        "separate-words",
+        "error",
+        m,
+        `Ajratib yoziladi: “${m[0].replace(re, rep)}”.`,
+        m[0].replace(re, rep),
+        "Imlo qoidalari, 60-band",
+      ),
+    ),
+  );
+
 const CHECKS: Check[] = [
   mixedScript,
   okinaShape,
@@ -371,6 +409,8 @@ const CHECKS: Check[] = [
   romanHyphen,
   monthSpelling,
   missingTutuq,
+  miParticle,
+  separateWords,
   hyphenAsDash,
   pairs,
 ];
